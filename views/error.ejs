@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <!-- Mobile Web-app fullscreen -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <!-- Meta tags -->
+    <meta name="description" content="Error page - Full Moon Hotels">
+    <meta name="author" content="Full Moon Hotels">
+    <link rel="icon" href="favicon.ico">
+
+    <!--Title-->
+    <title><%= title || 'Error - Full Moon Hotels' %></title>
+
+    <!--CSS styles-->
+    <link rel="stylesheet" media="all" href="/css/bootstrap.css" />
+    <link rel="stylesheet" media="all" href="/css/animate.css" />
+    <link rel="stylesheet" media="all" href="/css/font-awesome.css" />
+    <link rel="stylesheet" media="all" href="/css/linear-icons.css" />
+    <link rel="stylesheet" media="all" href="/css/hotel-icons.css" />
+    <link rel="stylesheet" media="all" href="/css/magnific-popup.css" />
+    <link rel="stylesheet" media="all" href="/css/owl.carousel.css" />
+    <link rel="stylesheet" media="all" href="/css/datepicker.css" />
+    <link rel="stylesheet" media="all" href="/css/theme.css" />
+
+    <!--Google fonts-->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,500&amp;subset=latin-ext" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Playfair+Display:400,700&amp;subset=latin-ext" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+    <div class="page-loader"></div>
+
+    <div class="wrapper">
+
+        
+
+        <!-- ======================== Main Content ======================== -->
+
+        <section class="page">
+
+            <!-- === Page header === -->
+            <div class="page-header" style="background-image:url(/assets/images/header-1.jpg)">
+                <div class="container">
+                    <h2 class="title">Error</h2>
+                    <p>We apologize for the inconvenience</p>
+                </div>
+            </div>
+
+            <!-- === Error Content === -->
+            <div class="container mt-5 mb-5">
+                <div class="row">
+                    <div class="col-md-8 mx-auto text-center">
+                        <div class="error-icon mb-4">
+                            <i class="fa fa-exclamation-triangle fa-5x text-warning"></i>
+                        </div>
+                        <h1 class="display-4 text-muted mb-3">Oops!</h1>
+                        <h2 class="mb-4 text-dark"><%= error %></h2>
+                        <p class="lead mb-4">We're sorry, but something went wrong. Our team has been notified and we're working to fix the issue.</p>
+                        
+                        <div class="error-actions mt-5">
+                            <a href="/" class="btn btn-main btn-lg mr-3">
+                                <i class="fa fa-home"></i> Go Home
+                            </a>
+                            <a href="/contact" class="btn btn-clean-dark btn-lg">
+                                <i class="fa fa-phone"></i> Contact Support
+                            </a>
+                        </div>
+
+                        <!-- Additional help links -->
+                        <div class="mt-5">
+                            <p class="text-muted">You can also:</p>
+                            <div class="row justify-content-center">
+                                <div class="col-md-4">
+                                    <a href="/rooms" class="btn btn-outline-primary btn-block mb-2">
+                                        <i class="fa fa-bed"></i> Browse Rooms
+                                    </a>
+                                </div>
+                                <div class="col-md-4">
+                                    <a href="/facilities" class="btn btn-outline-primary btn-block mb-2">
+                                        <i class="fa fa-star"></i> View Facilities
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ======================== Subscribe ======================== -->
+
+        <section class="subscribe">
+            <div class="container">
+                <div class="box">
+                    <h2 class="title">Stay Updated</h2>
+                    <div class="text">
+                        <p>Subscribe to receive exclusive deals & promotions</p>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" value="" placeholder="Your email" class="form-control" />
+                        <button class="btn btn-sm btn-main">Subscribe</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        
+
+    </div> <!--/wrapper-->
+
+    <!--JS files-->
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery-ui.js"></script>
+    <script src="/js/jquery.bootstrap.js"></script>
+    <script src="/js/jquery.magnific-popup.js"></script>
+    <script src="/js/jquery.owl.carousel.js"></script>
+    <script src="/js/main.js"></script>
+
+    <style>
+        .error-icon {
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        .error-actions .btn {
+            min-width: 180px;
+        }
+    </style>
+</body>
+
+</html>

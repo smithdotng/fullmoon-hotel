@@ -1,0 +1,88 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><%= room ? 'Edit Room' : 'Add New Room' %></h1>
+    <a href="/admin/rooms" class="btn btn-secondary">Back to Rooms</a>
+</div>
+
+<% if (messages.error) { %>
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <%= messages.error %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+<% } %>
+
+<form action="<%= room ? `/admin/rooms/update/${room._id}` : '/admin/rooms' %>" 
+      method="POST" 
+      enctype="multipart/form-data"
+      class="row g-3">
+    
+    <div class="col-md-6">
+        <label for="roomNumber" class="form-label">Room Number *</label>
+        <input type="text" class="form-control" id="roomNumber" name="roomNumber" 
+               value="<%= room ? room.roomNumber : '' %>" required>
+    </div>
+
+    <div class="col-md-6">
+        <label for="type" class="form-label">Room Type *</label>
+        <select class="form-select" id="type" name="type" required>
+            <option value="">Select Room Type</option>
+            <option value="Annex Room" <%= room && room.type === 'Annex Room' ? 'selected' : '' %>>Annex Room</option>
+            <option value="Premiere Room" <%= room && room.type === 'Premiere Room' ? 'selected' : '' %>>Premiere Room</option>
+            <option value="Deluxe Room" <%= room && room.type === 'Deluxe Room' ? 'selected' : '' %>>Deluxe Room</option>
+            <option value="Executive Room" <%= room && room.type === 'Executive Room' ? 'selected' : '' %>>Executive Room</option>
+            <option value="Penthouse Single Suite" <%= room && room.type === 'Penthouse Single Suite' ? 'selected' : '' %>>Penthouse Single Suite</option>
+            <option value="Penthouse Double Suite" <%= room && room.type === 'Penthouse Double Suite' ? 'selected' : '' %>>Penthouse Double Suite</option>
+        </select>
+    </div>
+
+    <div class="col-md-6">
+        <label for="price" class="form-label">Price per Night (₦) *</label>
+        <input type="number" class="form-control" id="price" name="price" 
+               value="<%= room ? room.price : '' %>" step="0.01" min="0" required>
+    </div>
+
+    <div class="col-md-6">
+        <label for="available" class="form-label">Availability</label>
+        <select class="form-select" id="available" name="available">
+            <option value="true" <%= room && room.available ? 'selected' : '' %>>Available</option>
+            <option value="false" <%= room && !room.available ? 'selected' : '' %>>Occupied</option>
+        </select>
+    </div>
+
+    <div class="col-12">
+        <label for="description" class="form-label">Description</label>
+        <textarea class="form-control" id="description" name="description" rows="3"><%= room ? room.description : '' %></textarea>
+    </div>
+
+    <div class="col-12">
+        <label for="amenities" class="form-label">Amenities (comma separated)</label>
+        <input type="text" class="form-control" id="amenities" name="amenities" 
+               value="<%= room ? room.amenities.join(', ') : '' %>" 
+               placeholder="WiFi, Air Conditioning, TV, Mini Bar, etc.">
+    </div>
+
+    <div class="col-12">
+        <label for="images" class="form-label">Room Images</label>
+        <input type="file" class="form-control" id="images" name="images" multiple accept="image/*">
+        <div class="form-text">You can select multiple images. Maximum file size: 5MB each.</div>
+        
+        <% if (room && room.images && room.images.length > 0) { %>
+        <div class="mt-3">
+            <h6>Current Images:</h6>
+            <div class="row">
+                <% room.images.forEach(image => { %>
+                <div class="col-md-2 mb-2">
+                    <img src="<%= image %>" class="img-thumbnail" style="height: 100px; object-fit: cover;">
+                </div>
+                <% }) %>
+            </div>
+        </div>
+        <% } %>
+    </div>
+
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">
+            <%= room ? 'Update Room' : 'Create Room' %>
+        </button>
+        <a href="/admin/rooms" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>

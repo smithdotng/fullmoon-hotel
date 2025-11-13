@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <!-- Mobile Web-app fullscreen -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <!-- Meta tags -->
+    <meta name="description" content="Full Moon Hotels - Luxury hotel in Owerri with premium amenities">
+    <meta name="author" content="Full Moon Hotels">
+    <link rel="icon" href="favicon.ico">
+
+    <!--Title-->
+    <title><%= title || 'Full Moon Hotels - Luxury Accommodation in Owerri' %></title>
+
+    <!--CSS styles-->
+    <link rel="stylesheet" media="all" href="/css/bootstrap.css" />
+    <link rel="stylesheet" media="all" href="/css/animate.css" />
+    <link rel="stylesheet" media="all" href="/css/font-awesome.css" />
+    <link rel="stylesheet" media="all" href="/css/linear-icons.css" />
+    <link rel="stylesheet" media="all" href="/css/hotel-icons.css" />
+    <link rel="stylesheet" media="all" href="/css/magnific-popup.css" />
+    <link rel="stylesheet" media="all" href="/css/owl.carousel.css" />
+    <link rel="stylesheet" media="all" href="/css/datepicker.css" />
+    <link rel="stylesheet" media="all" href="/css/theme.css" />
+
+    <!--Google fonts-->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,500&amp;subset=latin-ext" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Playfair+Display:400,700&amp;subset=latin-ext" rel="stylesheet">
+</head>
+
+<body>
+    <div class="page-loader"></div>
+    <div class="wrapper">
+        <header>
+            <!-- Navigation -->
+            <div class="container">
+                <!-- Top navigation -->
+                <nav class="navigation-top clearfix">
+                    <div class="navigation-top-left">
+                        <a class="box" href="#">
+                            <i class="fa fa-facebook"></i>
+                        </a>
+                        <a class="box" href="#">
+                            <i class="fa fa-twitter"></i>
+                        </a>
+                        <a class="box" href="#">
+                            <i class="fa fa-instagram"></i>
+                        </a>
+                    </div>
+
+                    <div class="navigation-top-right">
+                        <a class="box" href="#">
+                            <i class="icon icon-star"></i> 
+                            Special offers
+                        </a>
+                        <a class="box" href="/rooms">
+                            <i class="icon icon-tag"></i> 
+                            Reservations
+                        </a>
+                        <a class="box" href="#">
+                            <i class="icon icon-phone-handset"></i> 
+                            +234 803 123 4567
+                        </a>
+                    </div>
+                </nav>
+
+                <!-- Main navigation -->
+                <nav class="navigation-main clearfix">
+                    <div class="logo animated fadeIn">
+                        <a href="/">
+                            <img class="logo-desktop" src="/assets/images/logo.png" alt="Full Moon Hotels" />
+                            <img class="logo-mobile" src="/assets/images/logo-mobile.png" alt="Full Moon Hotels" />
+                        </a>
+                    </div>
+
+                    <div class="toggle-menu"><i class="icon icon-menu"></i></div>
+
+                    <div class="navigation-block clearfix">
+                        <ul class="navigation-left">
+                            <li>
+                                <a href="/">Home</a>
+                            </li>
+                            <li>
+                                <a href="/rooms">Rooms <span class="open-dropdown"><i class="fa fa-angle-down"></i></span></a>
+                                <ul>
+                                    <li><a href="/rooms">All Room Types</a></li>
+                                    <li><a href="/rooms/category/Annex">Annex Room</a></li>
+                                    <li><a href="/rooms/category/Premiere">Premiere Room</a></li>
+                                    <li><a href="/rooms/category/Deluxe">Deluxe Room</a></li>
+                                    <li><a href="/rooms/category/Executive">Executive Room</a></li>
+                                    <li><a href="/rooms/category/Penthouse">Penthouse Suites</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="/facilities">Facilities</a>
+                            </li>
+                        </ul>
+
+                        <ul class="navigation-right">
+                            <li>
+                                <a href="/menu">Dining</a>
+                            </li>
+                            <li>
+                                <a href="/about">About</a>
+                            </li>
+                            <li>
+                                <a href="/contact">Contact</a>
+                            </li>
+                            <% if (user) { %>
+                                <li>
+                                    <a href="/admin">Admin</a>
+                                </li>
+                                <li>
+                                    <a href="/logout">Logout</a>
+                                </li>
+                            <% } else { %>
+                                <li>
+                                    <a href="/login">Login</a>
+                                </li>
+                            <% } %>
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+        </header>
+
+        <%- body %>
+
+        <!-- Footer -->
+        <footer>
+            <div class="container">
+                <!--footer links-->
+                <div class="footer-links">
+                    <div class="row">
+                        <div class="col-sm-6 footer-left">
+                            <a href="#">Sitemap</a> &nbsp; | &nbsp; <a href="#">Privacy policy</a> | &nbsp; <a href="#">Careers</a>
+                        </div>
+                        <div class="col-sm-6 footer-right">
+                            <a href="#">Gallery</a> &nbsp; | &nbsp; <a href="/rooms">Reservations</a> | &nbsp; <a href="/contact">Contact Us</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!--footer social-->
+                <div class="footer-social">
+                    <div class="row">
+                        <div class="col-sm-12 text-center hidden">
+                            <a href="/" class="footer-logo"><img src="/assets/images/logo.png" alt="Full Moon Hotels" /></a>
+                        </div>
+                        <div class="col-sm-12 icons">
+                            <ul>
+                                <li><a href="#"><i class="fa fa-facebook"></i></a></li>
+                                <li><a href="#"><i class="fa fa-twitter"></i></a></li>
+                                <li><a href="#"><i class="fa fa-instagram"></i></a></li>
+                                <li><a href="#"><i class="fa fa-youtube"></i></a></li>
+                                <li><a href="#"><i class="fa fa-linkedin"></i></a></li>
+                            </ul>
+                        </div>
+                        <div class="col-sm-12 copyright">
+                            <small>Copyright &copy; 2025 Full Moon Hotels &nbsp; | &nbsp; All Rights Reserved</small>
+                        </div>
+                        <div class="col-sm-12 text-center">
+                            <img src="/assets/images/logo.png" alt="Full Moon Hotels" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!--JS files-->
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery-ui.js"></script>
+    <script src="/js/jquery.bootstrap.js"></script>
+    <script src="/js/jquery.magnific-popup.js"></script>
+    <script src="/js/jquery.owl.carousel.js"></script>
+    <script src="/js/main.js"></script>
+</body>
+</html>

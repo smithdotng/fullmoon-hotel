@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <!-- Mobile Web-app fullscreen -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <!-- Meta tags -->
+    <meta name="description" content="Confirm your booking at Full Moon Hotels - Luxury accommodation in Owerri">
+    <meta name="author" content="Full Moon Hotels">
+    <link rel="icon" href="/favicon.ico">
+
+    <!--Title-->
+    <title>Booking Confirmation - Full Moon Hotels | Luxury Accommodation in Owerri</title>
+
+    <!--CSS styles-->
+    <link rel="stylesheet" media="all" href="/css/bootstrap.css" />
+    <link rel="stylesheet" media="all" href="/css/animate.css" />
+    <link rel="stylesheet" media="all" href="/css/font-awesome.css" />
+    <link rel="stylesheet" media="all" href="/css/linear-icons.css" />
+    <link rel="stylesheet" media="all" href="/css/hotel-icons.css" />
+    <link rel="stylesheet" media="all" href="/css/magnific-popup.css" />
+    <link rel="stylesheet" media="all" href="/css/owl.carousel.css" />
+    <link rel="stylesheet" media="all" href="/css/datepicker.css" />
+    <link rel="stylesheet" media="all" href="/css/theme.css" />
+
+    <!--Google fonts-->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,500&amp;subset=latin-ext" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Playfair+Display:400,700&amp;subset=latin-ext" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+    <div class="page-loader"></div>
+
+    <div class="wrapper">
+
+        <header>
+
+            <!-- ======================== Navigation ======================== -->
+
+            <div class="container">
+
+                <!-- === navigation-top === -->
+
+                <nav class="navigation-top clearfix">
+
+                    <!-- navigation-top-left -->
+
+                    <div class="navigation-top-left">
+                        <a class="box" href="#">
+                            <i class="fa fa-facebook"></i>
+                        </a>
+                        <a class="box" href="#">
+                            <i class="fa fa-twitter"></i>
+                        </a>
+                        <a class="box" href="#">
+                            <i class="fa fa-instagram"></i>
+                        </a>
+                    </div>
+
+                    <!-- navigation-top-right -->
+
+                    <div class="navigation-top-right">
+                        <a class="box" href="#">
+                            <i class="icon icon-star"></i> 
+                            Special offers
+                        </a>
+                        <a class="box" href="/rooms">
+                            <i class="icon icon-tag"></i> 
+                            Reservations
+                        </a>
+                        <a class="box" href="#">
+                            <i class="icon icon-phone-handset"></i> 
+                            +234 803 123 4567
+                        </a>
+                    </div>
+                </nav>
+
+                <!-- === navigation-main === -->
+
+                <nav class="navigation-main clearfix">
+
+                    <!-- logo -->
+
+                    <div class="logo animated fadeIn">
+                        <a href="/">
+                            <img class="logo-desktop" src="/assets/images/logo.png" alt="Full Moon Hotels" />
+                            <img class="logo-mobile" src="/assets/images/logo-mobile.png" alt="Full Moon Hotels" />
+                        </a>
+                    </div>
+
+                    <!-- toggle-menu -->
+
+                    <div class="toggle-menu"><i class="icon icon-menu"></i></div>
+
+                    <!-- navigation-block -->
+
+                    <div class="navigation-block clearfix">
+
+                        <!-- navigation-left -->
+
+                        <ul class="navigation-left">
+                            <li>
+                                <a href="/">Home</a>
+                            </li>
+                            <li>
+                                <a href="/rooms" class="active">Rooms <span class="open-dropdown"><i class="fa fa-angle-down"></i></span></a>
+                                <ul>
+                                    <li><a href="/rooms">All Room Types</a></li>
+                                    <li><a href="/rooms/category/Annex">Annex Room</a></li>
+                                    <li><a href="/rooms/category/Premiere">Premiere Room</a></li>
+                                    <li><a href="/rooms/category/Deluxe">Deluxe Room</a></li>
+                                    <li><a href="/rooms/category/Executive">Executive Room</a></li>
+                                    <li><a href="/rooms/category/Penthouse">Penthouse Suites</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="/facilities">Facilities</a>
+                            </li>
+                        </ul>
+
+                        <!-- navigation-right -->
+
+                        <ul class="navigation-right">
+                            <li>
+                                <a href="/menu">Dining</a>
+                            </li>
+                            <li>
+                                <a href="/blog">Blog</a>
+                            </li>
+                            <li>
+                                <a href="/about">About</a>
+                            </li>
+                            <li>
+                                <a href="/contact">Contact</a>
+                            </li>
+                            <% if (user) { %>
+                                <li>
+                                    <a href="/admin">Admin</a>
+                                </li>
+                                <li>
+                                    <a href="/logout">Logout</a>
+                                </li>
+                            <% } else { %>
+                                <li>
+                                    <a href="/login">Login</a>
+                                </li>
+                            <% } %>
+                        </ul>
+
+                    </div> <!--/navigation-block-->
+
+                </nav>
+            </div> <!--/container-->
+
+        </header>
+
+        <!-- ========================  Checkout ======================== -->
+
+        <section class="page">
+
+            <!-- ===  Page header === -->
+
+            <div class="page-header" style="background-image:url(/assets/images/header-1.jpg)">
+                <div class="container">
+                    <h2 class="title">Confirm your reservation</h2>
+                    <p>Guest information</p>
+                </div>
+            </div>
+
+            <!-- ===  Step wrapper === -->
+
+            <div class="step-wrapper">
+                <div class="container">
+                    <div class="stepper">
+                        <ul class="row">
+                            <li class="col-md-4 active">
+                                <a href="/rooms"><span data-text="Room & rates"></span></a>
+                            </li>
+                            <li class="col-md-4 active">
+                                <a href="#"><span data-text="Reservation"></span></a>
+                            </li>
+                            <li class="col-md-4">
+                                <a href="#"><span data-text="Confirmation"></span></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===  Checkout === -->
+
+            <div class="checkout">
+
+                <div class="container">
+
+                    <div class="clearfix">
+
+                        <!-- ========================  Note block ======================== -->
+
+                        <div class="cart-wrapper">
+
+                            <div class="note-block">
+
+                                <div class="row">
+
+                                    <!-- === left content === -->
+
+                                    <div class="col-md-8">
+
+                                        <!-- Guest Information Form -->
+                                        <div class="white-block">
+                                            <div class="h4">Guest Information</div>
+                                            <hr />
+
+                                            <!-- Flash Messages -->
+                                            <% if (messages.error) { %>
+                                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                                    <%= messages.error %>
+                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            <% } %>
+                                            <% if (messages.success) { %>
+                                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                                    <%= messages.success %>
+                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            <% } %>
+
+                                            <form action="/rooms/confirm-booking" method="POST">
+                                                <input type="hidden" name="roomId" value="<%= room._id %>">
+                                                <input type="hidden" name="checkIn" value="<%= checkIn %>">
+                                                <input type="hidden" name="checkOut" value="<%= checkOut %>">
+                                                <input type="hidden" name="guests" value="<%= guests %>">
+
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                                                            <input type="text" name="guestName" class="form-control" required placeholder="e.g. John Doe">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label class="form-label">Email <span class="text-danger">*</span></label>
+                                                            <input type="email" name="guestEmail" class="form-control" required placeholder="john@example.com">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label class="form-label">Phone <span class="text-danger">*</span></label>
+                                                            <input type="text" name="guestPhone" class="form-control" required placeholder="+234 800 000 0000">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <hr />
+                                                        <div class="text-center">
+                                                            <button type="submit" class="btn btn-main btn-lg">
+                                                                <i class="fa fa-check mr-2"></i> Confirm & Book (No Login Required)
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+
+                                        <!-- Important Information -->
+                                        <div class="white-block mt-4">
+                                            <div class="h4">Important Information</div>
+                                            <hr />
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <ul class="list-unstyled">
+                                                        <li class="mb-2"><i class="fa fa-check text-success mr-2"></i>Free cancellation up to 24 hours before check-in</li>
+                                                        <li class="mb-2"><i class="fa fa-check text-success mr-2"></i>Present ID at check-in</li>
+                                                        <li class="mb-2"><i class="fa fa-check text-success mr-2"></i>Early check-in available upon request</li>
+                                                    </ul>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <ul class="list-unstyled">
+                                                        <li class="mb-2"><i class="fa fa-clock-o text-primary mr-2"></i>Check-in: 2:00 PM</li>
+                                                        <li class="mb-2"><i class="fa fa-clock-o text-primary mr-2"></i>Check-out: 12:00 PM</li>
+                                                        <li class="mb-2"><i class="fa fa-phone text-primary mr-2"></i>Contact: +234 803 123 4567</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div> <!--/col-md-8-->
+
+                                    <!-- === right content === -->
+
+                                    <div class="col-md-4">
+
+                                        <!-- Booking Summary -->
+                                        <div class="white-block">
+                                            <div class="h4">Booking Summary</div>
+                                            <hr />
+
+                                            <!-- Room Details -->
+                                            <div class="cart-block cart-block-item clearfix">
+                                                <div class="image">
+                                                    <a href="/rooms/<%= room._id %>">
+                                                        <% if (room.images && room.images.length > 0) { %>
+                                                            <img src="<%= room.images[0] %>" alt="<%= room.type %>" />
+                                                        <% } else { %>
+                                                            <img src="/assets/images/room-default.jpg" alt="<%= room.type %>" />
+                                                        <% } %>
+                                                    </a>
+                                                </div>
+                                                <div class="title">
+                                                    <div class="h4"><a href="/rooms/<%= room._id %>"><%= room.type %></a></div>
+                                                    <div>
+                                                        <strong>Room Number:</strong> <%= room.roomNumber %>
+                                                    </div>
+                                                    <div>
+                                                        <strong>Check-in:</strong> <%= new Date(checkIn).toLocaleDateString() %>
+                                                    </div>
+                                                    <div>
+                                                        <strong>Check-out:</strong> <%= new Date(checkOut).toLocaleDateString() %>
+                                                    </div>
+                                                    <div>
+                                                        <strong>Guests:</strong> <%= guests %>
+                                                    </div>
+                                                    <div>
+                                                        <strong>Nights:</strong> <%= nights %>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Price Breakdown -->
+                                            <div class="clearfix mt-4">
+                                                <div class="cart-block cart-block-footer clearfix">
+                                                    <div>
+                                                        <strong>Room Rate (₦<%= room.price.toLocaleString() %> × <%= nights %> nights)</strong>
+                                                    </div>
+                                                    <div>
+                                                        <span>₦<%= (room.price * nights).toLocaleString() %></span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="cart-block cart-block-footer clearfix">
+                                                    <div>
+                                                        <strong>Service Charge</strong>
+                                                    </div>
+                                                    <div>
+                                                        <span>₦0</span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="cart-block cart-block-footer clearfix">
+                                                    <div>
+                                                        <strong>Taxes & Fees</strong>
+                                                    </div>
+                                                    <div>
+                                                        <span>Included</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Final Price -->
+                                            <div class="clearfix">
+                                                <div class="cart-block cart-block-footer cart-block-footer-price clearfix">
+                                                    <div>
+                                                        <strong>Total Amount</strong>
+                                                    </div>
+                                                    <div>
+                                                        <div class="h2 title">₦<%= totalAmount.toLocaleString() %></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div> <!--/col-md-4-->
+
+                                </div> <!--/row-->
+                            </div> <!--/note-block-->
+                        </div> <!--/cart-wrapper-->
+
+                        <!-- ========================  Cart navigation ======================== -->
+
+                        <div class="clearfix">
+                            <div class="cart-block cart-block-footer cart-block-footer-price clearfix">
+                                <div>
+                                    <a href="/rooms" class="btn btn-clean-dark">
+                                        <span class="icon icon-chevron-left"></span> Back to Rooms
+                                    </a>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block mb-2">Best Rate Guaranteed</small>
+                                    <a href="/contact" class="btn btn-main">Need Help? Contact Us</a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div> <!--/clearfix-->
+
+                </div> <!--/container-->
+            </div> <!--/checkout-->
+
+        </section>
+
+        <!-- ========================  Subscribe ======================== -->
+
+        <section class="subscribe">
+            <div class="container">
+                <div class="box">
+                    <h2 class="title">Special Offers</h2>
+                    <div class="text">
+                        <p>Subscribe to receive exclusive deals & promotions</p>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" value="" placeholder="Your email" class="form-control" />
+                        <button class="btn btn-sm btn-main">Subscribe</button>
+                    </div>
+                </div>
+            </div>
+        </section> 
+
+        <!-- ================== Footer  ================== -->
+
+        <footer>
+            <div class="container">
+
+                <!--footer links-->
+                <div class="footer-links">
+                    <div class="row">
+                        <div class="col-sm-6 footer-left">
+                            <a href="#">Sitemap</a> &nbsp; | &nbsp; <a href="#">Privacy policy</a> | &nbsp; <a href="#">Careers</a>
+                        </div>
+                        <div class="col-sm-6 footer-right">
+                            <a href="#">Gallery</a> &nbsp; | &nbsp; <a href="/rooms">Reservations</a> | &nbsp; <a href="/contact">Contact Us</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!--footer social-->
+
+                <div class="footer-social">
+                    <div class="row">
+                        <div class="col-sm-12 text-center hidden">
+                            <a href="/" class="footer-logo"><img src="/assets/images/logo.png" alt="Full Moon Hotels" /></a>
+                        </div>
+                        <div class="col-sm-12 icons">
+                            <ul>
+                                <li><a href="#"><i class="fa fa-facebook"></i></a></li>
+                                <li><a href="#"><i class="fa fa-twitter"></i></a></li>
+                                <li><a href="#"><i class="fa fa-instagram"></i></a></li>
+                                <li><a href="#"><i class="fa fa-youtube"></i></a></li>
+                                <li><a href="#"><i class="fa fa-linkedin"></i></a></li>
+                            </ul>
+                        </div>
+                        <div class="col-sm-12 copyright">
+                            <small>Copyright &copy; 2025 Full Moon Hotels &nbsp; | &nbsp; All Rights Reserved</small>
+                        </div>
+                        <div class="col-sm-12 text-center">
+                            <img src="/assets/images/logo.png" alt="Full Moon Hotels" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+    </div> <!--/wrapper-->
+
+    <!--JS files-->
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery-ui.js"></script>
+    <script src="/js/jquery.bootstrap.js"></script>
+    <script src="/js/jquery.magnific-popup.js"></script>
+    <script src="/js/jquery.owl.carousel.js"></script>
+    <script src="/js/main.js"></script>
+
+    <style>
+        .white-block {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .cart-block-item .image img {
+            width: 100px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: block;
+        }
+        .btn-lg {
+            padding: 12px 30px;
+            font-size: 16px;
+        }
+        .list-unstyled li {
+            padding: 5px 0;
+        }
+    </style>
+</body>
+
+</html>

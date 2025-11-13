@@ -1,0 +1,114 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><%= blog ? 'Edit Blog Post' : 'Add New Blog Post' %></h1>
+    <a href="/admin/blog" class="btn btn-secondary">Back to Blog</a>
+</div>
+
+<% if (messages.error) { %>
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <%= messages.error %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+<% } %>
+
+<form action="<%= blog ? `/admin/blog/update/${blog._id}` : '/admin/blog' %>" 
+      method="POST" 
+      enctype="multipart/form-data"
+      class="row g-3">
+    
+    <div class="col-12">
+        <label for="title" class="form-label">Title *</label>
+        <input type="text" class="form-control" id="title" name="title" 
+               value="<%= blog ? blog.title : '' %>" required>
+    </div>
+
+    <div class="col-md-6">
+        <label for="category" class="form-label">Category *</label>
+        <select class="form-select" id="category" name="category" required>
+            <option value="">Select Category</option>
+            <option value="Hotel News" <%= blog && blog.category === 'Hotel News' ? 'selected' : '' %>>Hotel News</option>
+            <option value="Travel Tips" <%= blog && blog.category === 'Travel Tips' ? 'selected' : '' %>>Travel Tips</option>
+            <option value="Local Attractions" <%= blog && blog.category === 'Local Attractions' ? 'selected' : '' %>>Local Attractions</option>
+            <option value="Business Travel" <%= blog && blog.category === 'Business Travel' ? 'selected' : '' %>>Business Travel</option>
+            <option value="Special Offers" <%= blog && blog.category === 'Special Offers' ? 'selected' : '' %>>Special Offers</option>
+            <option value="Events" <%= blog && blog.category === 'Events' ? 'selected' : '' %>>Events</option>
+        </select>
+    </div>
+
+    <div class="col-md-6">
+        <label for="author" class="form-label">Author</label>
+        <input type="text" class="form-control" id="author" name="author" 
+               value="<%= blog ? blog.author : 'Administrator' %>">
+    </div>
+
+    <div class="col-12">
+        <label for="excerpt" class="form-label">Excerpt</label>
+        <textarea class="form-control" id="excerpt" name="excerpt" rows="3" 
+                  placeholder="Brief description of the blog post"><%= blog ? blog.excerpt : '' %></textarea>
+    </div>
+
+    <div class="col-12">
+        <label for="content" class="form-label">Content *</label>
+        <textarea class="form-control" id="content" name="content" rows="10" required
+                  placeholder="Full blog post content"><%= blog ? blog.content : '' %></textarea>
+    </div>
+
+    <div class="col-12">
+        <label for="tags" class="form-label">Tags (comma separated)</label>
+        <input type="text" class="form-control" id="tags" name="tags" 
+               value="<%= blog ? blog.tags.join(', ') : '' %>" 
+               placeholder="travel, hotel, luxury, business, etc.">
+    </div>
+
+    <div class="col-12">
+        <label for="featuredImage" class="form-label">Featured Image</label>
+        <input type="file" class="form-control" id="featuredImage" name="featuredImage" accept="image/*">
+        <div class="form-text">Recommended size: 1200x630px. Maximum file size: 5MB.</div>
+        
+        <% if (blog && blog.featuredImage) { %>
+        <div class="mt-3">
+            <h6>Current Featured Image:</h6>
+            <img src="<%= blog.featuredImage %>" class="img-thumbnail" style="max-height: 200px;">
+        </div>
+        <% } %>
+    </div>
+
+    <div class="col-md-6">
+        <label for="published" class="form-label">Status</label>
+        <select class="form-select" id="published" name="published">
+            <option value="true" <%= blog && blog.published ? 'selected' : '' %>>Published</option>
+            <option value="false" <%= blog && !blog.published ? 'selected' : '' %>>Draft</option>
+        </select>
+    </div>
+
+    <div class="col-md-6">
+        <label for="featured" class="form-label">Featured Post</label>
+        <select class="form-select" id="featured" name="featured">
+            <option value="false" <%= blog && !blog.featured ? 'selected' : '' %>>No</option>
+            <option value="true" <%= blog && blog.featured ? 'selected' : '' %>>Yes</option>
+        </select>
+    </div>
+
+    <div class="col-12">
+        <h5>SEO Settings</h5>
+    </div>
+
+    <div class="col-12">
+        <label for="metaTitle" class="form-label">Meta Title</label>
+        <input type="text" class="form-control" id="metaTitle" name="metaTitle" 
+               value="<%= blog ? blog.metaTitle : '' %>" 
+               placeholder="Optional - defaults to blog title">
+    </div>
+
+    <div class="col-12">
+        <label for="metaDescription" class="form-label">Meta Description</label>
+        <textarea class="form-control" id="metaDescription" name="metaDescription" rows="3"
+                  placeholder="Optional - brief description for search engines"><%= blog ? blog.metaDescription : '' %></textarea>
+    </div>
+
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">
+            <%= blog ? 'Update Blog Post' : 'Create Blog Post' %>
+        </button>
+        <a href="/admin/blog" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>

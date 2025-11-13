@@ -1,0 +1,246 @@
+
+
+   <!-- ========================  Rooms ======================== -->
+
+        <section class="page">
+
+            <!-- ========================  Page header ======================== -->
+
+            <div class="page-header" style="background-image:url(/assets/images/header-1.jpg)">
+                <div class="container">
+                    <h2 class="title">Rooms & Suites</h2>
+                    <p>Luxury accommodation for business and leisure</p>
+                </div>
+            </div>
+
+            <!-- === rooms content === -->
+
+            <div class="rooms rooms-category">
+                <div class="container">
+
+                    <div class="row">
+                        <% if (rooms && rooms.length > 0) { %>
+                            <% rooms.forEach((room, index) => { %>
+                                <!-- === rooms item === -->
+                                <div class="col-sm-6 col-md-<%= index < 2 ? '6' : '4' %>">
+                                    <div class="item">
+                                        <article>
+                                            <div class="image">
+                                                <% if (room.images && room.images.length > 0) { %>
+                                                    <img src="<%= room.images[0] %>" alt="<%= room.type %>" />
+                                                <% } else { %>
+                                                    <img src="/assets/images/room-default.jpg" alt="<%= room.type %>" />
+                                                <% } %>
+                                            </div>
+                                            <div class="details">
+                                                <div class="text">
+                                                    <h2 class="title"><a href="/rooms/<%= room._id %>"><%= room.type %></a></h2>
+                                                    <p><%= room.description || 'Luxurious accommodation with premium amenities' %></p>
+                                                </div>
+                                                <div class="book">
+                                                    <div>
+                                                        <a href="/rooms/<%= room._id %>" class="btn btn-main">View Details</a>
+                                                    </div>
+                                                    <div>
+                                                        <span class="price h2">₦ <%= room.price.toLocaleString() %></span>
+                                                        <span>per night</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </article>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        <% } else { %>
+                            <!-- No rooms available -->
+                            <div class="col-12 text-center py-5">
+                                <i class="fa fa-bed fa-4x text-muted mb-3"></i>
+                                <h3 class="text-muted">No Rooms Available</h3>
+                                <p class="text-muted">We're currently updating our room inventory. Please check back later.</p>
+                                <a href="/" class="btn btn-main mt-3">Return to Home</a>
+                            </div>
+                        <% } %>
+                    </div>
+
+                </div> <!--/container-->
+            </div>
+        </section>
+
+        <!-- ========================  Stretcher widget ======================== -->
+
+        <section class="stretcher-wrapper">
+
+            <!-- === stretcher header === -->
+
+            <div class="section-header">
+                <div class="container">
+                    <h2 class="title">Hotel Facilities <a href="/facilities" class="btn btn-sm btn-clean-dark">Explore more</a></h2>
+                    <p>
+                        Premium amenities for business and leisure travelers
+                    </p>
+                </div>
+            </div>
+
+            <!-- === stretcher === -->
+
+            <ul class="stretcher">
+
+                <!-- === stretcher item === -->
+
+                <li class="stretcher-item" style="background-image:url(/assets/images/facility-dining.jpg);">
+                    <!--logo-item-->
+                    <div class="stretcher-logo">
+                        <div class="text">
+                            <span class="text-intro h4">Fine Dining</span>
+                        </div>
+                    </div>
+                    <!--main text-->
+                    <figure>
+                        <h4>Fine Dining</h4>
+                        <figcaption>Exquisite culinary experiences</figcaption>
+                    </figure>
+                    <!--anchor-->
+                    <a href="/menu">Anchor link</a>
+                </li>
+
+                <!-- === stretcher item === -->
+
+                <li class="stretcher-item" style="background-image:url(/assets/images/facility-business.jpg);">
+                    <!--logo-item-->
+                    <div class="stretcher-logo">
+                        <div class="text">
+                            <span class="text-intro h4">Business Center</span>
+                        </div>
+                    </div>
+                    <!--main text-->
+                    <figure>
+                        <h4>Business Center</h4>
+                        <figcaption>Fully equipped for business needs</figcaption>
+                    </figure>
+                    <!--anchor-->
+                    <a href="/facilities">Anchor link</a>
+                </li>
+
+                <!-- === stretcher item === -->
+
+                <li class="stretcher-item" style="background-image:url(/assets/images/facility-spa.jpg);">
+                    <!--logo-item-->
+                    <div class="stretcher-logo">
+                        <div class="text">
+                            <span class="text-intro h4">Spa & Wellness</span>
+                        </div>
+                    </div>
+                    <figure>
+                        <h4>Spa & Wellness</h4>
+                        <figcaption>Relaxation and rejuvenation</figcaption>
+                    </figure>
+                    <!--anchor-->
+                    <a href="/facilities">Anchor link</a>
+                </li>
+
+                <!-- === stretcher item === -->
+
+                <li class="stretcher-item" style="background-image:url(/assets/images/facility-event.jpg);">
+                    <!--logo-item-->
+                    <div class="stretcher-logo">
+                        <div class="text">
+                            <span class="text-intro h4">Event Spaces</span>
+                        </div>
+                    </div>
+                    <!--main text-->
+                    <figure>
+                        <h4>Event Spaces</h4>
+                        <figcaption>Elegant venues for special occasions</figcaption>
+                    </figure>
+                    <!--anchor-->
+                    <a href="/facilities">Anchor link</a>
+                </li>
+
+                <!-- === stretcher item more === -->
+
+                <li class="stretcher-item more">
+                    <div class="more-icon">
+                        <span data-title-show="Show more" data-title-hide="+"></span>
+                    </div>
+                    <a href="/facilities">Anchor link</a>
+                </li>
+
+            </ul>
+        </section>
+
+        <!-- ========================  Cards ======================== -->
+
+        <section class="cards">
+
+            <!-- === cards header === -->
+
+            <div class="section-header">
+                <div class="container">
+                    <h2 class="title">Penthouse Suites <a href="/rooms/category/Penthouse" class="btn btn-sm btn-clean-dark">View all</a></h2>
+                    <p>Our most luxurious accommodations with premium amenities</p>
+                </div>
+            </div>
+
+            <div class="container">
+                <div class="row">
+
+                    <!-- === item === -->
+
+                    <div class="col-xs-12 col-md-8">
+                        <figure>
+                            <figcaption style="background-image:url(/assets/images/room-penthouse-single.jpg)">
+                                <img src="/assets/images/room-penthouse-single.jpg" alt="Single Penthouse Suite" />
+                            </figcaption>
+                            <a href="/rooms/category/Penthouse" class="btn btn-clean">Single Penthouse</a>
+                        </figure>
+                    </div>
+
+                    <!-- === item === -->
+
+                    <div class="col-xs-6 col-md-4">
+                        <figure>
+                            <figcaption style="background-image:url(/assets/images/room-penthouse-double.jpg)">
+                                <img src="/assets/images/room-penthouse-double.jpg" alt="Double Penthouse Suite" />
+                            </figcaption>
+                            <a href="/rooms/category/Penthouse" class="btn btn-clean">Double Penthouse</a>
+                        </figure>
+                    </div>
+
+                    <!-- === item === -->
+
+                    <div class="col-xs-6 col-md-4">
+                        <figure>
+                            <figcaption style="background-image:url(/assets/images/suite-living.jpg)">
+                                <img src="/assets/images/suite-living.jpg" alt="Suite Living Area" />
+                            </figcaption>
+                            <a href="/rooms/category/Penthouse" class="btn btn-clean">All Suites</a>
+                        </figure>
+                    </div>
+
+                    <!-- === item === -->
+
+                    <div class="col-xs-6 col-md-4">
+                        <figure>
+                            <figcaption style="background-image:url(/assets/images/suite-dining.jpg)">
+                                <img src="/assets/images/suite-dining.jpg" alt="Suite Dining" />
+                            </figcaption>
+                            <a href="/menu" class="btn btn-clean">In-Room Dining</a>
+                        </figure>
+                    </div>
+
+                    <!-- === item === -->
+
+                    <div class="col-xs-6 col-md-4">
+                        <figure>
+                            <figcaption style="background-image:url(/assets/images/suite-bathroom.jpg)">
+                                <img src="/assets/images/suite-bathroom.jpg" alt="Suite Bathroom" />
+                            </figcaption>
+                            <a href="/rooms/category/Penthouse" class="btn btn-clean">Luxury Bathrooms</a>
+                        </figure>
+                    </div>
+
+                </div> <!--/row-->
+
+            </div> <!--/container-->
+        </section>
+
