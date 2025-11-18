@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head', {title: title, description: description}) %>
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <main class="main-content">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h1>My Facility Bookings</h1>
+                    
+                    <% if (bookings.length === 0) { %>
+                        <div class="alert alert-info">
+                            <p>You haven't made any facility bookings yet.</p>
+                            <a href="/facilities" class="btn btn-main">Explore Facilities</a>
+                        </div>
+                    <% } else { %>
+                        <div class="bookings-list">
+                            <% bookings.forEach(booking => { %>
+                                <div class="booking-card card mb-4">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <h4 class="card-title"><%= booking.facilityName %></h4>
+                                                <p class="card-text">
+                                                    <strong>Date & Time:</strong> <%= booking.formattedDateTime %><br>
+                                                    <strong>Duration:</strong> <%= booking.duration %> hour(s)<br>
+                                                    <% if (booking.guests > 1) { %>
+                                                        <strong>Guests:</strong> <%= booking.guests %><br>
+                                                    <% } %>
+                                                    <strong>Total Amount:</strong> ₦<%= booking.totalAmount %><br>
+                                                    <strong>Status:</strong> 
+                                                    <span class="badge badge-<%= 
+                                                        booking.status === 'confirmed' ? 'success' : 
+                                                        booking.status === 'cancelled' ? 'danger' : 
+                                                        booking.status === 'completed' ? 'info' : 'warning' 
+                                                    %>">
+                                                        <%= booking.status.charAt(0).toUpperCase() + booking.status.slice(1) %>
+                                                    </span><br>
+                                                    <strong>Booking Reference:</strong> <%= booking.bookingReference %>
+                                                </p>
+                                                <% if (booking.specialRequests) { %>
+                                                    <p class="card-text">
+                                                        <strong>Special Requests:</strong> <%= booking.specialRequests %>
+                                                    </p>
+                                                <% } %>
+                                            </div>
+                                            <div class="col-md-4 text-right">
+                                                <% if (booking.status === 'confirmed' && booking.canBeCancelled()) { %>
+                                                    <form action="/facilities/cancel-booking/<%= booking._id %>" method="POST" class="d-inline">
+                                                        <button type="submit" class="btn btn-danger" 
+                                                                onclick="return confirm('Are you sure you want to cancel this booking?')">
+                                                            Cancel Booking
+                                                        </button>
+                                                    </form>
+                                                <% } %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+</body>
+</html>

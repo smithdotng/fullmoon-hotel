@@ -1,0 +1,224 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Manage Facility Bookings</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="/admin/facilities/stats" class="btn btn-sm btn-outline-primary">
+                <i class="fa fa-chart-bar me-1"></i>View Statistics
+            </a>
+            <a href="/admin/facilities/calendar" class="btn btn-sm btn-outline-secondary">
+                <i class="fa fa-calendar me-1"></i>Calendar View
+            </a>
+            <a href="/admin" class="btn btn-sm btn-outline-dark">
+                <i class="fa fa-dashboard me-1"></i>Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<% if (messages.success) { %>
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <%= messages.success %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+<% } %>
+
+<% if (messages.error) { %>
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <%= messages.error %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+<% } %>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">All Facility Bookings</h5>
+    </div>
+    <div class="card-body">
+        <% if (facilities && facilities.length > 0) { %>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Booking ID</th>
+                            <th>Facility</th>
+                            <th>Customer</th>
+                            <th>Date & Time</th>
+                            <th>Duration</th>
+                            <th>Guests</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% facilities.forEach(booking => { %>
+                        <tr>
+                            <td>
+                                <small class="text-muted">#<%= booking._id.toString().slice(-6).toUpperCase() %></small>
+                            </td>
+                            <td>
+                                <strong><%= booking.facilityName %></strong>
+                                <% if (booking.specialRequests) { %>
+                                    <br>
+                                    <small class="text-muted" title="<%= booking.specialRequests %>">
+                                        <i class="fa fa-info-circle"></i> Special requests
+                                    </small>
+                                <% } %>
+                            </td>
+                            <td>
+                                <% if (booking.user && booking.user.name) { %>
+                                    <%= booking.user.name %>
+                                    <br>
+                                    <small class="text-muted"><%= booking.user.email %></small>
+                                <% } else { %>
+                                    <span class="text-muted">Guest</span>
+                                <% } %>
+                            </td>
+                            <td>
+                                <%= booking.bookingDate %>
+                                <br>
+                                <small class="text-muted"><%= booking.bookingTime %></small>
+                            </td>
+                            <td><%= booking.duration %> hour(s)</td>
+                            <td><%= booking.guests %></td>
+                            <td>
+                                <strong>₦<%= booking.totalAmount %></strong>
+                            </td>
+                            <td>
+                                <form action="/admin/facilities/update-status/<%= booking._id %>" method="POST" class="d-inline">
+                                    <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                                        <option value="pending" <%= booking.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                                        <option value="confirmed" <%= booking.status === 'confirmed' ? 'selected' : '' %>>Confirmed</option>
+                                        <option value="cancelled" <%= booking.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+                                        <option value="completed" <%= booking.status === 'completed' ? 'selected' : '' %>>Completed</option>
+                                    </select>
+                                </form>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button type="button" class="btn btn-outline-primary" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#bookingModal<%= booking._id %>">
+                                        <i class="fa fa-eye"></i>
+                                    </button>
+                                    <form action="/admin/facilities/delete/<%= booking._id %>" method="POST" class="d-inline">
+                                        <button type="submit" class="btn btn-outline-danger" 
+                                                onclick="return confirm('Are you sure you want to delete this booking?')">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <!-- Booking Details Modal -->
+                                <div class="modal fade" id="bookingModal<%= booking._id %>" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Booking Details</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-6">
+                                                        <strong>Facility:</strong>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <%= booking.facilityName %>
+                                                    </div>
+                                                </div>
+                                                <div class="row mt-2">
+                                                    <div class="col-6">
+                                                        <strong>Booking Date:</strong>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <%= booking.bookingDate %> at <%= booking.bookingTime %>
+                                                    </div>
+                                                </div>
+                                                <div class="row mt-2">
+                                                    <div class="col-6">
+                                                        <strong>Duration:</strong>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <%= booking.duration %> hour(s)
+                                                    </div>
+                                                </div>
+                                                <div class="row mt-2">
+                                                    <div class="col-6">
+                                                        <strong>Guests:</strong>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <%= booking.guests %>
+                                                    </div>
+                                                </div>
+                                                <div class="row mt-2">
+                                                    <div class="col-6">
+                                                        <strong>Total Amount:</strong>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        ₦<%= booking.totalAmount %>
+                                                    </div>
+                                                </div>
+                                                <% if (booking.specialRequests) { %>
+                                                <div class="row mt-2">
+                                                    <div class="col-6">
+                                                        <strong>Special Requests:</strong>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <%= booking.specialRequests %>
+                                                    </div>
+                                                </div>
+                                                <% } %>
+                                                <div class="row mt-2">
+                                                    <div class="col-6">
+                                                        <strong>Status:</strong>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <span class="badge 
+                                                            <%= booking.status === 'confirmed' ? 'bg-success' : 
+                                                                booking.status === 'pending' ? 'bg-warning' : 
+                                                                booking.status === 'cancelled' ? 'bg-danger' : 'bg-secondary' %>">
+                                                            <%= booking.status %>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="row mt-2">
+                                                    <div class="col-6">
+                                                        <strong>Booked On:</strong>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <%= new Date(booking.createdAt).toLocaleDateString() %>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        <% } else { %>
+            <div class="text-center py-5">
+                <i class="fa fa-calendar-times fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">No Facility Bookings</h4>
+                <p class="text-muted">There are no facility bookings to display.</p>
+                <a href="/admin" class="btn btn-primary">Return to Dashboard</a>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<style>
+.table-responsive {
+    font-size: 0.875rem;
+}
+.form-select-sm {
+    width: auto;
+    min-width: 120px;
+}
+</style>

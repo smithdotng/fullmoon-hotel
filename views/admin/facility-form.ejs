@@ -1,0 +1,213 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><%= title %></h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="/admin/facilities-config" class="btn btn-sm btn-outline-secondary">
+            <i class="fa fa-arrow-left me-1"></i>Back to Facilities
+        </a>
+    </div>
+</div>
+
+<% if (messages.error) { %>
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <%= messages.error %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+<% } %>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Facility Details</h5>
+    </div>
+    <div class="card-body">
+        <form action="<%= facility ? `/admin/facilities-config/update/${facility._id}` : '/admin/facilities-config' %>" 
+              method="POST" enctype="multipart/form-data">
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Facility Name *</label>
+                        <input type="text" class="form-control" id="name" name="name" 
+                               value="<%= facility ? facility.name : '' %>" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="type" class="form-label">Facility Type *</label>
+                        <select class="form-select" id="type" name="type" required>
+                            <option value="">Select Type</option>
+                            <option value="dining" <%= facility && facility.type === 'dining' ? 'selected' : '' %>>Dining</option>
+                            <option value="wellness" <%= facility && facility.type === 'wellness' ? 'selected' : '' %>>Wellness</option>
+                            <option value="business" <%= facility && facility.type === 'business' ? 'selected' : '' %>>Business</option>
+                            <option value="recreation" <%= facility && facility.type === 'recreation' ? 'selected' : '' %>>Recreation</option>
+                            <option value="entertainment" <%= facility && facility.type === 'entertainment' ? 'selected' : '' %>>Entertainment</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="shortDescription" class="form-label">Short Description</label>
+                <textarea class="form-control" id="shortDescription" name="shortDescription" 
+                          rows="2" maxlength="150" placeholder="Brief description (max 150 characters)"><%= facility ? facility.shortDescription : '' %></textarea>
+                <div class="form-text">This will be displayed in facility cards.</div>
+            </div>
+
+            <div class="mb-3">
+                <label for="description" class="form-label">Full Description *</label>
+                <textarea class="form-control" id="description" name="description" 
+                          rows="4" required placeholder="Detailed description of the facility"><%= facility ? facility.description : '' %></textarea>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="capacity" class="form-label">Capacity *</label>
+                        <input type="number" class="form-control" id="capacity" name="capacity" 
+                               value="<%= facility ? facility.capacity : '' %>" min="1" required>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="operatingHours" class="form-label">Operating Hours *</label>
+                        <input type="text" class="form-control" id="operatingHours" name="operatingHours" 
+                               value="<%= facility ? facility.operatingHours : '' %>" 
+                               placeholder="e.g., 9:00 AM - 6:00 PM" required>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="pricePerHour" class="form-label">Price per Hour (₦)</label>
+                        <input type="number" class="form-control" id="pricePerHour" name="pricePerHour" 
+                               value="<%= facility ? facility.pricePerHour : '0' %>" min="0" step="0.01">
+                        <div class="form-text">Set to 0 for free facilities</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="location" class="form-label">Location</label>
+                        <input type="text" class="form-control" id="location" name="location" 
+                               value="<%= facility ? facility.location : '' %>" 
+                               placeholder="e.g., Ground Floor, West Wing">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="image" class="form-label">Facility Image</label>
+                        <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                        <% if (facility && facility.image) { %>
+                            <div class="mt-2">
+                                <img src="<%= facility.image %>" alt="Current image" 
+                                     style="max-width: 200px; max-height: 150px; border-radius: 4px;">
+                                <div class="form-text">Current image</div>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="amenities" class="form-label">Amenities</label>
+                        <textarea class="form-control" id="amenities" name="amenities" 
+                                  rows="3" placeholder="Enter amenities separated by commas"><%= facility && facility.amenities ? facility.amenities.join(', ') : '' %></textarea>
+                        <div class="form-text">e.g., WiFi, Air Conditioning, Parking, etc.</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="rules" class="form-label">Rules & Policies</label>
+                        <textarea class="form-control" id="rules" name="rules" 
+                                  rows="3" placeholder="Enter rules separated by commas"><%= facility && facility.rules ? facility.rules.join(', ') : '' %></textarea>
+                        <div class="form-text">e.g., No smoking, Reservation required, etc.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="contactPhone" class="form-label">Contact Phone</label>
+                        <input type="tel" class="form-control" id="contactPhone" name="contactPhone" 
+                               value="<%= facility && facility.contactInfo ? facility.contactInfo.phone : '' %>">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="contactEmail" class="form-label">Contact Email</label>
+                        <input type="email" class="form-control" id="contactEmail" name="contactEmail" 
+                               value="<%= facility && facility.contactInfo ? facility.contactInfo.email : '' %>">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="bookable" name="bookable" 
+                               value="true" <%= facility && facility.bookable ? 'checked' : '' %>>
+                        <label class="form-check-label" for="bookable">Bookable</label>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="requiresGuests" name="requiresGuests" 
+                               value="true" <%= facility && facility.requiresGuests ? 'checked' : '' %>>
+                        <label class="form-check-label" for="requiresGuests">Requires Guests</label>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="featured" name="featured" 
+                               value="true" <%= facility && facility.featured ? 'checked' : '' %>>
+                        <label class="form-check-label" for="featured">Featured</label>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="available" name="available" 
+                               value="true" <%= !facility || facility.available ? 'checked' : '' %>>
+                        <label class="form-check-label" for="available">Available</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" id="guestsSection" style="display: <%= facility && facility.requiresGuests ? 'block' : 'none' %>;">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="maxGuests" class="form-label">Maximum Guests</label>
+                        <input type="number" class="form-control" id="maxGuests" name="maxGuests" 
+                               value="<%= facility ? facility.maxGuests : '1' %>" min="1">
+                        <div class="form-text">Maximum number of guests allowed</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="/admin/facilities-config" class="btn btn-secondary me-md-2">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    <%= facility ? 'Update Facility' : 'Create Facility' %>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const requiresGuestsCheckbox = document.getElementById('requiresGuests');
+    const guestsSection = document.getElementById('guestsSection');
+
+    requiresGuestsCheckbox.addEventListener('change', function() {
+        guestsSection.style.display = this.checked ? 'block' : 'none';
+    });
+
+    // Initialize guests section based on current state
+    if (requiresGuestsCheckbox.checked) {
+        guestsSection.style.display = 'block';
+    }
+});
+</script>

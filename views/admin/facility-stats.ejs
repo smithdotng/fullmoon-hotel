@@ -1,0 +1,178 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Facility Booking Statistics</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="/admin/facilities" class="btn btn-sm btn-outline-primary">
+                <i class="fa fa-list me-1"></i>All Bookings
+            </a>
+            <a href="/admin/facilities/calendar" class="btn btn-sm btn-outline-secondary">
+                <i class="fa fa-calendar me-1"></i>Calendar View
+            </a>
+            <a href="/admin" class="btn btn-sm btn-outline-dark">
+                <i class="fa fa-dashboard me-1"></i>Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Total Bookings</h5>
+                        <h2 class="card-text"><%= totalBookings || 0 %></h2>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fa fa-calendar fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Confirmed</h5>
+                        <h2 class="card-text"><%= confirmedBookings || 0 %></h2>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fa fa-check-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Cancelled</h5>
+                        <h2 class="card-text"><%= cancelledBookings || 0 %></h2>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fa fa-times-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Total Revenue</h5>
+                        <h2 class="card-text">₦<%= (totalRevenue || 0).toLocaleString() %></h2>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fa fa-money fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Popular Facilities -->
+<div class="row mt-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Most Popular Facilities</h5>
+            </div>
+            <div class="card-body">
+                <% if (popularFacilities && popularFacilities.length > 0) { %>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Facility</th>
+                                    <th>Total Bookings</th>
+                                    <th>Total Revenue</th>
+                                    <th>Average per Booking</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% popularFacilities.forEach(facility => { %>
+                                <tr>
+                                    <td>
+                                        <strong><%= facility._id %></strong>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary"><%= facility.count %></span>
+                                    </td>
+                                    <td>
+                                        <strong>₦<%= facility.revenue.toLocaleString() %></strong>
+                                    </td>
+                                    <td>
+                                        ₦<%= Math.round(facility.revenue / facility.count).toLocaleString() %>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                <% } else { %>
+                    <div class="text-center py-4">
+                        <i class="fa fa-chart-bar fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No facility booking data available yet</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Booking Status Distribution</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-center">
+                    <div style="width: 200px; height: 200px;">
+                        <!-- Simple status visualization -->
+                        <div class="text-center">
+                            <div class="mb-3">
+                                <span class="badge bg-success me-2">Confirmed: <%= confirmedBookings || 0 %></span>
+                            </div>
+                            <div class="mb-3">
+                                <span class="badge bg-warning me-2">Pending: <%= (totalBookings - confirmedBookings - cancelledBookings - completedBookings) || 0 %></span>
+                            </div>
+                            <div class="mb-3">
+                                <span class="badge bg-danger me-2">Cancelled: <%= cancelledBookings || 0 %></span>
+                            </div>
+                            <div class="mb-3">
+                                <span class="badge bg-info me-2">Completed: <%= completedBookings || 0 %></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="/admin/facilities" class="btn btn-outline-primary">
+                        <i class="fa fa-list me-2"></i>Manage All Bookings
+                    </a>
+                    <a href="/admin/facilities/calendar" class="btn btn-outline-secondary">
+                        <i class="fa fa-calendar me-2"></i>View Calendar
+                    </a>
+                    <a href="/admin" class="btn btn-outline-dark">
+                        <i class="fa fa-dashboard me-2"></i>Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

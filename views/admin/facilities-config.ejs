@@ -1,0 +1,188 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Manage Facilities</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="/admin/facilities-config/add" class="btn btn-sm btn-primary">
+                <i class="fa fa-plus me-1"></i>Add New Facility
+            </a>
+            <a href="/admin/facilities" class="btn btn-sm btn-outline-secondary">
+                <i class="fa fa-calendar me-1"></i>View Bookings
+            </a>
+            <a href="/admin" class="btn btn-sm btn-outline-dark">
+                <i class="fa fa-dashboard me-1"></i>Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<% if (messages.success) { %>
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <%= messages.success %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+<% } %>
+
+<% if (messages.error) { %>
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <%= messages.error %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+<% } %>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">All Facilities</h5>
+    </div>
+    <div class="card-body">
+        <% if (facilities && facilities.length > 0) { %>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Image</th>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Capacity</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Features</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% facilities.forEach(facility => { %>
+                        <tr>
+                            <td>
+                                <img src="<%= facility.image %>" alt="<%= facility.name %>" 
+                                     style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">
+                            </td>
+                            <td>
+                                <strong><%= facility.name %></strong>
+                                <br>
+                                <small class="text-muted"><%= facility.shortDescription || facility.description.slice(0, 50) %>...</small>
+                            </td>
+                            <td>
+                                <span class="badge 
+                                    <%= facility.type === 'dining' ? 'bg-primary' : 
+                                        facility.type === 'wellness' ? 'bg-success' : 
+                                        facility.type === 'business' ? 'bg-info' : 
+                                        facility.type === 'recreation' ? 'bg-warning' : 'bg-secondary' %>">
+                                    <%= facility.type %>
+                                </span>
+                            </td>
+                            <td><%= facility.capacity %> people</td>
+                            <td>
+                                <% if (facility.pricePerHour > 0) { %>
+                                    <strong>₦<%= facility.pricePerHour %></strong>/hour
+                                <% } else { %>
+                                    <span class="text-muted">Free</span>
+                                <% } %>
+                            </td>
+                            <td>
+                                <span class="badge <%= facility.available ? 'bg-success' : 'bg-danger' %>">
+                                    <%= facility.available ? 'Available' : 'Unavailable' %>
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-wrap gap-1">
+                                    <% if (facility.bookable) { %>
+                                        <span class="badge bg-primary" title="Bookable">
+                                            <i class="fa fa-calendar"></i>
+                                        </span>
+                                    <% } %>
+                                    <% if (facility.featured) { %>
+                                        <span class="badge bg-warning" title="Featured">
+                                            <i class="fa fa-star"></i>
+                                        </span>
+                                    <% } %>
+                                    <% if (facility.requiresGuests) { %>
+                                        <span class="badge bg-info" title="Requires Guests">
+                                            <i class="fa fa-users"></i>
+                                        </span>
+                                    <% } %>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="/admin/facilities-config/edit/<%= facility._id %>" 
+                                       class="btn btn-outline-primary">
+                                        <i class="fa fa-edit"></i>
+                                    </a>
+                                    <form action="/admin/facilities-config/toggle-status/<%= facility._id %>" 
+                                          method="POST" class="d-inline">
+                                        <button type="submit" class="btn <%= facility.available ? 'btn-outline-warning' : 'btn-outline-success' %>"
+                                                title="<%= facility.available ? 'Deactivate' : 'Activate' %>">
+                                            <i class="fa <%= facility.available ? 'fa-eye-slash' : 'fa-eye' %>"></i>
+                                        </button>
+                                    </form>
+                                    <form action="/admin/facilities-config/delete/<%= facility._id %>" 
+                                          method="POST" class="d-inline">
+                                        <button type="submit" class="btn btn-outline-danger"
+                                                onclick="return confirm('Are you sure you want to delete this facility? This action cannot be undone.')">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        <% } else { %>
+            <div class="text-center py-5">
+                <i class="fa fa-building fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">No Facilities Configured</h4>
+                <p class="text-muted">Get started by adding your first facility.</p>
+                <a href="/admin/facilities-config/add" class="btn btn-primary">
+                    <i class="fa fa-plus me-2"></i>Add Your First Facility
+                </a>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card bg-light">
+            <div class="card-body text-center">
+                <h3 class="text-primary"><%= facilities ? facilities.length : 0 %></h3>
+                <p class="text-muted mb-0">Total Facilities</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-light">
+            <div class="card-body text-center">
+                <h3 class="text-success"><%= facilities ? facilities.filter(f => f.available).length : 0 %></h3>
+                <p class="text-muted mb-0">Available</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-light">
+            <div class="card-body text-center">
+                <h3 class="text-info"><%= facilities ? facilities.filter(f => f.bookable).length : 0 %></h3>
+                <p class="text-muted mb-0">Bookable</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-light">
+            <div class="card-body text-center">
+                <h3 class="text-warning"><%= facilities ? facilities.filter(f => f.featured).length : 0 %></h3>
+                <p class="text-muted mb-0">Featured</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.table-responsive {
+    font-size: 0.875rem;
+}
+.btn-group-sm .btn {
+    padding: 0.25rem 0.5rem;
+}
+</style>

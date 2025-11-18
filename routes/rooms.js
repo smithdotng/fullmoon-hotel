@@ -1,4 +1,4 @@
-// routes/rooms.js - COMPLETE FIXED VERSION WITH ENHANCED DATE PARSING
+// routes/rooms.js - FIXED VERSION
 const express = require('express');
 const router = express.Router();
 const Room = require('../models/Room');
@@ -79,17 +79,24 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /rooms/category/:category
+// GET /rooms/category/:category - Category overview (uses different template)
 router.get('/category/:category', async (req, res) => {
   try {
     const category = req.params.category;
     const rooms = await Room.find({
       type: { $regex: new RegExp(category, 'i') },
       available: true
-    });
+    }).sort({ roomNumber: 1 });
 
-    res.render('rooms/index', {
-      title: `${category} Rooms - Full Moon Hotels`,
+    if (rooms.length === 0) {
+      return res.status(404).render('error', {
+        title: 'Category Not Found',
+        error: `No rooms found for category: ${category}`
+      });
+    }
+
+    res.render('rooms/category', {  // Use a different template for category view
+      title: `${category.charAt(0).toUpperCase() + category.slice(1)} Rooms - Full Moon Hotels`,
       rooms,
       category
     });
@@ -97,7 +104,7 @@ router.get('/category/:category', async (req, res) => {
     console.error('Error fetching rooms by category:', error);
     res.status(500).render('error', {
       title: 'Server Error',
-      error: 'Failed to load rooms'
+      error: 'Failed to load room category'
     });
   }
 });
@@ -181,78 +188,7 @@ router.post('/check-availability', async (req, res) => {
   }
 });
 
-// POST /rooms/book/:id - Forward to confirmation (no login)
-router.post('/book/:id', async (req, res) => {
-  try {
-    console.log('=== BOOKING REQUEST START ===');
-    console.log('Room ID:', req.params.id);
-    console.log('Request body:', req.body);
-
-    const roomId = req.params.id;
-    
-    if (!mongoose.Types.ObjectId.isValid(roomId)) {
-      console.log('Invalid room ID format');
-      req.flash('error', 'Invalid room ID');
-      return res.redirect('/rooms');
-    }
-
-    const { checkIn, checkOut, guests } = req.body;
-
-    if (!checkIn || !checkOut || !guests) {
-      console.log('Missing required fields');
-      req.flash('error', 'Please fill in all required fields');
-      return res.redirect('/rooms');
-    }
-
-    // Parse dates using enhanced parser (handles ISO)
-    const checkInDate = parseCustomDate(checkIn);
-    const checkOutDate = parseCustomDate(checkOut);
-
-    console.log('Booking parsed dates:', { 
-      originalCheckIn: checkIn, 
-      parsedCheckIn: checkInDate ? checkInDate.toISOString().split('T')[0] : 'INVALID',
-      originalCheckOut: checkOut, 
-      parsedCheckOut: checkOutDate ? checkOutDate.toISOString().split('T')[0] : 'INVALID'
-    });
-
-    if (!checkInDate || !checkOutDate) {
-      console.log('Invalid date format in booking request');
-      req.flash('error', 'Invalid date format');
-      return res.redirect('/rooms');
-    }
-
-    // Verify room exists
-    const room = await Room.findById(roomId);
-    console.log('Room found:', room ? room._id : 'NOT FOUND');
-    
-    if (!room) {
-      console.log('Room not found in database');
-      req.flash('error', 'Room not found');
-      return res.redirect('/rooms');
-    }
-
-    if (!room.available) {
-      req.flash('error', 'Sorry, this room is not available for booking');
-      return res.redirect('/rooms');
-    }
-
-    console.log('=== BOOKING REQUEST SUCCESS - Redirecting to confirmation ===');
-    
-    // Redirect to confirmation with ISO dates
-    const isoCheckIn = checkInDate.toISOString().split('T')[0];
-    const isoCheckOut = checkOutDate.toISOString().split('T')[0];
-    const redirectUrl = `/rooms/booking-confirmation?roomId=${roomId}&checkIn=${encodeURIComponent(isoCheckIn)}&checkOut=${encodeURIComponent(isoCheckOut)}&guests=${encodeURIComponent(guests)}`;
-    console.log('Redirect URL:', redirectUrl);
-    
-    res.redirect(redirectUrl);
-  } catch (error) {
-    console.error('Booking error:', error);
-    req.flash('error', 'Failed to process booking. Please try again.');
-    res.redirect('/rooms');
-  }
-});
-
-// GET /rooms/booking-confirmation - FIXED (MUST COME BEFORE /:id)
+// GET /rooms/booking-confirmation
 router.get('/booking-confirmation', async (req, res) => {
   try {
     console.log('=== BOOKING CONFIRMATION ROUTE HIT ===');
@@ -342,6 +278,77 @@ router.get('/booking-confirmation', async (req, res) => {
     console.error('CRITICAL ERROR in booking-confirmation route:', error);
     console.error('Error stack:', error.stack);
     req.flash('error', 'Server error while loading booking confirmation. Please try again.');
+    res.redirect('/rooms');
+  }
+});
+
+// POST /rooms/book/:id - Forward to confirmation (no login)
+router.post('/book/:id', async (req, res) => {
+  try {
+    console.log('=== BOOKING REQUEST START ===');
+    console.log('Room ID:', req.params.id);
+    console.log('Request body:', req.body);
+
+    const roomId = req.params.id;
+    
+    if (!mongoose.Types.ObjectId.isValid(roomId)) {
+      console.log('Invalid room ID format');
+      req.flash('error', 'Invalid room ID');
+      return res.redirect('/rooms');
+    }
+
+    const { checkIn, checkOut, guests } = req.body;
+
+    if (!checkIn || !checkOut || !guests) {
+      console.log('Missing required fields');
+      req.flash('error', 'Please fill in all required fields');
+      return res.redirect('/rooms');
+    }
+
+    // Parse dates using enhanced parser (handles ISO)
+    const checkInDate = parseCustomDate(checkIn);
+    const checkOutDate = parseCustomDate(checkOut);
+
+    console.log('Booking parsed dates:', { 
+      originalCheckIn: checkIn, 
+      parsedCheckIn: checkInDate ? checkInDate.toISOString().split('T')[0] : 'INVALID',
+      originalCheckOut: checkOut, 
+      parsedCheckOut: checkOutDate ? checkOutDate.toISOString().split('T')[0] : 'INVALID'
+    });
+
+    if (!checkInDate || !checkOutDate) {
+      console.log('Invalid date format in booking request');
+      req.flash('error', 'Invalid date format');
+      return res.redirect('/rooms');
+    }
+
+    // Verify room exists
+    const room = await Room.findById(roomId);
+    console.log('Room found:', room ? room._id : 'NOT FOUND');
+    
+    if (!room) {
+      console.log('Room not found in database');
+      req.flash('error', 'Room not found');
+      return res.redirect('/rooms');
+    }
+
+    if (!room.available) {
+      req.flash('error', 'Sorry, this room is not available for booking');
+      return res.redirect('/rooms');
+    }
+
+    console.log('=== BOOKING REQUEST SUCCESS - Redirecting to confirmation ===');
+    
+    // Redirect to confirmation with ISO dates
+    const isoCheckIn = checkInDate.toISOString().split('T')[0];
+    const isoCheckOut = checkOutDate.toISOString().split('T')[0];
+    const redirectUrl = `/rooms/booking-confirmation?roomId=${roomId}&checkIn=${encodeURIComponent(isoCheckIn)}&checkOut=${encodeURIComponent(isoCheckOut)}&guests=${encodeURIComponent(guests)}`;
+    console.log('Redirect URL:', redirectUrl);
+    
+    res.redirect(redirectUrl);
+  } catch (error) {
+    console.error('Booking error:', error);
+    req.flash('error', 'Failed to process booking. Please try again.');
     res.redirect('/rooms');
   }
 });
@@ -437,7 +444,7 @@ router.post('/confirm-booking', async (req, res) => {
   }
 });
 
-// GET /rooms/:id - Room detail (MUST COME AFTER booking-confirmation)
+// GET /rooms/:id - Single room detail (MUST COME AFTER booking-confirmation)
 router.get('/:id', async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
@@ -457,7 +464,7 @@ router.get('/:id', async (req, res) => {
 
     res.render('rooms/detail', {
       title: `${room.type} - Full Moon Hotels`,
-      room
+      room  // Single room object for detail view
     });
   } catch (error) {
     console.error('Error fetching room details:', error);

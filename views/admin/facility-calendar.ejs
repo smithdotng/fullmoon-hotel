@@ -1,0 +1,129 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Facility Booking Calendar</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="/admin/facilities" class="btn btn-sm btn-outline-primary">
+                <i class="fa fa-list me-1"></i>List View
+            </a>
+            <a href="/admin/facilities/stats" class="btn btn-sm btn-outline-secondary">
+                <i class="fa fa-chart-bar me-1"></i>Statistics
+            </a>
+            <a href="/admin" class="btn btn-sm btn-outline-dark">
+                <i class="fa fa-dashboard me-1"></i>Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Confirmed Bookings Calendar View</h5>
+    </div>
+    <div class="card-body">
+        <% if (bookings && bookings.length > 0) { %>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Facility</th>
+                            <th>Duration</th>
+                            <th>Booking Reference</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% 
+                        // Group bookings by date for better organization
+                        const bookingsByDate = {};
+                        bookings.forEach(booking => {
+                            if (!bookingsByDate[booking.bookingDate]) {
+                                bookingsByDate[booking.bookingDate] = [];
+                            }
+                            bookingsByDate[booking.bookingDate].push(booking);
+                        });
+                        
+                        // Sort dates
+                        const sortedDates = Object.keys(bookingsByDate).sort();
+                        %>
+                        
+                        <% sortedDates.forEach(date => { %>
+                            <tr class="table-active">
+                                <td colspan="5">
+                                    <strong><%= new Date(date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %></strong>
+                                    <span class="badge bg-primary ms-2"><%= bookingsByDate[date].length %> booking(s)</span>
+                                </td>
+                            </tr>
+                            <% bookingsByDate[date].forEach(booking => { %>
+                            <tr>
+                                <td></td>
+                                <td>
+                                    <strong><%= booking.bookingTime %></strong>
+                                </td>
+                                <td>
+                                    <span class="badge 
+                                        <%= booking.facilityName === 'Spa & Wellness Center' ? 'bg-success' : 
+                                            booking.facilityName === 'Business Center' ? 'bg-info' : 
+                                            booking.facilityName === 'Event Spaces' ? 'bg-warning' : 'bg-secondary' %>">
+                                        <%= booking.facilityName %>
+                                    </span>
+                                </td>
+                                <td><%= booking.duration %> hour(s)</td>
+                                <td>
+                                    <small class="text-muted">#<%= booking._id.toString().slice(-6).toUpperCase() %></small>
+                                </td>
+                            </tr>
+                            <% }) %>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Calendar Summary -->
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">Calendar Summary</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge bg-success me-2" style="width: 20px; height: 20px;"></span>
+                                        <span>Spa & Wellness Center</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge bg-info me-2" style="width: 20px; height: 20px;"></span>
+                                        <span>Business Center</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge bg-warning me-2" style="width: 20px; height: 20px;"></span>
+                                        <span>Event Spaces</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% } else { %>
+            <div class="text-center py-5">
+                <i class="fa fa-calendar fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">No Confirmed Bookings</h4>
+                <p class="text-muted">There are no confirmed facility bookings to display in the calendar.</p>
+                <a href="/admin/facilities" class="btn btn-primary">View All Bookings</a>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<style>
+.table-active {
+    background-color: #e9ecef !important;
+}
+</style>
