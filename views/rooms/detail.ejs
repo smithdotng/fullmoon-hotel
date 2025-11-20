@@ -235,178 +235,201 @@
                     </div> <!--/container-->
                 </div> <!--/booking-->
 
-                <!-- ===  Room overview === -->
+                 <!-- ===  Room overview === -->
+                        <div class="room-overview">
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
 
-                <div class="room-overview">
+                                        <!-- === Room amenities === -->
+                                        <div class="room-block room-aminities">
+                                            <h2 class="title">Room amenities</h2>
+                                            <div class="row">
+                                                <!--=== item ===-->
+                                                <div class="col-xs-6 col-sm-2">
+                                                    <figure>
+                                                        <figcaption>
+                                                            <span class="hotelicon hotelicon-air-condition"></span>
+                                                            <p>Aircondition</p>
+                                                        </figcaption>
+                                                    </figure>
+                                                </div>
 
-                    <div class="container">
-                        <div class="row">
+                                                <!--=== item ===-->
+                                                <div class="col-xs-6 col-sm-2">
+                                                    <figure>
+                                                        <figcaption>
+                                                            <span class="hotelicon hotelicon-king-bed"></span>
+                                                            <p>1 Kingsize bed</p>
+                                                        </figcaption>
+                                                    </figure>
+                                                </div>
 
-                            <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
+                                                <!--=== item ===-->
+                                                <div class="col-xs-6 col-sm-2">
+                                                    <figure>
+                                                        <figcaption>
+                                                            <span class="hotelicon hotelicon-guest"></span>
+                                                            <p>2 People</p>
+                                                        </figcaption>
+                                                    </figure>
+                                                </div>
 
-                                <!-- === Room amenities === -->
+                                                <!--=== item ===-->
+                                                <div class="col-xs-6 col-sm-2">
+                                                    <figure>
+                                                        <figcaption>
+                                                            <span class="hotelicon hotelicon-wifi"></span>
+                                                            <p>Internet</p>
+                                                        </figcaption>
+                                                    </figure>
+                                                </div>
 
-                                <div class="room-block room-aminities">
+                                                <!--=== item ===-->
+                                                <div class="col-xs-6 col-sm-2">
+                                                    <figure>
+                                                        <figcaption>
+                                                            <span class="hotelicon hotelicon-washer"></span>
+                                                            <p>Washer</p>
+                                                        </figcaption>
+                                                    </figure>
+                                                </div>
 
-                                    <h2 class="title">Room amenities</h2>
-
-                                    <div class="row">
-
-                                        <% 
-                                        // Use room amenities or fallback to default amenities
-                                        const amenities = room.amenities || [
-                                            {icon: 'hotelicon-air-condition', name: 'Aircondition'},
-                                            {icon: 'hotelicon-king-bed', name: '1 Kingsize bed'},
-                                            {icon: 'hotelicon-guest', name: '2 People'},
-                                            {icon: 'hotelicon-wifi', name: 'Internet'},
-                                            {icon: 'hotelicon-washer', name: 'Washer'},
-                                            {icon: 'hotelicon-roomservice', name: 'Room service'}
-                                        ];
-                                        amenities.forEach(function(amenity) { %>
-                                            <!--=== item ===-->
-                                            <div class="col-xs-6 col-sm-2">
-                                                <figure>
-                                                    <figcaption>
-                                                        <span class="<%= amenity.icon || 'hotelicon-air-condition' %>"></span>
-                                                        <p><%= amenity.name || 'Amenity' %></p>
-                                                    </figcaption>
-                                                </figure>
-                                            </div>
-                                        <% }); %>
-
-                                    </div>
-
-                                </div>
-
-                                <!-- === Room block === -->
-
-                                <div class="room-block">
-                                    <h2 class="title">Room overview</h2>
-                                    <p>
-                                        <%= room.description || 'The ' + room.type + ' pays tribute to fashion and craftsmanship. The rooms are approximately 19m2 with views of the garden. The selection and pairing of materials has been carefully chosen to give you a cool experience. The super soft bed topper is simply extravagant! Every room is different but the colour palette uses unique and expertly matched hues. An openwork brass screen separates the bathroom from the bedroom. This original feature helps make every room your very own cosy and peaceful haven. Bathrobes, slippers and SOTHYS toiletries are provided in the bathroom to pamper you.' %>
-                                    </p>
-                                </div>
-
-                                <!-- === Room block === -->
-
-                                <div class="room-block">
-
-                                    <h2 class="title">House rules</h2>
-
-                                    <!-- === box === -->
-
-                                    <div class="box">
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <p><strong>Check-In</strong></p>
-                                            </div>
-                                            <div class="col-md-8">
-                                                <p>14:00 - 22:00</p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- === box === -->
-
-                                    <div class="box">
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <p><strong>Check-out</strong></p>
-                                            </div>
-                                            <div class="col-md-8">
-                                                <p>14:00 - 22:00</p>
+                                                <!--=== item ===-->
+                                                <div class="col-xs-6 col-sm-2">
+                                                    <figure>
+                                                        <figcaption>
+                                                            <span class="hotelicon hotelicon-roomservice"></span>
+                                                            <p>Room service</p>
+                                                        </figcaption>
+                                                    </figure>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <!-- === box === -->
+                                        <!-- === Room block === -->
+                                        <div class="room-block">
+                                            <h2 class="title">Room overview</h2>
+                                            <p>
+                                                <%= r.description || 'The ' + r.type + ' pays tribute to fashion and craftsmanship. The rooms are approximately 19m2 with views of the garden. The selection and pairing of materials has been carefully chosen to give you a cool experience. The super soft bed topper is simply extravagant! Every room is different but the colour palette uses unique and expertly matched hues. An openwork brass screen separates the bathroom from the bedroom. This original feature helps make every room your very own cosy and peaceful haven. Bathrobes, slippers and SOTHYS toiletries are provided in the bathroom to pamper you.' %>
+                                            </p>
+                                        </div>
 
-                                    <div class="box">
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <p><strong>Luggage storage</strong></p>
+                                        <!-- === Room block === -->
+                                        <div class="room-block">
+                                            <h2 class="title">House rules</h2>
+
+                                            <!-- === box === -->
+                                            <div class="box">
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <p><strong>Check-In</strong></p>
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        <p>14:00 - 22:00</p>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div class="col-md-8">
-                                                <p>14:00 - 22:00</p>
+
+                                            <!-- === box === -->
+                                            <div class="box">
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <p><strong>Check-out</strong></p>
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        <p>Until 12:00 noon</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- === box === -->
+                                            <div class="box">
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <p><strong>Luggage storage</strong></p>
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        <p>Available at reception</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- === box === -->
+                                            <div class="box">
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <p><strong>Cancellation/prepayment</strong></p>
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        <p>
+                                                            Cancellation and prepayment policies vary according to room type. Please enter the dates of your stay and check the conditions of your required room.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- === box === -->
+                                            <div class="box">
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <p><strong>Children and extra beds</strong></p>
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        <p>All children are welcome.</p>
+                                                        <p>One child under 6 years is charged ₦ 5,000 per night when using existing beds.</p>
+                                                        <p>There is no capacity for extra beds in the room.</p>
+                                                        <p>Supplements are not calculated automatically in the total costs and will have to be paid for separately during your stay.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- === box === -->
+                                            <div class="box">
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <p><strong>Pets</strong></p>
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        <p>Pets are not allowed.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- === box === -->
+                                            <div class="box">
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <p><strong>Additional info</strong></p>
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        <p>The restaurant is open everyday of the week.</p>
+                                                        
+                                                        <p>Please note that parking spaces cannot be reserved or guaranteed.</p>
+                                                        <p>
+                                                            For a group booking more than 5 rooms up to 4 weeks prior to arrival cancellation is
+                                                            100% free of charge, within 2 until 4 weeks 50% free of charge, and within 2 weeks the
+                                                            property will charge you in full. Please note that Full Moon Hotels always charges city tax
+                                                            prior to your arrival with the non-refundable rate or group booking.
+                                                        </p>
+                                                       
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <!-- === box === -->
-
-                                    <div class="box">
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <p><strong>Cancellation/prepayment</strong></p>
-                                            </div>
-                                            <div class="col-md-8">
-                                                <p>
-                                                    Cancellation and prepayment policies vary according to room type. Please enter the dates of your stay and check the conditions of your required room.
-                                                </p>
-                                            </div>
+                                        <!-- === Book This Room Button === -->
+                                        <div class="room-block text-center">
+                                            <a href="/rooms/<%= r._id %>" class="btn btn-main btn-lg">
+                                                Book This Room
+                                                <small>Direct Booking - Best Price Guaranteed</small>
+                                            </a>
                                         </div>
-                                    </div>
 
-                                    <!-- === box === -->
-
-                                    <div class="box">
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <p><strong>Children and extra beds</strong></p>
-                                            </div>
-                                            <div class="col-md-8">
-                                                <p>All children are welcome.</p>
-                                                <p>One child under 6 years is charged EUR 50 per night when using existing beds.</p>
-                                                <p>There is no capacity for extra beds in the room.</p>
-                                                <p>Supplements are not calculated automatically in the total costs and will have to be paid for separately during your stay.</p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- === box === -->
-
-                                    <div class="box">
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <p><strong>Pets</strong></p>
-                                            </div>
-                                            <div class="col-md-8">
-                                                <p>Pets are not allowed.</p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- === box === -->
-
-                                    <div class="box">
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <p><strong>Additional info</strong></p>
-                                            </div>
-                                            <div class="col-md-8">
-                                                <p>Please note that the restaurant is closed each Sunday.</p>
-                                                <p>The restaurant will also be closed during Christmas (25-26 December).</p>
-                                                <p>Please note that parking spaces cannot be reserved or guaranteed.</p>
-                                                <p>
-                                                    For a group booking more than 5 rooms up to 4 weeks prior to arrival cancellation is
-                                                    100% free of charge, within 2 until 4 weeks 50% free of charge, and within 2 weeks the
-                                                    property will charge you in full. Please note that Full Moon Hotels always charges city tax
-                                                    prior to your arrival with the non-refundable rate or group booking.
-                                                </p>
-                                                <p>
-                                                    Please note that the credit card that is used for the booking needs to be present at check-in.
-                                                    When this credit card is not available please bring a photocopy of the credit card with
-                                                    authorization of the owner.
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div> <!--/col-sm-10-->
-                        </div> <!--/row-->
-                    </div> <!--/container-->
-                </div> <!--/room-overview-->
+                                    </div> <!--/col-sm-10-->
+                                </div> <!--/row-->
+                            </div> <!--/container-->
+                        </div> <!--/room-overview-->
             </div>
 
         </section>
