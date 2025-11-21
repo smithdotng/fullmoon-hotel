@@ -463,7 +463,7 @@
                                                     </div>
                                                     <div class="col-md-8">
                                                         <p>All children are welcome.</p>
-                                                        <p>One child under 6 years is charged ₦ 5,000 per night when using existing beds.</p>
+                                                        
                                                         <p>There is no capacity for extra beds in the room.</p>
                                                         <p>Supplements are not calculated automatically in the total costs and will have to be paid for separately during your stay.</p>
                                                     </div>
@@ -492,12 +492,7 @@
                                                         <p>The restaurant is open everyday of the week.</p>
                                                         
                                                         <p>Please note that parking spaces cannot be reserved or guaranteed.</p>
-                                                        <p>
-                                                            For a group booking more than 5 rooms up to 4 weeks prior to arrival cancellation is
-                                                            100% free of charge, within 2 until 4 weeks 50% free of charge, and within 2 weeks the
-                                                            property will charge you in full. Please note that Full Moon Hotels always charges city tax
-                                                            prior to your arrival with the non-refundable rate or group booking.
-                                                        </p>
+                                                        
                                                        
                                                     </div>
                                                 </div>
@@ -621,67 +616,138 @@
         </section>
 
         <!-- ========================  Cards ======================== -->
+                <!-- ========================  Cards ======================== -->
         <section class="cards">
             <!-- === gallery header === -->
             <div class="section-header">
                 <div class="container">
-                    <h2 class="title">Hotel Gallery <a href="/gallery" class="btn btn-sm btn-clean-dark">View all</a></h2>
-                    <p>Explore our luxurious accommodations and premium facilities</p>
+                    <h2 class="title"><%= category.charAt(0).toUpperCase() + category.slice(1) %> Room Gallery <a href="/gallery" class="btn btn-sm btn-clean-dark">View all</a></h2>
+                    <p>Explore images from our <%= category %> room collection</p>
                 </div>
             </div>
 
             <div class="container">
                 <div class="row">
-                    <!-- === item === -->
-                    <div class="col-xs-12 col-md-8">
-                        <figure>
-                            <figcaption style="background-image:url(/assets/images/cigar-lounge.jpg)">
-                                <img src="/assets/images/cigar-lounge.jpg" alt="Chic Open-Air Escape" />
-                            </figcaption>
-                            <a href="/gallery" class="btn btn-clean">Chic Open-Air Escape</a>
-                        </figure>
-                    </div>
-
-                    <!-- === item === -->
-                    <div class="col-xs-6 col-md-4">
-                        <figure>
-                            <figcaption style="background-image:url(/assets/images/lobby-1.jpg)">
-                                <img src="/assets/images/lobby-1.jpg" alt="Premium Ambience" />
-                            </figcaption>
-                            <a href="/gallery" class="btn btn-clean">Premium Ambience</a>
-                        </figure>
-                    </div>
-
-                    <!-- === item === -->
-                    <div class="col-xs-6 col-md-4">
-                        <figure>
-                            <figcaption style="background-image:url(/assets/images/coffeebar-1.jpg)">
-                                <img src="/assets/images/coffeebar-1.jpg" alt="Intimate Coffee Nook" />
-                            </figcaption>
-                            <a href="/gallery" class="btn btn-clean">Intimate Coffee Nook</a>
-                        </figure>
-                    </div>
-
-                    <!-- === item === -->
-                    <div class="col-xs-6 col-md-4">
-                        <figure>
-                            <figcaption style="background-image:url(/assets/images/karaoke-bar.jpg)">
-                                <img src="/assets/images/karaoke-bar.jpg" alt="Exclusive Music Lounge" />
-                            </figcaption>
-                            <a href="/gallery" class="btn btn-clean">Exclusive Music Lounge</a>
-                        </figure>
-                    </div>
-
-                    <!-- === item === -->
-                    <div class="col-xs-6 col-md-4">
-                        <figure>
-                            <figcaption style="background-image:url(/assets/images/gallery-dining.jpg)">
-                                <img src="/assets/images/gallery-dining.jpg" alt="Fine Dining" />
-                            </figcaption>
-                            <a href="/gallery" class="btn btn-clean">Fine Dining</a>
-                        </figure>
-                    </div>
+                    <% 
+                    // Collect all room images from this category
+                    let categoryImages = [];
+                    if (rooms && rooms.length > 0) {
+                        rooms.forEach(room => {
+                            if (room.images && room.images.length > 0) {
+                                room.images.forEach(image => {
+                                    categoryImages.push({
+                                        image: image,
+                                        roomType: room.type,
+                                        roomId: room._id
+                                    });
+                                });
+                            }
+                        });
+                    }
+                    
+                    // If we have category images, display them
+                    if (categoryImages.length > 0) { 
+                        // Show up to 5 images from the category
+                        categoryImages.slice(0, 5).forEach((item, index) => { %>
+                            <div class="<%= index === 0 ? 'col-xs-12 col-md-8' : 'col-xs-6 col-md-4' %>">
+                                <figure>
+                                    <figcaption style="background-image:url(<%= item.image %>)">
+                                        <img src="<%= item.image %>" alt="<%= item.roomType %>" />
+                                    </figcaption>
+                                    <a href="/rooms/<%= item.roomId %>" class="btn btn-clean" target="_blank">
+                                        <%= item.roomType %>
+                                    </a>
+                                </figure>
+                            </div>
+                        <% }); 
+                    } else { 
+                        // Fallback to room-specific images if no category images available
+                        let displayedRooms = 0;
+                        if (rooms && rooms.length > 0) {
+                            rooms.forEach((room, roomIndex) => {
+                                if (displayedRooms < 5) {
+                                    // Determine the best image for this room
+                                    let roomImage = '';
+                                    let imageAlt = room.type;
+                                    
+                                    if (room.images && room.images.length > 0) {
+                                        roomImage = room.images[0];
+                                    } else {
+                                        // Fallback images based on room type
+                                        if (room.type.toLowerCase().includes('penthouse')) {
+                                            roomImage = '/assets/images/room-penthouse.jpg';
+                                        } else if (room.type.toLowerCase().includes('executive')) {
+                                            roomImage = '/assets/images/room-executive.jpg';
+                                        } else if (room.type.toLowerCase().includes('deluxe')) {
+                                            roomImage = '/assets/images/room-deluxe.jpg';
+                                        } else if (room.type.toLowerCase().includes('premiere')) {
+                                            roomImage = '/assets/images/room-premiere.jpg';
+                                        } else if (room.type.toLowerCase().includes('annex')) {
+                                            roomImage = '/assets/images/room-annex.jpg';
+                                        } else {
+                                            roomImage = '/assets/images/room-default.jpg';
+                                        }
+                                    } %>
+                                    
+                                    <div class="<%= displayedRooms === 0 ? 'col-xs-12 col-md-8' : 'col-xs-6 col-md-4' %>">
+                                        <figure>
+                                            <figcaption style="background-image:url(<%= roomImage %>)">
+                                                <img src="<%= roomImage %>" alt="<%= imageAlt %>" />
+                                            </figcaption>
+                                            <a href="/rooms/<%= room._id %>" class="btn btn-clean" target="_blank">
+                                                <%= room.type %>
+                                            </a>
+                                        </figure>
+                                    </div>
+                                    <% 
+                                    displayedRooms++;
+                                }
+                            });
+                        }
+                        
+                        // If still not enough images, fill with category-specific fallbacks
+                        if (displayedRooms < 5) {
+                            const fallbackImages = [
+                                { image: '/assets/images/room-' + category.toLowerCase() + '.jpg', text: category + ' Room' },
+                                { image: '/assets/images/bathroom-' + category.toLowerCase() + '.jpg', text: category + ' Bathroom' },
+                                { image: '/assets/images/view-' + category.toLowerCase() + '.jpg', text: category + ' View' },
+                                { image: '/assets/images/amenities-' + category.toLowerCase() + '.jpg', text: category + ' Amenities' },
+                                { image: '/assets/images/details-' + category.toLowerCase() + '.jpg', text: category + ' Details' }
+                            ];
+                            
+                            for (let i = displayedRooms; i < 5; i++) {
+                                const fallback = fallbackImages[i]; %>
+                                <div class="<%= i === 0 ? 'col-xs-12 col-md-8' : 'col-xs-6 col-md-4' %>">
+                                    <figure>
+                                        <figcaption style="background-image:url(<%= fallback.image %>)">
+                                            <img src="<%= fallback.image %>" alt="<%= fallback.text %>" />
+                                        </figcaption>
+                                        <a href="/gallery" class="btn btn-clean">
+                                            <%= fallback.text %>
+                                        </a>
+                                    </figure>
+                                </div>
+                            <% }
+                        }
+                    } %>
                 </div> <!--/row-->
+                
+                <!-- Show room count and navigation -->
+                <% if (rooms && rooms.length > 0) { %>
+                <div class="row mt-4">
+                    <div class="col-md-12 text-center">
+                        <div class="category-stats">
+                            <p class="text-muted">
+                                Showing <strong><%= rooms.length %></strong> <%= rooms.length === 1 ? 'room' : 'rooms' %> in the <%= category %> category
+                            </p>
+                            <div class="mt-2">
+                                <a href="/rooms" class="btn btn-clean-dark btn-sm">View All Room Types</a>
+                                <a href="/gallery" class="btn btn-main btn-sm">Explore Full Gallery</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
             </div> <!--/container-->
         </section>
 

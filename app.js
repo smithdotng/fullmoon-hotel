@@ -112,6 +112,7 @@ uploadDirs.forEach(dir => {
 try {
   const authRoutes = require('./routes/auth');
   const aboutRoutes = require('./routes/about'); // Add this line
+  const galleryRoutes = require('./routes/gallery');
   const roomRoutes = require('./routes/rooms');
   const adminRoutes = require('./routes/admin');
   const blogRoutes = require('./routes/blog');
@@ -121,6 +122,7 @@ try {
   // Mount routes
   app.use('/', authRoutes);
   app.use('/about', aboutRoutes);
+  app.use('/gallery', galleryRoutes);
   app.use('/rooms', roomRoutes);
   app.use('/admin', adminRoutes);
   app.use('/blog', blogRoutes);

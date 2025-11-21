@@ -403,131 +403,153 @@
 
         <!-- ========================  Rooms ======================== -->
 
-        <section class="rooms rooms-widget">
+     <!-- ========================  Rooms ======================== -->
 
-            <!-- === rooms header === -->
+<section class="rooms rooms-widget">
 
-            <div class="section-header">
-                <div class="container">
-                    <h2 class="title">Luxury Accommodations <a href="/rooms" class="btn btn-sm btn-clean-dark">View all</a></h2>
-                    <p>Elegant rooms and suites designed for business and leisure travelers</p>
+    <!-- === rooms header === -->
+
+    <div class="section-header">
+        <div class="container">
+            <h2 class="title">Luxury Accommodations <a href="/rooms" class="btn btn-sm btn-clean-dark">View all</a></h2>
+            <p>Elegant rooms and suites designed for business and leisure travelers</p>
+        </div>
+    </div>
+
+    <!-- === rooms content === -->
+
+    <div class="container">
+
+        <div class="owl-rooms owl-theme">
+            <% if (rooms && rooms.length > 0) { %>
+                <% rooms.forEach(room => { %>
+                <!-- === rooms item === -->
+                <div class="item">
+                    <article>
+                        <div class="image">
+                            <% if (room.images && room.images.length > 0) { %>
+                                <img src="<%= room.images[0] %>" alt="<%= room.type %>" />
+                            <% } else { %>
+                                <!-- Fallback images based on room type -->
+                                <% if (room.type.includes('Annex')) { %>
+                                    <img src="/assets/images/room-annex.jpg" alt="<%= room.type %>" />
+                                <% } else if (room.type.includes('Premiere')) { %>
+                                    <img src="/assets/images/room-premiere.jpg" alt="<%= room.type %>" />
+                                <% } else if (room.type.includes('Deluxe')) { %>
+                                    <img src="/assets/images/room-deluxe.jpg" alt="<%= room.type %>" />
+                                <% } else if (room.type.includes('Executive')) { %>
+                                    <img src="/assets/images/room-executive.jpg" alt="<%= room.type %>" />
+                                <% } else if (room.type.includes('Penthouse Single')) { %>
+                                    <img src="/assets/images/room-penthouse-single.jpg" alt="<%= room.type %>" />
+                                <% } else if (room.type.includes('Penthouse Double')) { %>
+                                    <img src="/assets/images/room-penthouse-double.jpg" alt="<%= room.type %>" />
+                                <% } else { %>
+                                    <img src="/assets/images/room-default.jpg" alt="<%= room.type %>" />
+                                <% } %>
+                            <% } %>
+                        </div>
+                        <div class="details">
+                            <div class="text">
+                                <!-- CHANGED: Room title now links to category page -->
+                                <% 
+                                // Determine category from room type
+                                let category = 'rooms';
+                               if (room.type.includes('Penthouse Single')) {
+                                   category = 'penthouse-single';
+                                } else if (room.type.includes('Penthouse Double')) {
+                                   category = 'penthouse-double';
+                                } else if (room.type.includes('Executive')) {
+                                    category = 'Executive';
+                                } else if (room.type.includes('Deluxe')) {
+                                    category = 'Deluxe';
+                                } else if (room.type.includes('Premiere')) {
+                                    category = 'Premiere';
+                                } else if (room.type.includes('Annex')) {
+                                    category = 'Annex';
+                                }
+                                %>
+                                <h3 class="title"><a href="/rooms/category/<%= category %>"><%= room.type %></a></h3>
+                                <p><%= room.description || 'Luxurious accommodation with premium amenities' %></p>
+                                <% if (room.amenities && room.amenities.length > 0) { %>
+                                    <div class="amenities-preview">
+                                        <small>
+                                            <strong>Includes:</strong> 
+                                            <%= room.amenities.slice(0, 2).join(', ') %>
+                                            <% if (room.amenities.length > 2) { %>...<% } %>
+                                        </small>
+                                    </div>
+                                <% } %>
+                            </div>
+                            <div class="book">
+                                <div>
+                                    <a href="/rooms/<%= room._id %>" class="btn btn-main">Book now</a>
+                                </div>
+                                <div>
+                                    <span class="price h4">₦ <%= room.price.toLocaleString() %></span>
+                                    <span>per night</span>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
                 </div>
-            </div>
+                <% }) %>
+            <% } else { %>
+                <!-- Fallback content if no rooms in database -->
+                
 
-            <!-- === rooms content === -->
-
-            <div class="container">
-
-                <div class="owl-rooms owl-theme">
-                    <% if (rooms && rooms.length > 0) { %>
-                        <% rooms.forEach(room => { %>
-                        <!-- === rooms item === -->
-                        <div class="item">
-                            <article>
-                                <div class="image">
-                                    <% if (room.images && room.images.length > 0) { %>
-                                        <img src="<%= room.images[0] %>" alt="<%= room.type %>" />
-                                    <% } else { %>
-                                        <!-- Fallback images based on room type -->
-                                        <% if (room.type.includes('Annex')) { %>
-                                            <img src="/assets/images/room-annex.jpg" alt="<%= room.type %>" />
-                                        <% } else if (room.type.includes('Premiere')) { %>
-                                            <img src="/assets/images/room-premiere.jpg" alt="<%= room.type %>" />
-                                        <% } else if (room.type.includes('Deluxe')) { %>
-                                            <img src="/assets/images/room-deluxe.jpg" alt="<%= room.type %>" />
-                                        <% } else if (room.type.includes('Executive')) { %>
-                                            <img src="/assets/images/room-executive.jpg" alt="<%= room.type %>" />
-                                        <% } else if (room.type.includes('Penthouse Single')) { %>
-                                            <img src="/assets/images/room-penthouse-single.jpg" alt="<%= room.type %>" />
-                                        <% } else if (room.type.includes('Penthouse Double')) { %>
-                                            <img src="/assets/images/room-penthouse-double.jpg" alt="<%= room.type %>" />
-                                        <% } else { %>
-                                            <img src="/assets/images/room-default.jpg" alt="<%= room.type %>" />
-                                        <% } %>
-                                    <% } %>
-                                </div>
-                                <div class="details">
-                                    <div class="text">
-                                        <h3 class="title"><a href="/rooms/<%= room._id %>"><%= room.type %></a></h3>
-                                        <p><%= room.description || 'Luxurious accommodation with premium amenities' %></p>
-                                        <% if (room.amenities && room.amenities.length > 0) { %>
-                                            <div class="amenities-preview">
-                                                <small>
-                                                    <strong>Includes:</strong> 
-                                                    <%= room.amenities.slice(0, 2).join(', ') %>
-                                                    <% if (room.amenities.length > 2) { %>...<% } %>
-                                                </small>
-                                            </div>
-                                        <% } %>
-                                    </div>
-                                    <div class="book">
-                                        <div>
-                                            <a href="/rooms/<%= room._id %>" class="btn btn-main">Book now</a>
-                                        </div>
-                                        <div>
-                                            <span class="price h4">₦ <%= room.price.toLocaleString() %></span>
-                                            <span>per night</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </article>
+                <div class="item">
+                    <article>
+                        <div class="image">
+                            <img src="/assets/images/room-premiere.jpg" alt="Premiere Room" />
                         </div>
-                        <% }) %>
-                    <% } else { %>
-                        <!-- Fallback content if no rooms in database -->
-                        
-
-                        <div class="item">
-                            <article>
-                                <div class="image">
-                                    <img src="/assets/images/room-premiere.jpg" alt="Premiere Room" />
+                        <div class="details">
+                            <div class="text">
+                                <!-- CHANGED: Fallback room titles also link to category pages -->
+                                <h3 class="title"><a href="/rooms/category/Premiere">Premiere Room</a></h3>
+                                <p>Panoramic city view, high floor</p>
+                            </div>
+                            <div class="book">
+                                <div>
+                                    <a href="/rooms" class="btn btn-main">Book now</a>
                                 </div>
-                                <div class="details">
-                                    <div class="text">
-                                        <h3 class="title"><a href="/rooms">Premiere Room</a></h3>
-                                        <p>Panoramic city view, high floor</p>
-                                    </div>
-                                    <div class="book">
-                                        <div>
-                                            <a href="/rooms" class="btn btn-main">Book now</a>
-                                        </div>
-                                        <div>
-                                            <span class="price h4">₦ 55,000</span>
-                                            <span>per night</span>
-                                        </div>
-                                    </div>
+                                <div>
+                                    <span class="price h4">₦ 55,000</span>
+                                    <span>per night</span>
                                 </div>
-                            </article>
+                            </div>
                         </div>
+                    </article>
+                </div>
 
-                        <div class="item">
-                            <article>
-                                <div class="image">
-                                    <img src="/assets/images/room-deluxe.jpg" alt="Deluxe Room" />
-                                </div>
-                                <div class="details">
-                                    <div class="text">
-                                        <h3 class="title"><a href="/rooms">Deluxe Room</a></h3>
-                                        <p>Separate lounge and dining set</p>
-                                    </div>
-                                    <div class="book">
-                                        <div>
-                                            <a href="/rooms" class="btn btn-main">Book now</a>
-                                        </div>
-                                        <div>
-                                            <span class="price h4">₦ 65,000</span>
-                                            <span>per night</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </article>
+                <div class="item">
+                    <article>
+                        <div class="image">
+                            <img src="/assets/images/room-deluxe.jpg" alt="Deluxe Room" />
                         </div>
-                    <% } %>
-                </div><!--/owl-rooms-->
+                        <div class="details">
+                            <div class="text">
+                                <!-- CHANGED: Fallback room titles also link to category pages -->
+                                <h3 class="title"><a href="/rooms/category/Deluxe">Deluxe Room</a></h3>
+                                <p>Separate lounge and dining set</p>
+                            </div>
+                            <div class="book">
+                                <div>
+                                    <a href="/rooms" class="btn btn-main">Book now</a>
+                                </div>
+                                <div>
+                                    <span class="price h4">₦ 65,000</span>
+                                    <span>per night</span>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            <% } %>
+        </div><!--/owl-rooms-->
 
-            </div> <!--/container-->
+    </div> <!--/container-->
 
-        </section>
+</section>
 
         <!-- ========================  Stretcher widget ======================== -->
 
@@ -687,7 +709,7 @@
                             <figcaption style="background-image:url(/assets/images/karaoke-bar.jpg)">
                                 <img src="/assets/images/karaoke-bar.jpg" alt="Exclusive Music Lounge" />
                             </figcaption>
-                            <a href="/gallery" class="btn btn-clean">Exclusive Music Lounge</a>
+                            <a href="/gallery" class="btn btn-clean">Karaoke Lounge</a>
                         </figure>
                     </div>
 

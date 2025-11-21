@@ -80,11 +80,32 @@ router.get('/', async (req, res) => {
 });
 
 // GET /rooms/category/:category - Category overview (uses different template)
+// GET /rooms/category/:category - Category overview (uses different template)
 router.get('/category/:category', async (req, res) => {
   try {
     const category = req.params.category;
+    
+    // Map category names to exact room types
+    const categoryMap = {
+      'penthouse-single': 'Penthouse Single Suite',
+      'penthouse-double': 'Penthouse Double Suite',
+      'executive': 'Executive Room',
+      'deluxe': 'Deluxe Room',
+      'premiere': 'Premiere Room',
+      'annex': 'Annex Room'
+    };
+
+    const exactType = categoryMap[category.toLowerCase()];
+    
+    if (!exactType) {
+      return res.status(404).render('error', {
+        title: 'Category Not Found',
+        error: `No room category found: ${category}`
+      });
+    }
+
     const rooms = await Room.find({
-      type: { $regex: new RegExp(category, 'i') },
+      type: exactType,
       available: true
     }).sort({ roomNumber: 1 });
 
@@ -95,10 +116,10 @@ router.get('/category/:category', async (req, res) => {
       });
     }
 
-    res.render('rooms/category', {  // Use a different template for category view
-      title: `${category.charAt(0).toUpperCase() + category.slice(1)} Rooms - Full Moon Hotels`,
+    res.render('rooms/category', {
+      title: `${exactType} - Full Moon Hotels`,
       rooms,
-      category
+      category: exactType
     });
   } catch (error) {
     console.error('Error fetching rooms by category:', error);

@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <!-- Mobile Web-app fullscreen -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <!-- Meta tags -->
+    <meta name="description" content="<%= description %>">
+    <meta name="author" content="Full Moon Hotels">
+    <link rel="icon" href="/favicon.ico">
+
+    <!--Title-->
+    <title><%= title %></title>
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="<%= title %>">
+    <meta property="og:description" content="<%= description %>">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://fullmoon.found.ng<%= typeof url !== 'undefined' ? url : '' %>">
+    <meta property="og:image" content="https://fullmoon.found.ng/1.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Full Moon Hotels Gallery">
+    <meta property="og:site_name" content="Full Moon Hotels">
+    <meta property="og:locale" content="en_US">
+
+    <!--CSS styles-->
+    <link rel="stylesheet" media="all" href="/css/bootstrap.css" />
+    <link rel="stylesheet" media="all" href="/css/animate.css" />
+    <link rel="stylesheet" media="all" href="/css/font-awesome.css" />
+    <link rel="stylesheet" media="all" href="/css/linear-icons.css" />
+    <link rel="stylesheet" media="all" href="/css/hotel-icons.css" />
+    <link rel="stylesheet" media="all" href="/css/magnific-popup.css" />
+    <link rel="stylesheet" media="all" href="/css/owl.carousel.css" />
+    <link rel="stylesheet" media="all" href="/css/datepicker.css" />
+    <link rel="stylesheet" media="all" href="/css/theme.css" />
+
+    <!--Google fonts-->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,500&amp;subset=latin-ext" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Playfair+Display:400,700&amp;subset=latin-ext" rel="stylesheet">
+
+    <style>
+        .gallery-filter {
+            margin: 30px 0;
+            text-align: center;
+        }
+        .filter-btn {
+            background: transparent;
+            border: 2px solid #c19b76;
+            color: #c19b76;
+            padding: 10px 25px;
+            margin: 5px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background: #c19b76;
+            color: white;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="page-loader"></div>
+
+    <div class="wrapper">
+
+       
+
+        <!-- ======================== Gallery ======================== -->
+        <section class="page">
+
+            <!-- ===  Page header === -->
+            <div class="page-header" style="background-image:url(/assets/images/header-1.jpg)">
+                <div class="container">
+                    <h2 class="title">Photo Gallery</h2>
+                    <p>Discover the Beauty of Full Moon Hotels</p>
+                </div>
+            </div>
+
+            <div class="gallery-page">
+                <div class="container">
+
+                    <!-- Gallery Filter -->
+                    <div class="gallery-filter">
+                        <button class="filter-btn active" data-filter="all">All Photos</button>
+                        <button class="filter-btn" data-filter="rooms">Rooms & Suites</button>
+                        <button class="filter-btn" data-filter="facilities">Facilities</button>
+                        <button class="filter-btn" data-filter="dining">Dining</button>
+                        <button class="filter-btn" data-filter="events">Events</button>
+                        <button class="filter-btn" data-filter="exterior">Hotel Exterior</button>
+                    </div>
+
+                    <!-- ======================== Cards Section ======================== -->
+                    <section class="cards">
+
+                        <!-- === All Photos Section === -->
+                        <div class="gallery-section" id="all-photos">
+                            <div class="section-header">
+                                <div class="container">
+                                    <h2 class="title">Hotel Gallery</h2>
+                                    <p>Explore our luxurious accommodations and premium facilities</p>
+                                </div>
+                            </div>
+
+                            <div class="container">
+                                <div class="row">
+
+                                    <!-- === Featured Item (Large) === -->
+                                    <div class="col-xs-12 col-md-8">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/cigar-lounge.jpg)">
+                                                <img src="/assets/images/cigar-lounge.jpg" alt="Chic Open-Air Escape" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Chic Open-Air Escape</a>
+                                        </figure>
+                                    </div>
+
+                                    <!-- === Premium Ambience === -->
+                                    <div class="col-xs-6 col-md-4">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/lobby-1.jpg)">
+                                                <img src="/assets/images/lobby-1.jpg" alt="Premium Ambience" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Premium Ambience</a>
+                                        </figure>
+                                    </div>
+
+                                    <!-- === Intimate Coffee Nook === -->
+                                    <div class="col-xs-6 col-md-4">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/coffeebar-1.jpg)">
+                                                <img src="/assets/images/coffeebar-1.jpg" alt="Intimate Coffee Nook" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Intimate Coffee Nook</a>
+                                        </figure>
+                                    </div>
+
+                                    <!-- === Karaoke Lounge === -->
+                                    <div class="col-xs-6 col-md-4">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/karaoke-bar.jpg)">
+                                                <img src="/assets/images/karaoke-bar.jpg" alt="Exclusive Music Lounge" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Karaoke Lounge</a>
+                                        </figure>
+                                    </div>
+
+                                    <!-- === Fine Dining === -->
+                                    <div class="col-xs-6 col-md-4">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/gallery-dining.jpg)">
+                                                <img src="/assets/images/gallery-dining.jpg" alt="Fine Dining" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Fine Dining</a>
+                                        </figure>
+                                    </div>
+
+                                </div> <!--/row-->
+                            </div> <!--/container-->
+                        </div>
+
+                        <!-- === Rooms & Suites Section === -->
+                        <div class="gallery-section" id="rooms-section" style="display: none;">
+                            <div class="section-header">
+                                <div class="container">
+                                    <h2 class="title">Rooms & Suites</h2>
+                                    <p>Luxurious accommodations for business and leisure</p>
+                                </div>
+                            </div>
+
+                            <div class="container">
+                                <div class="row">
+
+                                    <!-- === Deluxe Room (Large) === -->
+                                    <div class="col-xs-12 col-md-8">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/room-deluxe.jpg)">
+                                                <img src="/assets/images/room-deluxe.jpg" alt="Deluxe Room" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Deluxe Room</a>
+                                        </figure>
+                                    </div>
+
+                                    <!-- === Executive Suite === -->
+                                    <div class="col-xs-6 col-md-4">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/room-executive.jpg)">
+                                                <img src="/assets/images/room-executive.jpg" alt="Executive Suite" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Executive Suite</a>
+                                        </figure>
+                                    </div>
+
+                                    <!-- === Penthouse Suite === -->
+                                    <div class="col-xs-6 col-md-4">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/room-penthouse-single.jpg)">
+                                                <img src="/assets/images/room-penthouse-single.jpg" alt="Penthouse Suite" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Penthouse Suite</a>
+                                        </figure>
+                                    </div>
+
+                                    <!-- === Premiere Room === -->
+                                    <div class="col-xs-6 col-md-4">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/room-premiere.jpg)">
+                                                <img src="/assets/images/room-premiere.jpg" alt="Premiere Room" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Premiere Room</a>
+                                        </figure>
+                                    </div>
+
+                                    <!-- === Annex Room === -->
+                                    <div class="col-xs-6 col-md-4">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/room-annex.jpg)">
+                                                <img src="/assets/images/room-annex.jpg" alt="Annex Room" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Annex Room</a>
+                                        </figure>
+                                    </div>
+
+                                </div> <!--/row-->
+                            </div> <!--/container-->
+                        </div>
+
+                        <!-- === Facilities Section === -->
+                        <div class="gallery-section" id="facilities-section" style="display: none;">
+                            <div class="section-header">
+                                <div class="container">
+                                    <h2 class="title">Hotel Facilities</h2>
+                                    <p>Premium amenities for business and leisure travelers</p>
+                                </div>
+                            </div>
+
+                            <div class="container">
+                                <div class="row">
+
+                                    <!-- === Spa Center (Large) === -->
+                                    <div class="col-xs-12 col-md-8">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/facility-spa.jpg)">
+                                                <img src="/assets/images/facility-spa.jpg" alt="Spa & Wellness Center" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Spa & Wellness</a>
+                                        </figure>
+                                    </div>
+
+                                    <!-- === Fitness Center === -->
+                                    <div class="col-xs-6 col-md-4">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/facility-gym.jpg)">
+                                                <img src="/assets/images/facility-gym.jpg" alt="Fitness Center" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Fitness Center</a>
+                                        </figure>
+                                    </div>
+
+                                    <!-- === Swimming Pool === -->
+                                    <div class="col-xs-6 col-md-4">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/facility-pool.jpg)">
+                                                <img src="/assets/images/facility-pool.jpg" alt="Swimming Pool" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Swimming Pool</a>
+                                        </figure>
+                                    </div>
+
+                                    <!-- === Business Center === -->
+                                    <div class="col-xs-6 col-md-4">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/facility-business.jpg)">
+                                                <img src="/assets/images/facility-business.jpg" alt="Business Center" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Business Center</a>
+                                        </figure>
+                                    </div>
+
+                                    <!-- === Event Spaces === -->
+                                    <div class="col-xs-6 col-md-4">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/facility-event.jpg)">
+                                                <img src="/assets/images/facility-event.jpg" alt="Event Spaces" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Event Spaces</a>
+                                        </figure>
+                                    </div>
+
+                                </div> <!--/row-->
+                            </div> <!--/container-->
+                        </div>
+
+                        <!-- === Dining Section === -->
+                        <div class="gallery-section" id="dining-section" style="display: none;">
+                            <div class="section-header">
+                                <div class="container">
+                                    <h2 class="title">Dining Experience</h2>
+                                    <p>Culinary excellence in elegant settings</p>
+                                </div>
+                            </div>
+
+                            <div class="container">
+                                <div class="row">
+
+                                    <!-- === Main Restaurant (Large) === -->
+                                    <div class="col-xs-12 col-md-8">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/restaurant-main.jpg)">
+                                                <img src="/assets/images/restaurant-main.jpg" alt="Main Restaurant" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Main Restaurant</a>
+                                        </figure>
+                                    </div>
+
+                                    <!-- === Lounge Bar === -->
+                                    <div class="col-xs-6 col-md-4">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/karaoke-bar.jpg)">
+                                                <img src="/assets/images/karaoke-bar.jpg" alt="Lounge Bar" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Karaoke Lounge</a>
+                                        </figure>
+                                    </div>
+
+                                    <!-- === Outdoor Terrace === -->
+                                    <div class="col-xs-6 col-md-4">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/slide-cigarlounge.jpg)">
+                                                <img src="/assets/images/slide-cigarlounge.jpg" alt="Outdoor Dining" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Outdoor Terrace</a>
+                                        </figure>
+                                    </div>
+
+                                    <!-- === Coffee Bar === -->
+                                    <div class="col-xs-6 col-md-4">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/coffeebar-1.jpg)">
+                                                <img src="/assets/images/coffeebar-1.jpg" alt="Coffee Bar" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Coffee Bar</a>
+                                        </figure>
+                                    </div>
+
+                                    <!-- === Cigar Lounge === -->
+                                    <div class="col-xs-6 col-md-4">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/cigar-lounge.jpg)">
+                                                <img src="/assets/images/cigar-lounge.jpg" alt="Cigar Lounge" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Cigar Lounge</a>
+                                        </figure>
+                                    </div>
+
+                                </div> <!--/row-->
+                            </div> <!--/container-->
+                        </div>
+
+                        <!-- === Events Section === -->
+                        <div class="gallery-section" id="events-section" style="display: none;">
+                            <div class="section-header">
+                                <div class="container">
+                                    <h2 class="title">Events & Celebrations</h2>
+                                    <p>Elegant venues for special occasions</p>
+                                </div>
+                            </div>
+
+                            <div class="container">
+                                <div class="row">
+
+                                    <!-- === Wedding Celebration (Large) === -->
+                                    <div class="col-xs-12 col-md-8">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/event-wedding.jpg)">
+                                                <img src="/assets/images/event-wedding.jpg" alt="Wedding Celebration" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Wedding Celebration</a>
+                                        </figure>
+                                    </div>
+
+                                    <!-- === Business Conference === -->
+                                    <div class="col-xs-6 col-md-4">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/event-conference.jpg)">
+                                                <img src="/assets/images/event-conference.jpg" alt="Business Conference" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Business Conference</a>
+                                        </figure>
+                                    </div>
+
+                                    <!-- === Banquet Hall === -->
+                                    <div class="col-xs-6 col-md-4">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/event-banquet.jpg)">
+                                                <img src="/assets/images/event-banquet.jpg" alt="Banquet Hall" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Banquet Hall</a>
+                                        </figure>
+                                    </div>
+
+                                    <!-- === Corporate Event === -->
+                                    <div class="col-xs-6 col-md-4">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/event-corporate.jpg)">
+                                                <img src="/assets/images/event-corporate.jpg" alt="Corporate Event" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Corporate Event</a>
+                                        </figure>
+                                    </div>
+
+                                    <!-- === Social Gathering === -->
+                                    <div class="col-xs-6 col-md-4">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/event-social.jpg)">
+                                                <img src="/assets/images/event-social.jpg" alt="Social Gathering" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Social Gathering</a>
+                                        </figure>
+                                    </div>
+
+                                </div> <!--/row-->
+                            </div> <!--/container-->
+                        </div>
+
+                        <!-- === Hotel Exterior Section === -->
+                        <div class="gallery-section" id="exterior-section" style="display: none;">
+                            <div class="section-header">
+                                <div class="container">
+                                    <h2 class="title">Hotel Exterior</h2>
+                                    <p>Beautiful architecture and surroundings</p>
+                                </div>
+                            </div>
+
+                            <div class="container">
+                                <div class="row">
+
+                                    <!-- === Grand Entrance (Large) === -->
+                                    <div class="col-xs-12 col-md-8">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/slide-beach.jpg)">
+                                                <img src="/assets/images/slide-beach.jpg" alt="Grand Entrance" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Grand Entrance</a>
+                                        </figure>
+                                    </div>
+
+                                    <!-- === Luxurious Lobby === -->
+                                    <div class="col-xs-6 col-md-4">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/slide-lobby.jpg)">
+                                                <img src="/assets/images/slide-lobby.jpg" alt="Luxurious Lobby" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Luxurious Lobby</a>
+                                        </figure>
+                                    </div>
+
+                                    <!-- === Landscaped Gardens === -->
+                                    <div class="col-xs-6 col-md-4">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/pool-area.jpg)">
+                                                <img src="/assets/images/pool-area.jpg" alt="Landscaped Gardens" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Exquisite Poolside</a>
+                                        </figure>
+                                    </div>
+
+                                    <!-- === Night Illumination === -->
+                                    <div class="col-xs-6 col-md-4">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/slide-cigarlounge.jpg)">
+                                                <img src="/assets/images/slide-cigarlounge.jpg" alt="Hotel at Night" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Night Illumination</a>
+                                        </figure>
+                                    </div>
+
+                                    <!-- === Poolside Area === -->
+                                    <div class="col-xs-6 col-md-4">
+                                        <figure>
+                                            <figcaption style="background-image:url(/assets/images/slide-back.jpg)">
+                                                <img src="/assets/images/slide-back.jpg" alt="Poolside Area" />
+                                            </figcaption>
+                                            <a href="/gallery" class="btn btn-clean">Poolside Lounge</a>
+                                        </figure>
+                                    </div>
+
+                                </div> <!--/row-->
+                            </div> <!--/container-->
+                        </div>
+
+                    </section> <!--/cards-->
+
+                    <!-- Call to Action -->
+                    <div class="text-center" style="padding: 50px 0;">
+                        <h3>Experience Our Luxury Firsthand</h3>
+                        <p class="lead" style="margin: 20px 0;">Book your stay and create your own memorable moments at Full Moon Hotels</p>
+                        <a href="/rooms" class="btn btn-main btn-lg">View Rooms & Suites</a>
+                        <a href="/contact" class="btn btn-default btn-lg">Contact Us</a>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================  Subscribe ======================== -->
+        <section class="subscribe">
+            <div class="container">
+                <div class="box">
+                    <h2 class="title">Stay Updated</h2>
+                    <div class="text">
+                        <p>Get notified about special offers and new gallery updates</p>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" value="" placeholder="Your email address" class="form-control" />
+                        <button class="btn btn-sm btn-main">Subscribe</button>
+                    </div>
+                </div>
+            </div>
+        </section> 
+
+
+
+    </div> <!--/wrapper-->
+
+    <!--JS files-->
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery-ui.js"></script>
+    <script src="/js/jquery.bootstrap.js"></script>
+    <script src="/js/jquery.magnific-popup.js"></script>
+    <script src="/js/jquery.owl.carousel.js"></script>
+    <script src="/js/main.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Gallery Filter Functionality
+            $('.filter-btn').on('click', function() {
+                // Remove active class from all buttons
+                $('.filter-btn').removeClass('active');
+                // Add active class to clicked button
+                $(this).addClass('active');
+                
+                const filterValue = $(this).data('filter');
+                
+                // Hide all sections first
+                $('.gallery-section').hide();
+                
+                // Show the appropriate section
+                if (filterValue === 'all') {
+                    $('#all-photos').show();
+                } else if (filterValue === 'rooms') {
+                    $('#rooms-section').show();
+                } else if (filterValue === 'facilities') {
+                    $('#facilities-section').show();
+                } else if (filterValue === 'dining') {
+                    $('#dining-section').show();
+                } else if (filterValue === 'events') {
+                    $('#events-section').show();
+                } else if (filterValue === 'exterior') {
+                    $('#exterior-section').show();
+                }
+            });
+
+            // Initialize Magnific Popup for image lightbox
+            $('.cards figure').magnificPopup({
+                delegate: 'a', // child items selector, by clicking on it popup will open
+                type: 'image',
+                gallery: {
+                    enabled: true
+                },
+                zoom: {
+                    enabled: true,
+                    duration: 300,
+                    easing: 'ease-in-out'
+                }
+            });
+
+            // Handle image errors
+            $('img').on('error', function() {
+                if (!$(this).attr('data-placeholder-set')) {
+                    $(this).attr('src', '/assets/images/header-1.jpg');
+                    $(this).attr('data-placeholder-set', 'true');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

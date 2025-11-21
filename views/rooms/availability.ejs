@@ -1,44 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-
-    <!-- Mobile Web-app fullscreen -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
-
-    <!-- Meta tags -->
-    <meta name="description" content="Check room availability at Full Moon Hotels - Luxury accommodation in Owerri">
-    <meta name="author" content="Full Moon Hotels">
-    <link rel="icon" href="favicon.ico">
-
-    <!--Title-->
-    <title>Room Availability - Full Moon Hotels | Luxury Accommodation in Owerri</title>
-
-    <!--CSS styles-->
-    <link rel="stylesheet" media="all" href="/css/bootstrap.css" />
-    <link rel="stylesheet" media="all" href="/css/animate.css" />
-    <link rel="stylesheet" media="all" href="/css/font-awesome.css" />
-    <link rel="stylesheet" media="all" href="/css/linear-icons.css" />
-    <link rel="stylesheet" media="all" href="/css/hotel-icons.css" />
-    <link rel="stylesheet" media="all" href="/css/magnific-popup.css" />
-    <link rel="stylesheet" media="all" href="/css/owl.carousel.css" />
-    <link rel="stylesheet" media="all" href="/css/datepicker.css" />
-    <link rel="stylesheet" media="all" href="/css/theme.css" />
-
-    <!--Google fonts-->
-    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,500&amp;subset=latin-ext" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Playfair+Display:400,700&amp;subset=latin-ext" rel="stylesheet">
-
-    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
-</head>
 
 <body>
 
@@ -46,126 +6,7 @@
 
     <div class="wrapper">
 
-        <header>
-
-            <!-- ======================== Navigation ======================== -->
-
-            <div class="container">
-
-                <!-- === navigation-top === -->
-
-                <nav class="navigation-top clearfix">
-
-                    <!-- navigation-top-left -->
-
-                    <div class="navigation-top-left">
-                        <a class="box" href="#">
-                            <i class="fa fa-facebook"></i>
-                        </a>
-                        <a class="box" href="#">
-                            <i class="fa fa-twitter"></i>
-                        </a>
-                        <a class="box" href="#">
-                            <i class="fa fa-instagram"></i>
-                        </a>
-                    </div>
-
-                    <!-- navigation-top-right -->
-
-                    <div class="navigation-top-right">
-                        <a class="box" href="#">
-                            <i class="icon icon-star"></i> 
-                            Special offers
-                        </a>
-                        <a class="box" href="/rooms">
-                            <i class="icon icon-tag"></i> 
-                            Reservations
-                        </a>
-                        <a class="box" href="#">
-                            <i class="icon icon-phone-handset"></i> 
-                            +234 803 123 4567
-                        </a>
-                    </div>
-                </nav>
-
-                <!-- === navigation-main === -->
-
-                <nav class="navigation-main clearfix">
-
-                    <!-- logo -->
-
-                    <div class="logo animated fadeIn">
-                        <a href="/">
-                            <img class="logo-desktop" src="/assets/images/logo.png" alt="Full Moon Hotels" />
-                            <img class="logo-mobile" src="/assets/images/logo-mobile.png" alt="Full Moon Hotels" />
-                        </a>
-                    </div>
-
-                    <!-- toggle-menu -->
-
-                    <div class="toggle-menu"><i class="icon icon-menu"></i></div>
-
-                    <!-- navigation-block -->
-
-                    <div class="navigation-block clearfix">
-
-                        <!-- navigation-left -->
-
-                        <ul class="navigation-left">
-                            <li>
-                                <a href="/">Home</a>
-                            </li>
-                            <li>
-                                <a href="/rooms" class="active">Rooms <span class="open-dropdown"><i class="fa fa-angle-down"></i></span></a>
-                                <ul>
-                                    <li><a href="/rooms">All Room Types</a></li>
-                                    <li><a href="/rooms/category/Annex">Annex Room</a></li>
-                                    <li><a href="/rooms/category/Premiere">Premiere Room</a></li>
-                                    <li><a href="/rooms/category/Deluxe">Deluxe Room</a></li>
-                                    <li><a href="/rooms/category/Executive">Executive Room</a></li>
-                                    <li><a href="/rooms/category/Penthouse">Penthouse Suites</a></li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a href="/facilities">Facilities</a>
-                            </li>
-                        </ul>
-
-                        <!-- navigation-right -->
-
-                        <ul class="navigation-right">
-                            <li>
-                                <a href="/menu">Dining</a>
-                            </li>
-                            <li>
-                                <a href="/blog">Blog</a>
-                            </li>
-                            <li>
-                                <a href="/about">About</a>
-                            </li>
-                            <li>
-                                <a href="/contact">Contact</a>
-                            </li>
-                            <% if (user) { %>
-                                <li>
-                                    <a href="/admin">Admin</a>
-                                </li>
-                                <li>
-                                    <a href="/logout">Logout</a>
-                                </li>
-                            <% } else { %>
-                                <li>
-                                    <a href="/login">Login</a>
-                                </li>
-                            <% } %>
-                        </ul>
-
-                    </div> <!--/navigation-block-->
-
-                </nav>
-            </div> <!--/container-->
-
-        </header>
+     
 
         <!-- ========================  Checkout ======================== -->
 
@@ -250,85 +91,84 @@
                     </div>
 
                     <!--cart items-->
-                    <% if (rooms && rooms.length > 0) { %>
-                        <div class="clearfix">
-                            <% rooms.forEach((room, index) => { %>
-                            <div class="cart-block cart-block-item clearfix">
-                                <div class="image">
-                                    <a href="/rooms/<%= room._id %>">
-                                        <% if (room.images && room.images.length > 0) { %>
-                                            <img src="<%= room.images[0] %>" alt="<%= room.type %>" />
-                                        <% } else { %>
-                                            <img src="/assets/images/room-default.jpg" alt="<%= room.type %>" />
-                                        <% } %>
-                                    </a>
-                                </div>
-                                <div class="title">
-                                    <div class="h2"><a href="/rooms/<%= room._id %>"><%= room.type %></a></div>
-                                    <p><%= room.description || 'Luxurious accommodation with premium amenities' %></p>
-                                    <p>
-                                        <strong>Room Number:</strong> <%= room.roomNumber %>
-                                    </p>
-                                    <p>
-                                        <strong>Capacity:</strong> Up to <%= room.amenities && room.amenities.includes('2-4 Persons') ? '4' : '2' %> guests
-                                    </p>
-                                    <div class="mt-3">
-                                        <a href="/rooms/<%= room._id %>" class="btn btn-sm btn-clean-dark">View Details</a>
-                                    </div>
-                                </div>
-                                <div class="amenities text-center">
-                                    <% if (room.amenities && room.amenities.length > 0) { %>
-                                        <div class="amenities-list">
-                                            <% room.amenities.slice(0, 3).forEach(amenity => { %>
-                                                <div class="amenity-item">
-                                                    <i class="fa fa-check text-success"></i>
-                                                    <small><%= amenity %></small>
-                                                </div>
-                                            <% }) %>
-                                            <% if (room.amenities.length > 3) { %>
-                                                <div class="amenity-item">
-                                                    <i class="fa fa-plus text-muted"></i>
-                                                    <small>+<%= room.amenities.length - 3 %> more</small>
-                                                </div>
-                                            <% } %>
-                                        </div>
-                                    <% } %>
-                                </div>
-                                <div class="price">
-                                    <span class="final h3">₦ <%= room.price.toLocaleString() %></span>
-                                    <span class="discount">per night</span>
-                                    <div class="mt-3">
-                                        <form action="/rooms/book/<%= room._id %>" method="POST" class="d-inline">
-    <input type="hidden" name="checkIn" value="<%= checkIn %>">
-    <input type="hidden" name="checkOut" value="<%= checkOut %>">
-    <input type="hidden" name="guests" value="<%= guests %>">
-    <button type="submit" class="btn btn-main btn-sm">Book Now</button>
-</form>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Line break between rooms (except after the last one) -->
-                            <% if (index < rooms.length - 1) { %>
-                                <hr class="room-divider" />
-                            <% } %>
-                            
-                            <% }) %>
-                        </div>
+<% if (rooms && rooms.length > 0) { %>
+    <div class="clearfix">
+        <% rooms.forEach((room, index) => { %>
+        <div class="cart-block cart-block-item clearfix">
+            <div class="image">
+                <a href="/rooms/<%= room._id %>" target="_blank">
+                    <% if (room.images && room.images.length > 0) { %>
+                        <img src="<%= room.images[0] %>" alt="<%= room.type %>" />
                     <% } else { %>
-                        <!-- No rooms available -->
-                        <div class="cart-block cart-block-item clearfix text-center py-5">
-                            <div class="col-12">
-                                <i class="fa fa-bed fa-4x text-muted mb-3"></i>
-                                <h3 class="text-muted">No Rooms Available</h3>
-                                <p class="text-muted">We're sorry, but no rooms are available for your selected dates and criteria.</p>
-                                <div class="mt-4">
-                                    <a href="/rooms" class="btn btn-main">Search Different Dates</a>
-                                    <a href="/contact" class="btn btn-clean-dark">Contact Us</a>
-                                </div>
-                            </div>
-                        </div>
+                        <img src="/assets/images/room-default.jpg" alt="<%= room.type %>" />
                     <% } %>
+                </a>
+            </div>
+            <div class="title">
+                <div class="h2"><a href="/rooms/<%= room._id %>" target="_blank"><%= room.type %></a></div>
+                <p><%= room.description || 'Luxurious accommodation with premium amenities' %></p>
+                
+                <p>
+                    <strong>Capacity:</strong> Up to <%= room.amenities && room.amenities.includes('2-4 Persons') ? '4' : '2' %> guests
+                </p>
+                <div class="mt-3">
+                    <!-- CHANGED: Added target="_blank" to open in new tab -->
+                    <a href="/rooms/<%= room._id %>" class="btn btn-sm btn-clean-dark" target="_blank">View Details</a>
+                </div>
+            </div>
+            <div class="amenities text-center">
+                <% if (room.amenities && room.amenities.length > 0) { %>
+                    <div class="amenities-list">
+                        <% room.amenities.slice(0, 3).forEach(amenity => { %>
+                            <div class="amenity-item">
+                                <i class="fa fa-check text-success"></i>
+                                <small><%= amenity %></small>
+                            </div>
+                        <% }) %>
+                        <% if (room.amenities.length > 3) { %>
+                            <div class="amenity-item">
+                                <i class="fa fa-plus text-muted"></i>
+                                <small>+<%= room.amenities.length - 3 %> more</small>
+                            </div>
+                        <% } %>
+                    </div>
+                <% } %>
+            </div>
+            <div class="price">
+                <span class="final h3">₦ <%= room.price.toLocaleString() %></span>
+                <span class="discount">per night</span>
+                <div class="mt-3">
+                    <form action="/rooms/book/<%= room._id %>" method="POST" class="d-inline">
+                        <input type="hidden" name="checkIn" value="<%= checkIn %>">
+                        <input type="hidden" name="checkOut" value="<%= checkOut %>">
+                        <input type="hidden" name="guests" value="<%= guests %>">
+                        <button type="submit" class="btn btn-main btn-sm">Book Now</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Line break between rooms (except after the last one) -->
+        <% if (index < rooms.length - 1) { %>
+            <hr class="room-divider" />
+        <% } %>
+        
+        <% }) %>
+    </div>
+<% } else { %>
+    <!-- No rooms available -->
+    <div class="cart-block cart-block-item clearfix text-center py-5">
+        <div class="col-12">
+            <i class="fa fa-bed fa-4x text-muted mb-3"></i>
+            <h3 class="text-muted">No Rooms Available</h3>
+            <p class="text-muted">We're sorry, but no rooms are available for your selected dates and criteria.</p>
+            <div class="mt-4">
+                <a href="/rooms" class="btn btn-main">Search Different Dates</a>
+                <a href="/contact" class="btn btn-clean-dark">Contact Us</a>
+            </div>
+        </div>
+    </div>
+<% } %>
 
                     <!-- ========================  Cart navigation ======================== -->
 
@@ -406,47 +246,7 @@
 
         <!-- ================== Footer  ================== -->
 
-        <footer>
-            <div class="container">
-
-                <!--footer links-->
-                <div class="footer-links">
-                    <div class="row">
-                        <div class="col-sm-6 footer-left">
-                            <a href="#">Sitemap</a> &nbsp; | &nbsp; <a href="#">Privacy policy</a> | &nbsp; <a href="#">Careers</a>
-                        </div>
-                        <div class="col-sm-6 footer-right">
-                            <a href="#">Gallery</a> &nbsp; | &nbsp; <a href="/rooms">Reservations</a> | &nbsp; <a href="/contact">Contact Us</a>
-                        </div>
-                    </div>
-                </div>
-
-                <!--footer social-->
-
-                <div class="footer-social">
-                    <div class="row">
-                        <div class="col-sm-12 text-center hidden">
-                            <a href="/" class="footer-logo"><img src="/assets/images/logo.png" alt="Full Moon Hotels" /></a>
-                        </div>
-                        <div class="col-sm-12 icons">
-                            <ul>
-                                <li><a href="#"><i class="fa fa-facebook"></i></a></li>
-                                <li><a href="#"><i class="fa fa-twitter"></i></a></li>
-                                <li><a href="#"><i class="fa fa-instagram"></i></a></li>
-                                <li><a href="#"><i class="fa fa-youtube"></i></a></li>
-                                <li><a href="#"><i class="fa fa-linkedin"></i></a></li>
-                            </ul>
-                        </div>
-                        <div class="col-sm-12 copyright">
-                            <small>Copyright &copy; 2025 Full Moon Hotels &nbsp; | &nbsp; All Rights Reserved</small>
-                        </div>
-                        <div class="col-sm-12 text-center">
-                            <img src="/assets/images/logo.png" alt="Full Moon Hotels" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </footer>
+        
 
     </div> <!--/wrapper-->
 
