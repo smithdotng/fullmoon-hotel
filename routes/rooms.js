@@ -453,7 +453,16 @@ router.post('/confirm-booking', async (req, res) => {
     await reservation.save();
     console.log('Guest reservation created:', reservation._id);
 
-    req.flash('success', `Booking confirmed! Reference: ${reservation._id}`);
+    // Send confirmation email
+    try {
+      await sendReservationConfirmation(reservation, room);
+      console.log('Confirmation email sent successfully');
+    } catch (emailError) {
+      console.error('Failed to send confirmation email:', emailError);
+      // Don't fail the reservation if email fails
+    }
+
+    req.flash('success', `Booking confirmed! A confirmation email has been sent to ${guestEmail}`);
     
     // FIXED: Redirect to the correct URL path
     res.redirect(`/reservations/guest/${reservation._id}`);

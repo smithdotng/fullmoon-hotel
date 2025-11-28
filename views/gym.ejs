@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <!-- Mobile Web-app fullscreen -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <!-- Meta tags -->
+    <meta name="description" content="<%= description %>">
+    <meta name="author" content="Full Moon Hotels">
+    <link rel="icon" href="/favicon.ico">
+
+    <!--Title-->
+    <title><%= title %></title>
+
+    <!--CSS styles-->
+    <link rel="stylesheet" media="all" href="/css/bootstrap.css" />
+    <link rel="stylesheet" media="all" href="/css/animate.css" />
+    <link rel="stylesheet" media="all" href="/css/font-awesome.css" />
+    <link rel="stylesheet" media="all" href="/css/linear-icons.css" />
+    <link rel="stylesheet" media="all" href="/css/hotel-icons.css" />
+    <link rel="stylesheet" media="all" href="/css/magnific-popup.css" />
+    <link rel="stylesheet" media="all" href="/css/owl.carousel.css" />
+    <link rel="stylesheet" media="all" href="/css/datepicker.css" />
+    <link rel="stylesheet" media="all" href="/css/theme.css" />
+
+    <!--Google fonts-->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,500&amp;subset=latin-ext" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Playfair+Display:400,700&amp;subset=latin-ext" rel="stylesheet">
+
+    <style>
+        /* Service Card Styles (Consistent with Laundry Page) */
+        .service-card {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            height: 100%;
+        }
+        .service-card:hover {
+            transform: translateY(-5px);
+        }
+        .service-icon {
+            font-size: 48px;
+            color: #c19b76;
+            margin-bottom: 20px;
+        }
+
+        /* Process/Highlight Steps Styles */
+        .process-step {
+            text-align: center;
+            padding: 20px;
+        }
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: #c19b76;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /* List Items */
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .benefit-icon {
+            color: #c19b76;
+            margin-right: 15px;
+            font-size: 20px;
+        }
+
+        /* Alert styling for flash messages (assuming Bootstrap theme is in use) */
+        .alert-message {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+        .alert-success {
+            color: #3c763d;
+            background-color: #dff0d8;
+            border-color: #d6e9c6;
+        }
+        .alert-danger {
+            color: #a94442;
+            background-color: #f2dede;
+            border-color: #ebccd1;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="page-loader"></div>
+
+    <div class="wrapper">
+
+        <section class="page">
+
+            <!-- === Page header === -->
+            <div class="page-header" style="background-image:url('/assets/images/gym-header.jpg')">
+                <div class="container">
+                    <h2 class="title">Fitness Centre</h2>
+                    <p>Stay fit and energized during your stay</p>
+                </div>
+            </div>
+
+            <div class="container" style="padding: 60px 0;">
+
+                <!-- Flash Messages Display -->
+                <% if (messages && messages.error && messages.error.length > 0) { %>
+                    <div class="row">
+                        <div class="col-md-8 col-md-offset-2">
+                            <div class="alert-message alert-danger text-center">
+                                <%= messages.error[0] %>
+                            </div>
+                        </div>
+                    </div>
+                <% } else if (messages && messages.success && messages.success.length > 0) { %>
+                    <div class="row">
+                        <div class="col-md-8 col-md-offset-2">
+                            <div class="alert-message alert-success text-center">
+                                <%= messages.success[0] %>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+
+
+                <!-- === Facilities Overview === -->
+                <div class="row" id="facilities">
+                    <div class="col-md-4">
+                        <div class="service-card">
+                            <div class="service-icon">
+                                <i class="fa fa-bicycle"></i>
+                            </div>
+                            <h3>Modern Equipment</h3>
+                            <p>Train effectively with our range of cardio machines, treadmills, and stationary bikes designed for all fitness levels.</p>
+                            <ul class="list-unstyled">
+                                <li class="benefit-item">
+                                    <i class="fa fa-check benefit-icon"></i>
+                                    High-end Treadmills
+                                </li>
+                                <li class="benefit-item">
+                                    <i class="fa fa-check benefit-icon"></i>
+                                    Elliptical Machines
+                                </li>
+                                <li class="benefit-item">
+                                    <i class="fa fa-check benefit-icon"></i>
+                                    Spinning Bikes
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="service-card">
+                            <div class="service-icon">
+                                <i class="fa fa-users"></i>
+                            </div>
+                            <h3>Strength & Training</h3>
+                            <p>Build strength with our comprehensive free weights section and resistance training machines.</p>
+                            <ul class="list-unstyled">
+                                <li class="benefit-item">
+                                    <i class="fa fa-check benefit-icon"></i>
+                                    Dumbbells & Barbells
+                                </li>
+                                <li class="benefit-item">
+                                    <i class="fa fa-check benefit-icon"></i>
+                                    Bench Press Station
+                                </li>
+                                <li class="benefit-item">
+                                    <i class="fa fa-check benefit-icon"></i>
+                                    Multi-Gym Station
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="service-card">
+                            <div class="service-icon">
+                                <i class="fa fa-heartbeat"></i>
+                            </div>
+                            <h3>Wellness Space</h3>
+                            <p>A dedicated area for stretching, yoga, and cooling down after your intense workout session.</p>
+                            <ul class="list-unstyled">
+                                <li class="benefit-item">
+                                    <i class="fa fa-check benefit-icon"></i>
+                                    Yoga Mats Available
+                                </li>
+                                <li class="benefit-item">
+                                    <i class="fa fa-check benefit-icon"></i>
+                                    Stability Balls
+                                </li>
+                                <li class="benefit-item">
+                                    <i class="fa fa-check benefit-icon"></i>
+                                    Stretching Area
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- === Gym Highlights/Amenities (Process Steps) === -->
+                <div class="row" style="margin-top: 60px;">
+                    <div class="col-md-12">
+                        <div class="section-header text-center">
+                            <h2 class="title">Facility Highlights</h2>
+                            <p>Everything you need for a comfortable workout</p>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="process-step">
+                                    <div class="step-number"><i class="fa fa-snowflake-o" style="font-size: 20px;"></i></div>
+                                    <h4>Air Conditioned</h4>
+                                    <p>Fully climate-controlled environment for your comfort</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="process-step">
+                                    <div class="step-number"><i class="fa fa-tint" style="font-size: 20px;"></i></div>
+                                    <h4>Hydration Station</h4>
+                                    <p>Complimentary water dispenser to keep you hydrated</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="process-step">
+                                    <div class="step-number"><i class="fa fa-music" style="font-size: 20px;"></i></div>
+                                    <h4>Audio System</h4>
+                                    <p>Motivational background music to keep you moving</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="process-step">
+                                    <div class="step-number"><i class="fa fa-medkit" style="font-size: 20px;"></i></div>
+                                    <h4>Sanitized</h4>
+                                    <p>Equipment cleaned regularly for your safety</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- === Enquiry Form Box (REPLACED STATIC CONTENT WITH FORM) === -->
+                <div class="row" style="margin-top: 60px;">
+                    <div class="col-md-8 col-md-offset-2">
+                        <div class="service-card text-center">
+                            <h2>Membership & Training Enquiry</h2>
+                            <p class="lead">Interested in a membership, personal training, or group class details? Send us a message!</p>
+                            
+                            <div class="row" style="margin-top: 30px; margin-bottom: 30px;">
+                                <div class="col-md-6">
+                                    <h4><i class="fa fa-phone"></i> Direct Line</h4>
+                                    <p>+234 (0) 812 313 9279</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h4><i class="fa fa-clock-o"></i> Operating Hours</h4>
+                                    <p>Daily: 6:00 AM - 10:00 PM</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Membership Enquiry Form, posts to the NEW self-contained route -->
+                            <form method="POST" action="/gym/send-enquiry" class="clearfix">
+                                <!-- Hidden field to pre-set the subject for the backend -->
+                                <input type="hidden" name="subject" value="Gym Membership Enquiry">
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <input type="text" name="name" value="<%= formData ? formData.name : '' %>" required class="form-control" placeholder="Your Name*">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <input type="email" name="email" value="<%= formData ? formData.email : '' %>" required class="form-control" placeholder="Your Email*">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <textarea name="message" required class="form-control" rows="4" placeholder="Your Enquiry (e.g., 'I would like details on monthly membership rates.')*"><%= formData ? formData.message : '' %></textarea>
+                                </div>
+
+                                <div class="text-center">
+                                    <button type="submit" class="btn btn-main btn-lg">
+                                        <i class="fa fa-envelope-o"></i> Send Enquiry
+                                    </button>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ========================  Subscribe ======================== -->
+        <section class="subscribe">
+            <div class="container">
+                <div class="box">
+                    <h2 class="title">Special Offers</h2>
+                    <div class="text">
+                        <p>Subscribe to receive exclusive deals & promotions</p>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" value="" placeholder="Your email" class="form-control" />
+                        <button class="btn btn-sm btn-main">Subscribe</button>
+                    </div>
+                </div>
+            </div>
+        </section> 
+
+    </div> <!--/wrapper-->
+
+    <!--JS files-->
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery-ui.js"></script>
+    <script src="/js/jquery.bootstrap.js"></script>
+    <script src="/js/jquery.magnific-popup.js"></script>
+    <script src="/js/jquery.owl.carousel.js"></script>
+    <script src="/js/main.js"></script>
+
+</body>
+</html>

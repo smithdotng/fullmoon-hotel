@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <meta name="description" content="<%= description %>">
+    <meta name="author" content="Full Moon Hotels">
+    <link rel="icon" href="/favicon.ico">
+
+    <title><%= title %></title>
+
+    <link rel="stylesheet" media="all" href="/css/bootstrap.css" />
+    <link rel="stylesheet" media="all" href="/css/animate.css" />
+    <link rel="stylesheet" media="all" href="/css/font-awesome.css" />
+    <link rel="stylesheet" media="all" href="/css/linear-icons.css" />
+    <link rel="stylesheet" media="all" href="/css/hotel-icons.css" />
+    <link rel="stylesheet" media="all" href="/css/magnific-popup.css" />
+    <link rel="stylesheet" media="all" href="/css/owl.carousel.css" />
+    <link rel="stylesheet" media="all" href="/css/datepicker.css" />
+    <link rel="stylesheet" media="all" href="/css/theme.css" />
+
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,500&amp;subset=latin-ext" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Playfair+Display:400,700&amp;subset=latin-ext" rel="stylesheet">
+
+    <style>
+        /* Service Card Styles */
+        .service-card {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            height: 100%;
+        }
+        .service-card:hover {
+            transform: translateY(-5px);
+        }
+        .service-icon {
+            font-size: 48px;
+            color: #c19b76;
+            margin-bottom: 20px;
+        }
+
+        /* Process Steps Styles */
+        .process-step {
+            text-align: center;
+            padding: 20px;
+        }
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: #c19b76;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /* List Items */
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .benefit-icon {
+            color: #c19b76;
+            margin-right: 15px;
+            font-size: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="page-loader"></div>
+
+    <div class="wrapper">
+
+        <section class="page">
+
+            <div class="page-header" style="background-image:url('/assets/images/header-laundry.jpg')">
+                <div class="container">
+                    <h2 class="title">Laundry Services</h2>
+                    <p>Professional cleaning services & premium care</p>
+                </div>
+            </div>
+
+            <div class="container" style="padding: 60px 0;">
+
+                <div class="row" id="services">
+                    <div class="col-md-4">
+                        <div class="service-card">
+                            <div class="service-icon">
+                                <i class="fa fa-tint"></i>
+                            </div>
+                            <h3>Laundry Service</h3>
+                            <p>Professional washing, drying, and folding of your everyday garments. Perfect for casual wear and regular clothing.</p>
+                            <ul class="list-unstyled">
+                                <li class="benefit-item">
+                                    <i class="fa fa-check benefit-icon"></i>
+                                    Same-day service available
+                                </li>
+                                <li class="benefit-item">
+                                    <i class="fa fa-check benefit-icon"></i>
+                                    Eco-friendly detergents
+                                </li>
+                                <li class="benefit-item">
+                                    <i class="fa fa-check benefit-icon"></i>
+                                    Gentle on fabrics
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="service-card">
+                            <div class="service-icon">
+                                <i class="fa fa-snowflake-o"></i>
+                            </div>
+                            <h3>Dry Cleaning</h3>
+                            <p>Expert dry cleaning for delicate fabrics, suits, formal wear, and special occasion garments.</p>
+                            <ul class="list-unstyled">
+                                <li class="benefit-item">
+                                    <i class="fa fa-check benefit-icon"></i>
+                                    Next-day service
+                                </li>
+                                <li class="benefit-item">
+                                    <i class="fa fa-check benefit-icon"></i>
+                                    Stain removal expertise
+                                </li>
+                                <li class="benefit-item">
+                                    <i class="fa fa-check benefit-icon"></i>
+                                    Professional pressing
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="service-card">
+                            <div class="service-icon">
+                                <i class="fa fa-magic"></i>
+                            </div>
+                            <h3>Premium Care</h3>
+                            <p>Specialized care for luxury items, including wedding dresses, leather, and delicate accessories.</p>
+                            <ul class="list-unstyled">
+                                <li class="benefit-item">
+                                    <i class="fa fa-check benefit-icon"></i>
+                                    Hand-washing available
+                                </li>
+                                <li class="benefit-item">
+                                    <i class="fa fa-check benefit-icon"></i>
+                                    Luxury fabric expertise
+                                </li>
+                                <li class="benefit-item">
+                                    <i class="fa fa-check benefit-icon"></i>
+                                    Preservation services
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-top: 60px;">
+                    <div class="col-md-12">
+                        <div class="section-header text-center">
+                            <h2 class="title">How It Works</h2>
+                            <p>Simple and convenient laundry service process</p>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="process-step">
+                                    <div class="step-number">1</div>
+                                    <h4>Request Service</h4>
+                                    <p>Call housekeeping or fill the laundry form in your room</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="process-step">
+                                    <div class="step-number">2</div>
+                                    <h4>Collection</h4>
+                                    <p>We collect your laundry from your room at your preferred time</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="process-step">
+                                    <div class="step-number">3</div>
+                                    <h4>Professional Care</h4>
+                                    <p>Expert cleaning with premium products and careful handling</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="process-step">
+                                    <div class="step-number">4</div>
+                                    <h4>Delivery</h4>
+                                    <p>Fresh, clean garments delivered back to your room</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-top: 60px;">
+                    <div class="col-md-8 col-md-offset-2 text-center">
+                        <div class="service-card">
+                            <h2>Bookings & Enquiries</h2>
+                            <p class="lead">Contact our housekeeping department for immediate assistance or to schedule a pickup</p>
+                            <div class="row" style="margin-top: 30px;">
+                                <div class="col-md-6">
+                                    <h4><i class="fa fa-phone"></i> Phone</h4>
+                                    <p>+234 (0) 812 313 9279</p>
+                                    <p>+234 (0) 707 805 0547</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h4><i class="fa fa-clock-o"></i> Service Hours</h4>
+                                    <p>Daily: 7:00 AM - 9:00 PM</p>
+                                    <p>Emergency: 24/7 Available</p>
+                                </div>
+                            </div>
+                            <div style="margin-top: 30px;">
+                                <a href="tel:+2348123139279" class="btn btn-main btn-lg">
+                                    <i class="fa fa-phone"></i> Call Housekeeping
+                                </a>
+                                <a href="/contact" class="btn btn-default btn-lg">General Enquiry</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="subscribe">
+            <div class="container">
+                <div class="box">
+                    <h2 class="title">Special Offers</h2>
+                    <div class="text">
+                        <p>Subscribe to receive exclusive deals & promotions</p>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" value="" placeholder="Your email" class="form-control" />
+                        <button class="btn btn-sm btn-main">Subscribe</button>
+                    </div>
+                </div>
+            </div>
+        </section> 
+
+    </div> <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery-ui.js"></script>
+    <script src="/js/jquery.bootstrap.js"></script>
+    <script src="/js/jquery.magnific-popup.js"></script>
+    <script src="/js/jquery.owl.carousel.js"></script>
+    <script src="/js/main.js"></script>
+
+</body>
+</html>

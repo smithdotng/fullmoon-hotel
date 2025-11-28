@@ -118,6 +118,8 @@ try {
   const blogRoutes = require('./routes/blog');
   const facilitiesRoutes = require('./routes/facilities');
   const contactRoutes = require('./routes/contact');
+  const laundryRoutes = require('./routes/laundry');
+  const gymRoutes = require('./routes/gym');
   
   // Mount routes
   app.use('/', authRoutes);
@@ -128,6 +130,8 @@ try {
   app.use('/blog', blogRoutes);
   app.use('/facilities', facilitiesRoutes);
   app.use('/contact', contactRoutes);
+  app.use('/laundry', laundryRoutes);
+  app.use('/gym', gymRoutes);
 
   
   console.log('✅ All routes loaded successfully');
