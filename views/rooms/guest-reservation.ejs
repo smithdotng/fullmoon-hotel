@@ -327,7 +327,7 @@
 
                                                 <div class="col-md-6">
                                                     <div class="form-group">
-                                                        <strong>Total Amount</strong><br />
+                                                        <strong>Total Amount (Including VAT)</strong><br />
                                                         <span class="h4 text-success">₦<%= reservation.totalAmount.toLocaleString() %></span>
                                                     </div>
                                                 </div>
@@ -403,42 +403,55 @@
                                         <div>
                                             <strong>Room Number</strong> <%= reservation.room.roomNumber %>
                                         </div>
+                                        <div class="text-success mt-2">
+                                            <i class="fa fa-coffee"></i> <strong>Includes:</strong> Complimentary breakfast for one
+                                        </div>
                                     </div>
                                     <div class="price">
                                         <span class="final h3">₦ <%= reservation.totalAmount.toLocaleString() %></span>
-                                        <span class="discount">Total Amount</span>
+                                        <span class="discount">Total Amount (Including VAT)</span>
                                     </div>
                                 </div>
 
                             </div>
 
                             <!--cart prices -->
+                            <%
+                                // Calculate amounts
+                                const roomRatePerNight = reservation.room.price;
+                                const roomTotal = roomRatePerNight * nights;
+                                const vatRate = 7.5; // 7.5% VAT
+                                const vatAmount = roomTotal * (vatRate / 100);
+                                const totalAmount = roomTotal + vatAmount;
+                            %>
 
                             <div class="clearfix">
                                 <div class="cart-block cart-block-footer clearfix">
                                     <div>
-                                        <strong>Room Rate (₦<%= reservation.room.price.toLocaleString() %> × <%= nights %> nights)</strong>
+                                        <strong>Room Rate (₦<%= roomRatePerNight.toLocaleString() %> × <%= nights %> nights)</strong>
                                     </div>
                                     <div>
-                                        <span>₦<%= (reservation.room.price * nights).toLocaleString() %></span>
-                                    </div>
-                                </div>
-
-                                <div class="cart-block cart-block-footer clearfix">
-                                    <div>
-                                        <strong>Service Charge</strong>
-                                    </div>
-                                    <div>
-                                        <span>₦0</span>
+                                        <span>₦<%= roomTotal.toLocaleString() %></span>
                                     </div>
                                 </div>
 
                                 <div class="cart-block cart-block-footer clearfix">
                                     <div>
-                                        <strong>Taxes & Fees</strong>
+                                        <strong>VAT @ 7.5%</strong>
+                                        <small class="text-muted d-block">Value Added Tax included in room rate</small>
                                     </div>
                                     <div>
-                                        <span>Included</span>
+                                        <span>₦<%= vatAmount.toLocaleString() %></span>
+                                    </div>
+                                </div>
+
+                                <div class="cart-block cart-block-footer clearfix">
+                                    <div>
+                                        <strong>Complimentary Breakfast</strong>
+                                        <small class="text-muted d-block">Breakfast for one included in stay</small>
+                                    </div>
+                                    <div>
+                                        <span class="text-success">FREE</span>
                                     </div>
                                 </div>
                             </div>
@@ -448,10 +461,18 @@
                             <div class="clearfix">
                                 <div class="cart-block cart-block-footer cart-block-footer-price clearfix">
                                     <div>
-                                        <i class="fa fa-check text-success"></i> Booking Confirmed!
+                                        <div class="mb-2">
+                                            <i class="fa fa-check text-success"></i> Booking Confirmed!
+                                        </div>
+                                        <div class="small text-muted">
+                                            <strong>Note:</strong> Total amount includes 7.5% VAT. Complimentary breakfast for one included.
+                                        </div>
                                     </div>
                                     <div>
-                                        <div class="h2 title">₦<%= reservation.totalAmount.toLocaleString() %></div>
+                                        <div class="h2 title">₦<%= totalAmount.toLocaleString() %></div>
+                                        <div class="small text-muted">
+                                            Total including VAT
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -466,16 +487,37 @@
                                             <li class="mb-2"><i class="fa fa-check text-success mr-2"></i>Free cancellation up to 24 hours before check-in</li>
                                             <li class="mb-2"><i class="fa fa-check text-success mr-2"></i>Present ID and this booking confirmation at check-in</li>
                                             <li class="mb-2"><i class="fa fa-check text-success mr-2"></i>Early check-in available upon request</li>
+                                            <li class="mb-2"><i class="fa fa-coffee text-success mr-2"></i>Complimentary breakfast for one included</li>
+                                            <li class="mb-2"><i class="fa fa-percent text-success mr-2"></i>7.5% VAT included in room rate</li>
                                         </ul>
                                     </div>
                                     <div class="col-md-6">
                                         <ul class="list-unstyled">
                                             <li class="mb-2"><i class="fa fa-clock-o text-primary mr-2"></i>Check-in: 2:00 PM</li>
                                             <li class="mb-2"><i class="fa fa-clock-o text-primary mr-2"></i>Check-out: 12:00 PM</li>
-                                            <li class="mb-2"><i class="fa fa-phone text-primary mr-2"></i>Contact: +234 803 123 4567</li>
+                                            <li class="mb-2"><i class="fa fa-phone text-primary mr-2"></i>Contact: +234 812 313 9279</li>
                                             <li class="mb-2"><i class="fa fa-map-marker text-primary mr-2"></i>Address: Owerri, Imo State, Nigeria</li>
+                                            <li class="mb-2"><i class="fa fa-cutlery text-primary mr-2"></i>Breakfast: 7:00 AM - 10:00 AM daily</li>
                                         </ul>
                                     </div>
+                                </div>
+                                
+                                <!-- VAT Notice -->
+                                <div class="alert alert-info mt-3">
+                                    <h5><i class="fa fa-info-circle"></i> VAT Information</h5>
+                                    <p class="mb-0">
+                                        The total amount of ₦<%= totalAmount.toLocaleString() %> includes 7.5% Value Added Tax (VAT) of ₦<%= vatAmount.toLocaleString() %>. 
+                                        This VAT is calculated on the room rate of ₦<%= roomTotal.toLocaleString() %> for <%= nights %> night(s).
+                                    </p>
+                                </div>
+                                
+                                <!-- Breakfast Information -->
+                                <div class="alert alert-success mt-2">
+                                    <h5><i class="fa fa-coffee"></i> Breakfast Information</h5>
+                                    <p class="mb-0">
+                                        Your stay includes complimentary breakfast for one person served daily from 7:00 AM to 10:00 AM. 
+                                        Please present your room key at the restaurant. Additional breakfast can be purchased at the restaurant.
+                                    </p>
                                 </div>
                             </div>
 
@@ -598,6 +640,18 @@
         }
         .text-success {
             color: #28a745 !important;
+        }
+        .alert {
+            border-radius: 8px;
+            border: none;
+        }
+        .alert-info {
+            background-color: #e8f4fd;
+            border-left: 4px solid #17a2b8;
+        }
+        .alert-success {
+            background-color: #e8f7ef;
+            border-left: 4px solid #28a745;
         }
     </style>
 </body>

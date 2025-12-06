@@ -47,7 +47,7 @@
     <div class="wrapper">
 
         <!-- Header partial -->
-        <%- include('../partials/header') %>
+    
 
         <!-- ========================  Room ======================== -->
 
@@ -100,140 +100,113 @@
                 </div> <!--/room-gallery-->
 
                 <!-- === Booking === -->
+<section class="booking booking-default-theme">
 
-                <div class="booking booking-inner">
+            <div class="section-header hidden">
+                <div class="container">
+                    <h2 class="title">Booking & reservations</h2>
+                </div>
+            </div>
 
-                    <div class="container">
+            <div class="booking-wrapper">
 
-                        <div class="booking-wrapper">
-                            <div class="row">
+                <div class="container">
+                    <form action="/rooms/check-availability" method="POST">
+                        <div class="row">
 
-                                <!--=== date arrival ===-->
+                            <!--=== date arrival ===-->
 
-                                <div class="col-xs-4 col-sm-3">
-                                    <div class="date" id="dateArrival" data-text="Arrival">
-                                        <input class="datepicker" readonly="readonly" name="checkIn" />
-                                        <div class="date-value"></div>
+                            <div class="col-xs-4 col-sm-3">
+                                <div class="date" id="dateArrival" data-text="Arrival">
+                                    <input class="datepicker" name="checkIn" readonly="readonly" required />
+                                    <div class="date-value">Arrival</div>
+                                </div>
+                            </div>
+
+                            <!--=== date departure ===-->
+
+                            <div class="col-xs-4 col-sm-3">
+                                <div class="date" id="dateDeparture" data-text="Departure">
+                                    <input class="datepicker" name="checkOut" readonly="readonly" required />
+                                    <div class="date-value">Departure</div>
+                                </div>
+                            </div>
+
+                            <!--=== guests ===-->
+
+                            <div class="col-xs-4 col-sm-2">
+                                <div class="guests" data-text="Guests">
+                                    <div class="result">
+                                        <input class="qty-result" type="text" value="1" id="qty-result" readonly="readonly" />
+                                        <div class="qty-result-text date-value" id="qty-result-text">1 Guest</div>
                                     </div>
+                                    <!--=== guests list ===-->
+                                    <ul class="guest-list">
+                                        <li class="header">
+                                            Please choose number of guests 
+                                            <span class="qty-apply">Apply</span>
+                                            <span class="qty-close"><i class="icon icon-cross"></i></span>
+                                        </li>
+
+                                        <!--=== adults ===-->
+                                        <li class="clearfix">
+                                            <div>
+                                                <input class="qty-amount" value="1" type="text" id="ticket-adult" name="adults" data-value="1" readonly="readonly" />
+                                            </div>
+                                            <div>
+                                                <span>Adults <small>16+ years</small></span>
+                                            </div>
+                                            <div>
+                                                <button type="button" class="qty-btn qty-minus" value="-" data-field="adult">-</button>
+                                                <button type="button" class="qty-btn qty-plus" value="+" data-field="adult">+</button>
+                                            </div>
+                                        </li>
+
+                                        <!--=== children ===-->
+                                        <li class="clearfix">
+                                            <div>
+                                                <input class="qty-amount" value="0" type="text" id="ticket-children" name="children" data-value="0" readonly="readonly" />
+                                            </div>
+                                            <div>
+                                                <span>Children <small>2-11 years</small></span>
+                                            </div>
+                                            <div>
+                                                <button type="button" class="qty-btn qty-minus" value="-" data-field="children">-</button>
+                                                <button type="button" class="qty-btn qty-plus" value="+" data-field="children">+</button>
+                                            </div>
+                                        </li>
+
+                                        <!--=== infants ===-->
+                                        <li class="clearfix">
+                                            <div>
+                                                <input class="qty-amount" value="0" type="text" id="ticket-infants" name="infants" data-value="0" readonly="readonly" />
+                                            </div>
+                                            <div>
+                                                <span>Infants <small>Under 2 years</small></span>
+                                            </div>
+                                            <div>
+                                                <button type="button" class="qty-btn qty-minus" value="-" data-field="infant">-</button>
+                                                <button type="button" class="qty-btn qty-plus" value="+" data-field="infant">+</button>
+                                            </div>
+                                        </li>
+                                    </ul>
                                 </div>
+                            </div>
 
-                                <!--=== date departure ===-->
+                            <!--=== button ===-->
 
-                                <div class="col-xs-4 col-sm-3">
-                                    <div class="date" id="dateDeparture" data-text="Departure">
-                                        <input class="datepicker" readonly="readonly" name="checkOut" />
-                                        <div class="date-value"></div>
-                                    </div>
-                                </div>
+                            <div class="col-xs-12 col-sm-4">
+                                <button type="submit" class="btn btn-clean">
+                                    Check Availability
+                                    <small>Best Rates Guaranteed</small>
+                                </button>
+                            </div>
 
-                                <!--=== guests ===-->
-
-                                <div class="col-xs-4 col-sm-2">
-
-                                    <div class="guests" data-text="Guests">
-                                        <div class="result">
-                                            <input class="qty-result" type="text" value="2" id="qty-result" readonly="readonly" />
-                                            <div class="qty-result-text date-value" id="qty-result-text"></div>
-                                        </div>
-                                        <!--=== guests list ===-->
-                                        <ul class="guest-list">
-
-                                            <li class="header">
-                                                Please choose number of guests <span class="qty-apply"><i class="icon icon-cross"></i></span>
-                                            </li>
-
-                                            <!--=== adults ===-->
-
-                                            <li class="clearfix">
-
-                                                <!--=== Adults value ===-->
-
-                                                <div>
-                                                    <input class="qty-amount" value="2" type="text" id="ticket-adult" data-value="2" readonly="readonly" />
-                                                </div>
-
-                                                <div>
-                                                    <span>Adults <small>16+ years</small></span>
-                                                </div>
-
-                                                <!--=== Add/remove quantity buttons ===-->
-
-                                                <div>
-                                                    <input class="qty-btn qty-minus" value="-" type="button" data-field="ticket-adult" />
-                                                    <input class="qty-btn qty-plus" value="+" type="button" data-field="ticket-adult" />
-                                                </div>
-
-                                            </li>
-
-                                            <!--=== children ===-->
-
-                                            <li class="clearfix">
-
-                                                <!--=== Children value ===-->
-
-                                                <div>
-                                                    <input class="qty-amount" value="0" type="text" id="ticket-children" data-value="0" readonly="readonly" />
-                                                </div>
-
-                                                <!--=== Label ===-->
-
-                                                <div>
-                                                    <span>Children <small>2-11 years</small></span>
-                                                </div>
-
-
-                                                <!--=== Add/remove quantity buttons ===-->
-
-                                                <div>
-                                                    <input class="qty-btn qty-minus" value="-" type="button" data-field="ticket-children" />
-                                                    <input class="qty-btn qty-plus" value="+" type="button" data-field="ticket-children" />
-                                                </div>
-
-                                            </li>
-
-                                            <!--=== Infants ===-->
-
-                                            <li class="clearfix">
-
-                                                <!--=== Infants value ===-->
-
-                                                <div>
-                                                    <input class="qty-amount" value="0" type="text" id="ticket-infants" data-value="0" readonly="readonly" />
-                                                </div>
-
-                                                <!--=== Label ===-->
-
-                                                <div>
-                                                    <span>Infants <small>Under 2 years</small></span>
-                                                </div>
-
-                                                <!--=== Add/remove quantity buttons ===-->
-
-                                                <div>
-                                                    <input class="qty-btn qty-minus" value="-" type="button" data-field="ticket-infants" />
-                                                    <input class="qty-btn qty-plus" value="+" type="button" data-field="ticket-infants" />
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <!--=== button ===-->
-
-                                <div class="col-xs-12 col-sm-4">
-                                    <form action="/rooms/book/<%= room._id %>" method="POST" id="bookingForm">
-                                        <input type="hidden" name="guests" id="totalGuests" value="2" />
-                                        <button type="submit" class="btn btn-clean">
-                                            Book now
-                                            <small>Best Prices Guaranteed</small>
-                                        </button>
-                                    </form>
-                                </div>
-
-                            </div> <!--/row-->
-                        </div><!--/booking-wrapper-->
-                    </div> <!--/container-->
-                </div> <!--/booking-->
+                        </div> <!--/row-->
+                    </form>
+                </div><!--/booking-wrapper-->
+            </div> <!--/container-->
+        </section>
 
                  <!-- ===  Room overview === -->
                         <div class="room-overview">
@@ -244,7 +217,7 @@
                                         <!-- === Room amenities === -->
                                         <div class="room-block room-aminities">
                                             <h2 class="title">Room amenities</h2>
-                                            <div class="row">
+                                            <div class="row" style="justify-content: center;">
                                                 <!--=== item ===-->
                                                 <div class="col-xs-6 col-sm-2">
                                                     <figure>
@@ -285,15 +258,7 @@
                                                     </figure>
                                                 </div>
 
-                                                <!--=== item ===-->
-                                                <div class="col-xs-6 col-sm-2">
-                                                    <figure>
-                                                        <figcaption>
-                                                            <span class="hotelicon hotelicon-washer"></span>
-                                                            <p>Washer</p>
-                                                        </figcaption>
-                                                    </figure>
-                                                </div>
+                                               
 
                                                 <!--=== item ===-->
                                                 <div class="col-xs-6 col-sm-2">
@@ -645,51 +610,170 @@
     <script src="/js/jquery.magnific-popup.js"></script>
     <script src="/js/jquery.owl.carousel.js"></script>
     <script src="/js/main.js"></script>
-    <script>
-        $(document).ready(function() {
-            // Guests calculation for booking form
-            function updateTotalGuests() {
-                var adults = parseInt($('#ticket-adult').val()) || 0;
-                var children = parseInt($('#ticket-children').val()) || 0;
-                var infants = parseInt($('#ticket-infants').val()) || 0;
-                var total = adults + children + infants;
-                $('#totalGuests').val(total);
-                $('#qty-result').val(total);
-                $('#qty-result-text').text(total + ' guest' + (total !== 1 ? 's' : ''));
-            }
+   <script>
+    $(document).ready(function () {
+        // Initialize guest counter with clean state
+        initializeGuestCounter();
+    });
 
-            $('.qty-btn').on('click', function() {
-                var $button = $(this);
-                var field = $button.data('field');
-                var $input = $('#' + field);
-                var currentVal = parseInt($input.val()) || 0;
-                if ($button.hasClass('qty-minus')) {
-                    if (currentVal > 0) $input.val(currentVal - 1);
-                } else {
-                    $input.val(currentVal + 1);
-                }
-                updateTotalGuests();
-            });
+    function initializeGuestCounter() {
+        var $guests = $('.guests');
+        var $guestList = $guests.find('.guest-list');
+        var $result = $guests.find('.result');
+        
+        // Clean up ALL existing event handlers first
+        $guests.off('click');
+        $result.off('click');
+        $guestList.off('click');
+        $guestList.find('.qty-btn').off('click');
+        $guestList.find('.qty-apply').off('click');
+        $guestList.find('.qty-close').off('click');
+        $(document).off('click.guestDropdown');
+        $(document).off('keydown.guestDropdown');
+        
+        // Set initial values
+        $('#ticket-adult').val('1');
+        $('#ticket-children').val('0');
+        $('#ticket-infants').val('0');
+        updateGuestSummary();
+        updateButtonStates();
 
-            // Initialize with correct guest count
-            updateTotalGuests();
-
-            // Datepicker integration for booking form
-            $('#bookingForm').on('submit', function(e) {
-                var checkIn = $('#dateArrival input').val();
-                var checkOut = $('#dateDeparture input').val();
-                var guests = $('#totalGuests').val();
-                if (!checkIn || !checkOut || guests < 1) {
-                    e.preventDefault();
-                    alert('Please select dates and number of guests.');
-                    return false;
-                }
-                // Add dates to form
-                $('<input>').attr({type: 'hidden', name: 'checkIn', value: checkIn}).appendTo(this);
-                $('<input>').attr({type: 'hidden', name: 'checkOut', value: checkOut}).appendTo(this);
-            });
+        // 1. OPEN/CLOSE DROPDOWN
+        $result.on('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Close other dropdowns if any
+            $('.guest-list.open').not($guestList).removeClass('open');
+            
+            // Toggle this dropdown
+            $guestList.toggleClass('open');
         });
-    </script>
+
+        // 2. PREVENT CLICKS INSIDE DROPDOWN FROM CLOSING
+        $guestList.on('click', function(e) {
+            e.stopPropagation();
+        });
+
+        // 3. PLUS/MINUS BUTTONS - Simple, direct handling
+        $guestList.find('.qty-btn').on('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            var $button = $(this);
+            var field = $button.data('field');
+            var isPlus = $button.hasClass('qty-plus');
+            var isMinus = $button.hasClass('qty-minus');
+            
+            var $input;
+            switch(field) {
+                case 'adult':
+                    $input = $('#ticket-adult');
+                    break;
+                case 'children':
+                    $input = $('#ticket-children');
+                    break;
+                case 'infant':
+                    $input = $('#ticket-infants');
+                    break;
+                default:
+                    return;
+            }
+            
+            var currentVal = parseInt($input.val(), 10) || 0;
+            
+            if (isPlus) {
+                // Add exactly 1
+                $input.val(currentVal + 1);
+            } else if (isMinus) {
+                // Subtract exactly 1, with minimum constraints
+                if (field === 'adult') {
+                    // Adults: minimum 1
+                    if (currentVal > 1) {
+                        $input.val(currentVal - 1);
+                    }
+                } else {
+                    // Children and infants: minimum 0
+                    if (currentVal > 0) {
+                        $input.val(currentVal - 1);
+                    }
+                }
+            }
+            
+            updateGuestSummary();
+            updateButtonStates();
+        });
+
+        // 4. APPLY BUTTON
+        $guestList.find('.qty-apply').on('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $guestList.removeClass('open');
+        });
+
+        // 5. CLOSE BUTTON (X)
+        $guestList.find('.qty-close').on('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $guestList.removeClass('open');
+        });
+
+        // 6. CLOSE DROPDOWN WHEN CLICKING OUTSIDE
+        $(document).on('click.guestDropdown', function(e) {
+            if (!$guests.is(e.target) && $guests.has(e.target).length === 0) {
+                $guestList.removeClass('open');
+            }
+        });
+
+        // 7. ESCAPE KEY TO CLOSE
+        $(document).on('keydown.guestDropdown', function(e) {
+            if (e.keyCode === 27 && $guestList.hasClass('open')) {
+                $guestList.removeClass('open');
+            }
+        });
+
+        // Helper functions
+        function updateGuestSummary() {
+            var adults = parseInt($('#ticket-adult').val(), 10) || 0;
+            var children = parseInt($('#ticket-children').val(), 10) || 0;
+            var infants = parseInt($('#ticket-infants').val(), 10) || 0;
+            var total = adults + children + infants;
+            
+            // Ensure minimum values
+            if (adults < 1) {
+                adults = 1;
+                $('#ticket-adult').val(1);
+            }
+            if (children < 0) {
+                children = 0;
+                $('#ticket-children').val(0);
+            }
+            if (infants < 0) {
+                infants = 0;
+                $('#ticket-infants').val(0);
+            }
+            
+            total = adults + children + infants;
+            
+            $('#qty-result').val(total);
+            $('#qty-result-text').text(total + ' Guest' + (total !== 1 ? 's' : ''));
+        }
+
+        function updateButtonStates() {
+            // Adults
+            var adults = parseInt($('#ticket-adult').val(), 10) || 0;
+            $guestList.find('[data-field="adult"].qty-minus').prop('disabled', adults <= 1);
+            
+            // Children
+            var children = parseInt($('#ticket-children').val(), 10) || 0;
+            $guestList.find('[data-field="children"].qty-minus').prop('disabled', children <= 0);
+            
+            // Infants
+            var infants = parseInt($('#ticket-infants').val(), 10) || 0;
+            $guestList.find('[data-field="infant"].qty-minus').prop('disabled', infants <= 0);
+        }
+    }
+</script>
 </body>
 
 </html>
