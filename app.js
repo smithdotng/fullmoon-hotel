@@ -120,6 +120,12 @@ try {
   const contactRoutes = require('./routes/contact');
   const laundryRoutes = require('./routes/laundry');
   const gymRoutes = require('./routes/gym');
+  // In your app.js file, add:
+  const reservationsRouter = require('./routes/reservations');
+  const manageReservationsRoutes = require('./routes/manage-reservations');
+
+
+
   
   // Mount routes
   app.use('/', authRoutes);
@@ -132,6 +138,8 @@ try {
   app.use('/contact', contactRoutes);
   app.use('/laundry', laundryRoutes);
   app.use('/gym', gymRoutes);
+  app.use('/reservations', reservationsRouter);
+  app.use('/manage-reservations', manageReservationsRoutes);
 
   
   console.log('✅ All routes loaded successfully');

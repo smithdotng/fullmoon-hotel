@@ -136,7 +136,7 @@
             </div>
             <div class="price">
                 <span class="final h3">₦ <%= room.price.toLocaleString() %></span>
-                <span class="discount">per night</span>
+                <span>per night</span>
                 <div class="mt-3">
                     <form action="/rooms/book/<%= room._id %>" method="POST" class="d-inline">
                         <input type="hidden" name="checkIn" value="<%= checkIn %>">

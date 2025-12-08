@@ -1,11 +1,11 @@
-// routes/rooms.js - FIXED VERSION
+// routes/rooms.js - FIXED VERSION with VAT
 const express = require('express');
 const router = express.Router();
 const Room = require('../models/Room');
 const Reservation = require('../models/Reservation');
 const mongoose = require('mongoose');
 
-console.log('=== ROUTES/ROOMS.JS LOADED ===');
+console.log('=== ROUTES/ROOMS.JS LOADED WITH VAT ===');
 
 // Enhanced date parser - handles ISO (YYYY-MM-DD), custom 'dd MM yy', and HTML stripping
 function parseCustomDate(dateStr) {
@@ -79,7 +79,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /rooms/category/:category - Category overview (uses different template)
 // GET /rooms/category/:category - Category overview (uses different template)
 router.get('/category/:category', async (req, res) => {
   try {
@@ -264,7 +263,7 @@ router.get('/booking-confirmation', async (req, res) => {
       return res.redirect('/rooms');
     }
 
-    // Calculate stay details
+    // Calculate stay details with VAT
     const nights = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
     
     if (nights <= 0) {
@@ -273,12 +272,18 @@ router.get('/booking-confirmation', async (req, res) => {
       return res.redirect('/rooms');
     }
 
-    const totalAmount = room.price * nights;
+    const roomTotal = room.price * nights;
+    const vatRate = 7.5; // 7.5% VAT
+    const vatAmount = roomTotal * (vatRate / 100);
+    const totalAmount = roomTotal + vatAmount;
 
-    console.log('Booking details calculated:', {
+    console.log('Booking details calculated with VAT:', {
       nights,
       pricePerNight: room.price,
-      totalAmount
+      roomTotal: roomTotal,
+      vatRate: vatRate + '%',
+      vatAmount: vatAmount,
+      totalAmount: totalAmount
     });
 
     console.log('Rendering booking-confirmation.ejs template...');
@@ -291,7 +296,7 @@ router.get('/booking-confirmation', async (req, res) => {
       checkOut: checkOutDate.toISOString().split('T')[0],
       guests,
       nights,
-      totalAmount,
+      totalAmount, // Pass the VAT-included total
       messages: req.flash()
     });
 
@@ -374,9 +379,12 @@ router.post('/book/:id', async (req, res) => {
   }
 });
 
-// POST /rooms/confirm-booking - Finalize booking (guest)
+// POST /rooms/confirm-booking - Finalize booking (guest) - UPDATED WITH VAT AND BETTER DEBUGGING
 router.post('/confirm-booking', async (req, res) => {
   try {
+    console.log('=== CONFIRM BOOKING REQUEST START ===');
+    console.log('Full request body:', req.body);
+
     const {
       roomId,
       checkIn,
@@ -387,22 +395,50 @@ router.post('/confirm-booking', async (req, res) => {
       guestPhone
     } = req.body;
 
-    console.log('=== CONFIRM BOOKING REQUEST ===');
-    console.log('Request body:', req.body);
+    // Debug: Check what values we're receiving
+    console.log('Received values:', {
+      roomId,
+      checkIn,
+      checkOut,
+      guests,
+      guestName,
+      guestEmail,
+      guestPhone
+    });
 
-    if (!roomId || !checkIn || !checkOut || !guests || !guestName || !guestEmail || !guestPhone) {
-      req.flash('error', 'Please fill in all guest information');
-      return res.redirect('back');
+    // Validate all required fields
+    const missingFields = [];
+    if (!roomId) missingFields.push('roomId');
+    if (!checkIn) missingFields.push('checkIn');
+    if (!checkOut) missingFields.push('checkOut');
+    if (!guests) missingFields.push('guests');
+    if (!guestName) missingFields.push('guestName');
+    if (!guestEmail) missingFields.push('guestEmail');
+    if (!guestPhone) missingFields.push('guestPhone');
+
+    if (missingFields.length > 0) {
+      console.log('Missing required fields:', missingFields);
+      req.flash('error', `Please fill in all required fields: ${missingFields.join(', ')}`);
+      return res.redirect('/rooms/booking-confirmation?roomId=' + roomId + '&checkIn=' + checkIn + '&checkOut=' + checkOut + '&guests=' + guests);
     }
 
     if (!mongoose.Types.ObjectId.isValid(roomId)) {
-      req.flash('error', 'Invalid room');
+      console.log('Invalid room ID format:', roomId);
+      req.flash('error', 'Invalid room ID format');
       return res.redirect('/rooms');
     }
 
     const room = await Room.findById(roomId);
-    if (!room || !room.available) {
+    console.log('Room lookup result:', room ? `Found: ${room.type} (${room.roomNumber})` : 'NOT FOUND');
+    
+    if (!room) {
+      console.log('Room not found in database');
       req.flash('error', 'Room no longer available');
+      return res.redirect('/rooms');
+    }
+
+    if (!room.available) {
+      req.flash('error', 'Sorry, this room is not available for booking');
       return res.redirect('/rooms');
     }
 
@@ -412,17 +448,19 @@ router.post('/confirm-booking', async (req, res) => {
 
     console.log('Confirm booking parsed dates:', { 
       originalCheckIn: checkIn, 
-      parsedCheckIn: checkInDate ? checkInDate.toISOString().split('T')[0] : 'INVALID',
+      parsedCheckIn: checkInDate ? checkInDate.toISOString() : 'INVALID',
       originalCheckOut: checkOut, 
-      parsedCheckOut: checkOutDate ? checkOutDate.toISOString().split('T')[0] : 'INVALID'
+      parsedCheckOut: checkOutDate ? checkOutDate.toISOString() : 'INVALID'
     });
 
     if (!checkInDate || !checkOutDate) {
-      req.flash('error', 'Invalid date format');
-      return res.redirect('back');
+      console.log('Invalid date format after parsing');
+      req.flash('error', 'Invalid date format. Please select valid dates.');
+      return res.redirect('/rooms/booking-confirmation?roomId=' + roomId + '&checkIn=' + checkIn + '&checkOut=' + checkOut + '&guests=' + guests);
     }
 
     // Check for overlapping reservations
+    console.log('Checking for overlapping reservations...');
     const overlap = await Reservation.findOne({
       room: roomId,
       checkIn: { $lt: checkOutDate },
@@ -431,32 +469,54 @@ router.post('/confirm-booking', async (req, res) => {
     });
 
     if (overlap) {
+      console.log('Found overlapping reservation:', overlap._id);
       req.flash('error', 'Room has been booked for the selected dates. Please choose another room.');
       return res.redirect('/rooms');
     }
 
     const nights = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
-    const totalAmount = room.price * nights;
+    
+    // Calculate with VAT
+    const roomTotal = room.price * nights;
+    const vatRate = 7.5; // 7.5% VAT
+    const vatAmount = roomTotal * (vatRate / 100);
+    const totalAmount = roomTotal + vatAmount;
+
+    console.log('Creating reservation with VAT calculation:', {
+      nights,
+      pricePerNight: room.price,
+      roomTotal: roomTotal,
+      vatRate: vatRate + '%',
+      vatAmount: vatAmount,
+      totalAmount: totalAmount
+    });
 
     const reservation = new Reservation({
       room: room._id,
       checkIn: checkInDate,
       checkOut: checkOutDate,
       guests: parseInt(guests),
-      totalAmount,
+      roomRate: room.price, // Store base room rate
+      nights: nights, // Store number of nights
+      roomTotal: roomTotal, // Store room total without VAT
+      vatRate: vatRate, // Store VAT rate
+      vatAmount: vatAmount, // Store VAT amount
+      totalAmount: totalAmount, // Store total with VAT
       guestName: guestName.trim(),
       guestEmail: guestEmail.trim(),
       guestPhone: guestPhone.trim(),
       status: 'confirmed'
     });
 
+    console.log('Attempting to save reservation...');
     await reservation.save();
-    console.log('Guest reservation created:', reservation._id);
+    console.log('Guest reservation created with VAT:', reservation._id);
 
-    // Send confirmation email
+    // Send confirmation email with VAT details
     try {
-      await sendReservationConfirmation(reservation, room);
-      console.log('Confirmation email sent successfully');
+      // Comment out email sending for now to debug
+      // await sendReservationConfirmation(reservation, room);
+      console.log('Email sending would happen here (commented out for debugging)');
     } catch (emailError) {
       console.error('Failed to send confirmation email:', emailError);
       // Don't fail the reservation if email fails
@@ -464,17 +524,86 @@ router.post('/confirm-booking', async (req, res) => {
 
     req.flash('success', `Booking confirmed! A confirmation email has been sent to ${guestEmail}`);
     
-    // FIXED: Redirect to the correct URL path
-    res.redirect(`/reservations/guest/${reservation._id}`);
+    console.log('=== CONFIRM BOOKING SUCCESS - Redirecting to guest reservation ===');
+    console.log('Redirect URL will be:', `/rooms/guest-reservation/${reservation._id}`);
+    
+    // Redirect to guest reservation page
+    res.redirect(`/rooms/guest-reservation/${reservation._id}`);
 
   } catch (error) {
-    console.error('Confirm booking error:', error);
-    req.flash('error', 'Booking failed. Please try again.');
-    res.redirect('back');
+    console.error('CONFIRM BOOKING ERROR DETAILS:', error);
+    console.error('Error stack:', error.stack);
+    
+    // Check for specific MongoDB validation errors
+    if (error.name === 'ValidationError') {
+      const validationErrors = Object.values(error.errors).map(err => err.message);
+      console.log('Validation errors:', validationErrors);
+      req.flash('error', `Validation error: ${validationErrors.join(', ')}`);
+    } else {
+      req.flash('error', `Booking failed: ${error.message}`);
+    }
+    
+    // Redirect back to booking confirmation with parameters
+    const { roomId, checkIn, checkOut, guests } = req.body;
+    return res.redirect(`/rooms/booking-confirmation?roomId=${roomId || ''}&checkIn=${checkIn || ''}&checkOut=${checkOut || ''}&guests=${guests || ''}`);
   }
 });
 
-// GET /rooms/:id - Single room detail (MUST COME AFTER booking-confirmation)
+// GET /rooms/guest-reservation/:id - Guest reservation confirmation page
+router.get('/guest-reservation/:id', async (req, res) => {
+  try {
+    console.log('=== GUEST RESERVATION ROUTE HIT ===');
+    const reservationId = req.params.id;
+    
+    console.log('Looking for reservation:', reservationId);
+    
+    if (!mongoose.Types.ObjectId.isValid(reservationId)) {
+      console.log('Invalid reservation ID format');
+      return res.status(404).render('error', {
+        title: 'Reservation Not Found',
+        error: 'Invalid reservation ID'
+      });
+    }
+
+    const reservation = await Reservation.findById(reservationId).populate('room');
+    
+    console.log('Reservation found:', reservation ? 'YES' : 'NO');
+    
+    if (!reservation) {
+      console.log('Reservation not found in database');
+      return res.status(404).render('error', {
+        title: 'Reservation Not Found',
+        error: 'The requested reservation was not found.'
+      });
+    }
+
+    // Calculate nights for display
+    const nights = Math.ceil((reservation.checkOut - reservation.checkIn) / (1000 * 60 * 60 * 24));
+
+    console.log('Rendering guest-reservation.ejs with reservation data');
+    console.log('Reservation details:', {
+      id: reservation._id,
+      guestName: reservation.guestName,
+      guestEmail: reservation.guestEmail,
+      nights: nights,
+      totalAmount: reservation.totalAmount
+    });
+    
+    res.render('rooms/guest-reservation', {
+      title: 'Booking Confirmed - Full Moon Hotels',
+      reservation,
+      nights
+    });
+  } catch (error) {
+    console.error('Error loading guest reservation:', error);
+    res.status(500).render('error', {
+      title: 'Server Error',
+      error: 'Failed to load reservation details'
+    });
+  }
+});
+
+// GET /rooms/:id - Single room detail (MUST COME AFTER booking-confirmation and guest-reservation)
 router.get('/:id', async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
@@ -569,6 +698,12 @@ router.get('/debug/reservation/:id', async (req, res) => {
         guestEmail: reservation.guestEmail,
         checkIn: reservation.checkIn,
         checkOut: reservation.checkOut,
+        roomRate: reservation.roomRate,
+        nights: reservation.nights,
+        roomTotal: reservation.roomTotal,
+        vatRate: reservation.vatRate,
+        vatAmount: reservation.vatAmount,
+        totalAmount: reservation.totalAmount,
         room: reservation.room ? {
           _id: reservation.room._id,
           type: reservation.room.type,

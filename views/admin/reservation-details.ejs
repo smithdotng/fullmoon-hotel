@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - Full Moon Hotels</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        .detail-card { border-left: 4px solid #007bff; }
+        .notes-box { background-color: #f8f9fa; border-left: 4px solid #6c757d; }
+        .payment-form-section { background-color: #e8f4f8; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/admin">Full Moon Hotels Admin</a>
+            <div class="navbar-nav">
+                <a class="nav-link" href="/manage-reservations"><i class="bi bi-arrow-left"></i> Back to Reservations</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-12">
+                <h1 class="h3 mb-4">
+                    <i class="bi bi-person-badge"></i> Reservation Details
+                    <span class="badge <%= reservation.status === 'confirmed' ? 'bg-success' : reservation.status === 'pending' ? 'bg-warning' : 'bg-danger' %>">
+                        <%= reservation.status.toUpperCase() %>
+                    </span>
+                </h1>
+                
+                <!-- Flash Messages -->
+                <% if (messages.error) { %>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <%= messages.error %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                <% } %>
+                
+                <% if (messages.success) { %>
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <%= messages.success %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                <% } %>
+
+                <div class="row">
+                    <!-- Left Column - Reservation Details -->
+                    <div class="col-md-8">
+                        <div class="card detail-card mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">Guest Information</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Name:</strong> <%= reservation.guestName %></p>
+                                        <p><strong>Email:</strong> <%= reservation.guestEmail %></p>
+                                        <p><strong>Phone:</strong> <%= reservation.guestPhone %></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Reservation ID:</strong> <%= reservation._id %></p>
+                                        <p><strong>Created:</strong> <%= reservation.formattedCreatedAt || new Date(reservation.createdAt).toLocaleString() %></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card detail-card mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">Booking Details</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Room:</strong> <%= reservation.room?.type || 'N/A' %></p>
+                                        <p><strong>Room Number:</strong> <%= reservation.room?.roomNumber || 'N/A' %></p>
+                                        <p><strong>Check-in:</strong> <%= reservation.formattedCheckIn %></p>
+                                        <p><strong>Check-out:</strong> <%= reservation.formattedCheckOut %></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Nights:</strong> <%= reservation.nights %></p>
+                                        <p><strong>Guests:</strong> <%= reservation.guests %></p>
+                                        <p><strong>Room Rate:</strong> ₦<%= reservation.roomRate.toLocaleString() %> per night</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Information -->
+                        <div class="card detail-card mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">Payment Information</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Status:</strong> 
+                                            <span class="badge <%= reservation.paymentStatus === 'paid' ? 'bg-success' : 'bg-danger' %>">
+                                                <%= reservation.paymentStatus.toUpperCase().replace('_', ' ') %>
+                                            </span>
+                                        </p>
+                                        <% if (reservation.paymentMethod) { %>
+                                            <p><strong>Method:</strong> <%= reservation.paymentMethod.toUpperCase() %></p>
+                                        <% } %>
+                                        <% if (reservation.receiptNumber) { %>
+                                            <p><strong>Receipt No:</strong> <%= reservation.receiptNumber %></p>
+                                        <% } %>
+                                        <% if (reservation.transactionNo) { %>
+                                            <p><strong>Transaction No:</strong> <%= reservation.transactionNo %></p>
+                                        <% } %>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Room Total:</strong> ₦<%= reservation.roomTotal.toLocaleString() %></p>
+                                        <p><strong>VAT (7.5%):</strong> ₦<%= reservation.vatAmount.toLocaleString() %></p>
+                                        <% if (reservation.serviceCharge) { %>
+                                            <p><strong>Service Charge:</strong> ₦<%= reservation.serviceCharge.toLocaleString() %></p>
+                                        <% } %>
+                                        <% if (reservation.consumptionTax) { %>
+                                            <p><strong>Consumption Tax:</strong> ₦<%= reservation.consumptionTax.toLocaleString() %></p>
+                                        <% } %>
+                                        <h5 class="mt-3"><strong>Total:</strong> ₦<%= reservation.totalAmount.toLocaleString() %></h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="card notes-box mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">Notes</h5>
+                                <% if (reservation.notes) { %>
+                                    <pre style="white-space: pre-wrap; font-family: inherit;"><%= reservation.notes %></pre>
+                                <% } else { %>
+                                    <p class="text-muted">No notes</p>
+                                <% } %>
+                                
+                                <form action="/manage-reservations/<%= reservation._id %>/add-note" method="POST" class="mt-3">
+                                    <div class="input-group">
+                                        <input type="text" name="note" class="form-control" placeholder="Add a note..." required>
+                                        <button class="btn btn-primary" type="submit">Add Note</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column - Actions -->
+                    <div class="col-md-4">
+                        <!-- Status Update -->
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">Update Status</h5>
+                                <form action="/manage-reservations/<%= reservation._id %>/update-status" method="POST">
+                                    <select name="status" class="form-select mb-3">
+                                        <option value="pending" <%= reservation.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                                        <option value="confirmed" <%= reservation.status === 'confirmed' ? 'selected' : '' %>>Confirmed</option>
+                                        <option value="cancelled" <%= reservation.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+                                        <option value="no-show" <%= reservation.status === 'no-show' ? 'selected' : '' %>>No Show</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-primary w-100">Update Status</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Payment Confirmation (only if unpaid) -->
+                        <% if (reservation.paymentStatus === 'unpaid') { %>
+                        <div class="card payment-form-section">
+                            <div class="card-body">
+                                <h5 class="card-title text-success"><i class="bi bi-cash"></i> Confirm Payment</h5>
+                                <form action="/manage-reservations/<%= reservation._id %>/confirm-payment" method="POST">
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Payment Method *</label>
+                                        <select name="paymentMethod" id="paymentMethod" class="form-select" required>
+                                            <option value="">Select method</option>
+                                            <option value="cash">Cash</option>
+                                            <option value="transfer">Bank Transfer</option>
+                                            <option value="pos">POS</option>
+                                            <option value="card">Card</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Cash Fields -->
+                                    <div id="cashFields" class="payment-method-fields" style="display: none;">
+                                        <div class="mb-3">
+                                            <label class="form-label">Receipt Number *</label>
+                                            <input type="text" name="receiptNumber" class="form-control" placeholder="e.g., REC-00123">
+                                        </div>
+                                    </div>
+
+                                    <!-- Transfer Fields -->
+                                    <div id="transferFields" class="payment-method-fields" style="display: none;">
+                                        <div class="mb-3">
+                                            <label class="form-label">Bank Name *</label>
+                                            <input type="text" name="bankName" class="form-control" placeholder="e.g., Access Bank">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Transaction Number *</label>
+                                            <input type="text" name="transactionNo" class="form-control" placeholder="e.g., TXN-456789">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Session ID *</label>
+                                            <input type="text" name="sessionId" class="form-control" placeholder="e.g., SESS-12345">
+                                        </div>
+                                    </div>
+
+                                    <!-- POS/Card Fields -->
+                                    <div id="posFields" class="payment-method-fields" style="display: none;">
+                                        <div class="mb-3">
+                                            <label class="form-label">Transaction Number *</label>
+                                            <input type="text" name="transactionNo" class="form-control" placeholder="e.g., TXN-456789">
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Notes</label>
+                                        <textarea name="notes" class="form-control" rows="3" placeholder="Any additional notes..."></textarea>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-success w-100">
+                                        <i class="bi bi-check-circle"></i> Confirm Payment
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <% } else { %>
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>
+                                <h5 class="mt-3">Payment Confirmed</h5>
+                                <p class="text-muted">This reservation has been paid</p>
+                            </div>
+                        </div>
+                        <% } %>
+
+                        <!-- Upload Proof of Payment -->
+                        <div class="card mt-4">
+                            <div class="card-body">
+                                <h5 class="card-title">Upload Proof of Payment</h5>
+                                <form action="/manage-reservations/<%= reservation._id %>/upload-proof" method="POST" enctype="multipart/form-data">
+                                    <div class="mb-3">
+                                        <input type="file" name="proofFile" class="form-control" accept=".jpg,.jpeg,.png,.pdf">
+                                    </div>
+                                    <button type="submit" class="btn btn-outline-primary w-100">
+                                        <i class="bi bi-upload"></i> Upload
+                                    </button>
+                                </form>
+                                
+                                <% if (reservation.proofOfPayment) { %>
+                                    <div class="mt-3">
+                                        <a href="<%= reservation.proofOfPayment %>" target="_blank" class="btn btn-sm btn-info w-100">
+                                            <i class="bi bi-eye"></i> View Proof
+                                        </a>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Show/hide payment method fields
+        document.getElementById('paymentMethod').addEventListener('change', function() {
+            // Hide all fields first
+            document.querySelectorAll('.payment-method-fields').forEach(field => {
+                field.style.display = 'none';
+                // Clear required attributes
+                field.querySelectorAll('input').forEach(input => {
+                    input.removeAttribute('required');
+                });
+            });
+            
+            // Show selected method fields
+            const selectedMethod = this.value;
+            if (selectedMethod === 'cash') {
+                document.getElementById('cashFields').style.display = 'block';
+                document.querySelectorAll('#cashFields input').forEach(input => {
+                    input.setAttribute('required', 'required');
+                });
+            } else if (selectedMethod === 'transfer') {
+                document.getElementById('transferFields').style.display = 'block';
+                document.querySelectorAll('#transferFields input').forEach(input => {
+                    input.setAttribute('required', 'required');
+                });
+            } else if (selectedMethod === 'pos' || selectedMethod === 'card') {
+                document.getElementById('posFields').style.display = 'block';
+                document.querySelectorAll('#posFields input').forEach(input => {
+                    input.setAttribute('required', 'required');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

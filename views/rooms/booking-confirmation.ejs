@@ -290,6 +290,7 @@
                                                         <li class="mb-2"><i class="fa fa-check text-success mr-2"></i>Free cancellation up to 24 hours before check-in</li>
                                                         <li class="mb-2"><i class="fa fa-check text-success mr-2"></i>Present ID at check-in</li>
                                                         <li class="mb-2"><i class="fa fa-check text-success mr-2"></i>Early check-in available upon request</li>
+                                                        <li class="mb-2"><i class="fa fa-percent text-success mr-2"></i>7.5% VAT included in total</li>
                                                     </ul>
                                                 </div>
                                                 <div class="col-md-6">
@@ -299,6 +300,14 @@
                                                         <li class="mb-2"><i class="fa fa-phone text-primary mr-2"></i>Contact: +234 803 123 4567</li>
                                                     </ul>
                                                 </div>
+                                            </div>
+                                            <!-- VAT Information -->
+                                            <div class="alert alert-info mt-3">
+                                                <h5><i class="fa fa-info-circle"></i> VAT Information</h5>
+                                                <p class="mb-0">
+                                                    The total amount includes 7.5% Value Added Tax (VAT) as required by Nigerian law. 
+                                                    This tax is calculated on the room rate and included in the total price shown.
+                                                </p>
                                             </div>
                                         </div>
                                     </div> <!--/col-md-8-->
@@ -342,13 +351,32 @@
                                             </div>
 
                                             <!-- Price Breakdown -->
+                                            <%
+                                                // Calculate amounts including VAT
+                                                const roomRatePerNight = room.price;
+                                                const roomTotal = roomRatePerNight * nights;
+                                                const vatRate = 7.5; // 7.5% VAT
+                                                const vatAmount = roomTotal * (vatRate / 100);
+                                                const totalAmount = roomTotal + vatAmount;
+                                            %>
+
                                             <div class="clearfix mt-4">
                                                 <div class="cart-block cart-block-footer clearfix">
                                                     <div>
-                                                        <strong>Room Rate (₦<%= room.price.toLocaleString() %> × <%= nights %> nights)</strong>
+                                                        <strong>Room Rate (₦<%= roomRatePerNight.toLocaleString() %> × <%= nights %> nights)</strong>
                                                     </div>
                                                     <div>
-                                                        <span>₦<%= (room.price * nights).toLocaleString() %></span>
+                                                        <span>₦<%= roomTotal.toLocaleString() %></span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="cart-block cart-block-footer clearfix">
+                                                    <div>
+                                                        <strong>VAT @ 7.5%</strong>
+                                                        <small class="text-muted d-block">Value Added Tax included</small>
+                                                    </div>
+                                                    <div>
+                                                        <span>₦<%= vatAmount.toLocaleString() %></span>
                                                     </div>
                                                 </div>
 
@@ -360,27 +388,23 @@
                                                         <span>₦0</span>
                                                     </div>
                                                 </div>
-
-                                                <div class="cart-block cart-block-footer clearfix">
-                                                    <div>
-                                                        <strong>Taxes & Fees</strong>
-                                                    </div>
-                                                    <div>
-                                                        <span>Included</span>
-                                                    </div>
-                                                </div>
                                             </div>
 
                                             <!-- Final Price -->
                                             <div class="clearfix">
                                                 <div class="cart-block cart-block-footer cart-block-footer-price clearfix">
                                                     <div>
-                                                        <strong>Total Amount</strong>
+                                                        <strong>Total Amount (Including VAT)</strong>
                                                     </div>
                                                     <div>
                                                         <div class="h2 title">₦<%= totalAmount.toLocaleString() %></div>
                                                     </div>
                                                 </div>
+                                            </div>
+                                            
+                                            <!-- VAT Note -->
+                                            <div class="small text-muted mt-2">
+                                                <i class="fa fa-info-circle"></i> Total includes 7.5% VAT of ₦<%= vatAmount.toLocaleString() %>
                                             </div>
                                         </div>
 
@@ -400,7 +424,7 @@
                                     </a>
                                 </div>
                                 <div>
-                                    <small class="text-muted d-block mb-2">Best Rate Guaranteed</small>
+                                    <small class="text-muted d-block mb-2">Best Rate Guaranteed - VAT Included</small>
                                     <a href="/contact" class="btn btn-main">Need Help? Contact Us</a>
                                 </div>
                             </div>
@@ -467,6 +491,12 @@
         }
         .list-unstyled li {
             padding: 5px 0;
+        }
+        .alert-info {
+            background-color: #e8f4fd;
+            border-left: 4px solid #17a2b8;
+            border-radius: 8px;
+            border: none;
         }
     </style>
 </body>
