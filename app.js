@@ -7,6 +7,8 @@ const expressLayouts = require('express-ejs-layouts');
 const fs = require('fs');
 require('dotenv').config();
 
+const bodyParser = require('body-parser');
+
 // Initialize Express app
 const app = express();
 
@@ -27,20 +29,12 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/fullmoonh
 });
 
 // =============================================================================
-// MODEL IMPORTS
-// =============================================================================
-
-const Room = require('./models/Room');
-const Blog = require('./models/Blog');
-const Reservation = require('./models/Reservation');
-
-// =============================================================================
 // MIDDLEWARE SETUP
 // =============================================================================
 
 // Body parsing middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 // Static file serving
 app.use(express.static(path.join(__dirname, 'public')));
@@ -80,8 +74,6 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
-  res.locals.success = req.flash('success');
-  res.locals.error = req.flash('error');
   res.locals.messages = req.flash();
   next();
 });
@@ -91,10 +83,11 @@ app.use((req, res, next) => {
 // =============================================================================
 
 const uploadDirs = [
-  'public/uploads/rooms', 
-  'public/uploads/blog', 
-  'public/uploads/menu', 
-  'public/uploads/facilities'
+  'public/uploads/rooms',
+  'public/uploads/blog',
+  'public/uploads/menu',
+  'public/uploads/facilities',
+  'public/uploads/proofs'
 ];
 
 uploadDirs.forEach(dir => {
@@ -105,61 +98,23 @@ uploadDirs.forEach(dir => {
 });
 
 // =============================================================================
-// ROUTE IMPORTS & MOUNTING
+// CORE APPLICATION ROUTES (DEFINE THESE FIRST)
 // =============================================================================
 
-// Import routes with error handling
-try {
-  const authRoutes = require('./routes/auth');
-  const aboutRoutes = require('./routes/about'); // Add this line
-  const galleryRoutes = require('./routes/gallery');
-  const roomRoutes = require('./routes/rooms');
-  const adminRoutes = require('./routes/admin');
-  const blogRoutes = require('./routes/blog');
-  const facilitiesRoutes = require('./routes/facilities');
-  const contactRoutes = require('./routes/contact');
-  const laundryRoutes = require('./routes/laundry');
-  const gymRoutes = require('./routes/gym');
-  // In your app.js file, add:
-  const reservationsRouter = require('./routes/reservations');
-  const manageReservationsRoutes = require('./routes/manage-reservations');
-
-
-
-  
-  // Mount routes
-  app.use('/', authRoutes);
-  app.use('/about', aboutRoutes);
-  app.use('/gallery', galleryRoutes);
-  app.use('/rooms', roomRoutes);
-  app.use('/admin', adminRoutes);
-  app.use('/blog', blogRoutes);
-  app.use('/facilities', facilitiesRoutes);
-  app.use('/contact', contactRoutes);
-  app.use('/laundry', laundryRoutes);
-  app.use('/gym', gymRoutes);
-  app.use('/reservations', reservationsRouter);
-  app.use('/manage-reservations', manageReservationsRoutes);
-
-  
-  console.log('✅ All routes loaded successfully');
-} catch (error) {
-  console.log('⚠️ Some routes not loaded, continuing with basic routes...');
-  console.error('Route loading error:', error);
-}
-
-// =============================================================================
-// CORE APPLICATION ROUTES
-// =============================================================================
-
-// Favicon
-app.get('/favicon.ico', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'favicon.ico'));
+// Add this before your route imports
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+  if (req.method === 'POST') {
+    console.log('POST body:', req.body);
+  }
+  next();
 });
 
-// Home route
+// Home route - MUST be defined before other routes that might conflict
 app.get('/', async (req, res) => {
   try {
+    const Room = require('./models/Room');
+    
     if (!Room) {
       console.error('Room model not loaded');
       return res.render('index', { 
@@ -168,7 +123,13 @@ app.get('/', async (req, res) => {
       });
     }
 
-    const rooms = await Room.find({ available: true }).limit(6);
+    // Fetch rooms sorted by price (least to most expensive)
+    const rooms = await Room.find({ available: true })
+      .sort({ price: 1 })  // 1 = ascending (least to most expensive)
+      .limit(6);
+    
+    console.log(`Found ${rooms.length} rooms for homepage, sorted by price`);
+    
     res.render('index', { 
       title: 'Full Moon Hotels - Luxury Accommodation in Owerri',
       rooms 
@@ -182,13 +143,42 @@ app.get('/', async (req, res) => {
   }
 });
 
-// Authentication routes
-app.get('/login', (req, res) => {
-  res.render('auth/login', { title: 'Login' });
-});
+
 
 app.get('/register', (req, res) => {
-  res.render('auth/register', { title: 'Register' });
+  res.render('auth/register', { 
+    title: 'Register - Full Moon Hotels'
+  });
+});
+
+app.get('/logout', (req, res) => {
+  if (req.session.user) {
+    console.log(`User logged out: ${req.session.user.username}`);
+  }
+  
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Logout error:', err);
+    }
+    res.redirect('/');
+  });
+});
+
+// Favicon routes
+app.get('/favicon.ico', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'favicon.ico'));
+});
+
+app.get('/favicon-32x32.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'favicon-32x32.png'));
+});
+
+app.get('/favicon-16x16.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'favicon-16x16.png'));
+});
+
+app.get('/apple-touch-icon.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'apple-touch-icon.png'));
 });
 
 // Guest reservation route
@@ -196,6 +186,9 @@ app.get('/reservations/guest/:id', async (req, res) => {
   try {
     console.log('=== GUEST RESERVATION ROUTE HIT ===');
     console.log('Reservation ID:', req.params.id);
+    
+    const Reservation = require('./models/Reservation');
+    const mongoose = require('mongoose');
     
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       console.log('Invalid reservation ID format');
@@ -233,6 +226,42 @@ app.get('/reservations/guest/:id', async (req, res) => {
 });
 
 // =============================================================================
+// ROUTE IMPORTS & MOUNTING (DEFINE AFTER CORE ROUTES)
+// =============================================================================
+
+// Import routes with error handling
+try {
+  // Import route files
+  const authRoutes = require('./routes/auth');
+  const aboutRoutes = require('./routes/about');
+  const galleryRoutes = require('./routes/gallery');
+  const roomRoutes = require('./routes/rooms');
+  const adminRoutes = require('./routes/admin');
+  const blogRoutes = require('./routes/blog');
+  const facilitiesRoutes = require('./routes/facilities');
+  const contactRoutes = require('./routes/contact');
+  const laundryRoutes = require('./routes/laundry');
+  const gymRoutes = require('./routes/gym');
+  
+  // Mount routes - IMPORTANT: Mount admin routes AFTER auth routes
+  app.use('/', authRoutes); // This handles POST /login
+  app.use('/about', aboutRoutes);
+  app.use('/gallery', galleryRoutes);
+  app.use('/rooms', roomRoutes);
+  app.use('/admin', adminRoutes); // This handles GET /admin
+  app.use('/blog', blogRoutes);
+  app.use('/facilities', facilitiesRoutes);
+  app.use('/contact', contactRoutes);
+  app.use('/laundry', laundryRoutes);
+  app.use('/gym', gymRoutes);
+  
+  console.log('✅ All routes loaded successfully');
+} catch (error) {
+  console.log('⚠️ Some routes not loaded, continuing with basic routes...');
+  console.error('Route loading error:', error);
+}
+
+// =============================================================================
 // DEBUG & UTILITY ROUTES
 // =============================================================================
 
@@ -240,6 +269,11 @@ app.get('/reservations/guest/:id', async (req, res) => {
 app.get('/debug-db', async (req, res) => {
   try {
     console.log('=== DATABASE DEBUG INFO ===');
+    
+    const Room = require('./models/Room');
+    const Blog = require('./models/Blog');
+    const Reservation = require('./models/Reservation');
+    
     console.log('Room model:', Room ? 'Loaded' : 'NOT LOADED');
     console.log('Blog model:', Blog ? 'Loaded' : 'NOT LOADED');
     console.log('Reservation model:', Reservation ? 'Loaded' : 'NOT LOADED');
@@ -267,9 +301,6 @@ app.get('/debug-db', async (req, res) => {
     console.error('Debug route error:', error);
     res.status(500).json({ 
       error: error.message,
-      roomModelLoaded: !!Room,
-      blogModelLoaded: !!Blog,
-      reservationModelLoaded: !!Reservation,
       dbConnected: mongoose.connection.readyState === 1
     });
   }
@@ -278,6 +309,8 @@ app.get('/debug-db', async (req, res) => {
 // Sample rooms route (for testing - remove in production)
 app.get('/add-sample-rooms', async (req, res) => {
   try {
+    const Room = require('./models/Room');
+    
     if (!Room) {
       return res.status(500).json({ error: 'Room model not loaded' });
     }

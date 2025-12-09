@@ -20,6 +20,7 @@
 <% } %>
 
 <!-- Statistics Cards -->
+<!-- Statistics Cards -->
 <div class="row">
     <!-- Rooms Statistics -->
     <div class="col-md-3">
@@ -94,6 +95,27 @@
     </div>
 </div>
 
+<!-- Additional Row for Reservations Statistics -->
+<div class="row mt-2">
+    <!-- Reservations Statistics -->
+    <div class="col-md-3">
+        <div class="card text-white bg-danger mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Room Reservations</h5>
+                        <h2 class="card-text"><%= reservationStats ? reservationStats.total : 0 %></h2>
+                        <small>Pending: <%= reservationStats ? reservationStats.pending : 0 %></small>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fa fa-key fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Quick Actions -->
 <div class="row mt-4">
     <div class="col-12">
@@ -101,6 +123,7 @@
             <div class="card-header">
                 <h5 class="card-title mb-0">Quick Actions</h5>
             </div>
+            
             <div class="card-body">
                 <div class="row">
                     <!-- Room Management -->
@@ -150,6 +173,29 @@
                             <i class="fa fa-home me-2"></i>View Website
                         </a>
                     </div>
+                    <!-- Reservations Management -->
+<div class="col-md-3 mb-3">
+    <a href="/admin/reservations" class="btn btn-outline-danger w-100">
+        <i class="fa fa-calendar-alt me-2"></i>Room Reservations
+    </a>
+</div>
+
+<div class="col-md-3 mb-3">
+    <a href="/admin/reservations?status=pending" class="btn btn-outline-warning w-100">
+        <i class="fa fa-clock me-2"></i>Pending Reservations
+    </a>
+</div>
+                    <!-- Admin Management -->
+    <div class="col-md-3 mb-3">
+        <a href="/admin/users" class="btn btn-outline-info w-100">
+            <i class="fa fa-users me-2"></i>Manage Users
+        </a>
+    </div>
+    <div class="col-md-3 mb-3">
+        <a href="/admin/users/add" class="btn btn-outline-success w-100">
+            <i class="fa fa-user-plus me-2"></i>Add Admin User
+        </a>
+    </div>
                 </div>
 
                 <!-- Sample Data Section (for testing) -->
@@ -285,6 +331,69 @@
             </div>
         </div>
     </div>
+
+    <!-- Recent Room Reservations -->
+<div class="col-md-6">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Recent Room Reservations</h5>
+            <a href="/admin/reservations" class="btn btn-sm btn-outline-danger">View All</a>
+        </div>
+        <div class="card-body">
+            <% if (recentReservations && recentReservations.length > 0) { %>
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>Guest</th>
+                                <th>Room</th>
+                                <th>Check-in</th>
+                                <th>Status</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% recentReservations.forEach(reservation => { %>
+                            <tr>
+                                <td>
+                                    <strong><%= reservation.guestName %></strong>
+                                    <br>
+                                    <small class="text-muted"><%= reservation.guestEmail %></small>
+                                </td>
+                                <td>
+                                    <%= reservation.room ? reservation.room.roomNumber : 'N/A' %>
+                                    <br>
+                                    <small class="text-muted"><%= reservation.room ? reservation.room.type : 'N/A' %></small>
+                                </td>
+                                <td>
+                                    <%= reservation.formattedCheckIn %>
+                                    <br>
+                                    <small class="text-muted"><%= reservation.nights %> night(s)</small>
+                                </td>
+                                <td>
+                                    <span class="badge 
+                                        <%= reservation.status === 'confirmed' ? 'bg-success' : 
+                                            reservation.status === 'pending' ? 'bg-warning' : 
+                                            reservation.status === 'cancelled' ? 'bg-danger' : 'bg-secondary' %>">
+                                        <%= reservation.status %>
+                                    </span>
+                                </td>
+                                <td>₦<%= reservation.totalAmount %></td>
+                            </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <div class="text-center py-3">
+                    <i class="fa fa-bed fa-2x text-muted mb-2"></i>
+                    <p class="text-muted mb-0">No recent room reservations</p>
+                    <a href="/admin/rooms" class="btn btn-sm btn-primary mt-2">View Rooms</a>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
 </div>
 
 <!-- Popular Facilities Chart Placeholder -->

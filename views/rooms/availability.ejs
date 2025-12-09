@@ -55,10 +55,10 @@
                     <h4>Your Search Criteria</h4>
                     <div class="row">
                         <div class="col-md-3">
-                            <strong>Check-in:</strong> <%= checkIn ? new Date(checkIn).toLocaleDateString() : 'Not specified' %>
+                            <strong>Check-in:</strong> <%= displayCheckIn %>
                         </div>
                         <div class="col-md-3">
-                            <strong>Check-out:</strong> <%= checkOut ? new Date(checkOut).toLocaleDateString() : 'Not specified' %>
+                            <strong>Check-out:</strong> <%= displayCheckOut %>
                         </div>
                         <div class="col-md-3">
                             <strong>Guests:</strong> <%= guests || 'Not specified' %>
@@ -138,11 +138,21 @@
                 <span class="final h3">₦ <%= room.price.toLocaleString() %></span>
                 <span>per night</span>
                 <div class="mt-3">
-                    <form action="/rooms/book/<%= room._id %>" method="POST" class="d-inline">
-                        <input type="hidden" name="checkIn" value="<%= checkIn %>">
-                        <input type="hidden" name="checkOut" value="<%= checkOut %>">
-                        <input type="hidden" name="guests" value="<%= guests %>">
-                        <button type="submit" class="btn btn-main btn-sm">Book Now</button>
+                    <form action="/rooms/book/<%= room._id %>" method="POST">
+                      <input type="hidden" name="checkIn" value="<%= checkIn %>">
+                      <input type="hidden" name="checkOut" value="<%= checkOut %>">
+                      <input type="hidden" name="guests" value="<%= guests %>">
+                       <!-- Also include adults, children, infants if available -->
+                      <% if (adults) { %>
+                        <input type="hidden" name="adults" value="<%= adults %>">
+                      <% } %>
+                      <% if (children) { %>
+                        <input type="hidden" name="children" value="<%= children %>">
+                      <% } %>
+                      <% if (infants) { %>
+                        <input type="hidden" name="infants" value="<%= infants %>">
+                      <% } %>
+                      <button type="submit" class="btn btn-main">Book Now</button>
                     </form>
                 </div>
             </div>

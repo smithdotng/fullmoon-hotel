@@ -46,127 +46,6 @@
 
     <div class="wrapper">
 
-        <header>
-
-            <!-- ======================== Navigation ======================== -->
-
-            <div class="container">
-
-                <!-- === navigation-top === -->
-
-                <nav class="navigation-top clearfix">
-
-                    <!-- navigation-top-left -->
-
-                    <div class="navigation-top-left">
-                        <a class="box" href="#">
-                            <i class="fa fa-facebook"></i>
-                        </a>
-                        <a class="box" href="#">
-                            <i class="fa fa-twitter"></i>
-                        </a>
-                        <a class="box" href="#">
-                            <i class="fa fa-instagram"></i>
-                        </a>
-                    </div>
-
-                    <!-- navigation-top-right -->
-
-                    <div class="navigation-top-right">
-                        <a class="box" href="#">
-                            <i class="icon icon-star"></i> 
-                            Special offers
-                        </a>
-                        <a class="box" href="/rooms">
-                            <i class="icon icon-tag"></i> 
-                            Reservations
-                        </a>
-                        <a class="box" href="#">
-                            <i class="icon icon-phone-handset"></i> 
-                            +234 (0) 812 313 9279 | +234 (0) 704 210 9087
-                        </a>
-                    </div>
-                </nav>
-
-                <!-- === navigation-main === -->
-
-                <nav class="navigation-main clearfix">
-
-                    <!-- logo -->
-
-                    <div class="logo animated fadeIn">
-                        <a href="/">
-                            <img class="logo-desktop" src="/assets/images/logo.png" alt="Full Moon Hotels" />
-                            <img class="logo-mobile" src="/assets/images/logo-mobile.png" alt="Full Moon Hotels" />
-                        </a>
-                    </div>
-
-                    <!-- toggle-menu -->
-
-                    <div class="toggle-menu"><i class="icon icon-menu"></i></div>
-
-                    <!-- navigation-block -->
-
-                    <div class="navigation-block clearfix">
-
-                        <!-- navigation-left -->
-
-                        <ul class="navigation-left">
-                            <li>
-                                <a href="/">Home</a>
-                            </li>
-                            <li>
-                                <a href="/rooms" class="active">Rooms <span class="open-dropdown"><i class="fa fa-angle-down"></i></span></a>
-                                <ul>
-                                    <li><a href="/rooms">All Room Types</a></li>
-                                    <li><a href="/rooms/category/Annex">Annex Room</a></li>
-                                    <li><a href="/rooms/category/Premiere">Premiere Room</a></li>
-                                    <li><a href="/rooms/category/Deluxe">Deluxe Room</a></li>
-                                    <li><a href="/rooms/category/Executive">Executive Room</a></li>
-                                    <li><a href="/rooms/category/Penthouse">Penthouse Suites</a></li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a href="/facilities">Facilities</a>
-                            </li>
-                        </ul>
-
-                        <!-- navigation-right -->
-
-                        <ul class="navigation-right">
-                            <li>
-                                <a href="/menu">Dining</a>
-                            </li>
-                            <li>
-                                <a href="/blog">Blog</a>
-                            </li>
-                            <li>
-                                <a href="/about">About</a>
-                            </li>
-                            <li>
-                                <a href="/contact">Contact</a>
-                            </li>
-                            <% if (user) { %>
-                                <li>
-                                    <a href="/admin">Admin</a>
-                                </li>
-                                <li>
-                                    <a href="/logout">Logout</a>
-                                </li>
-                            <% } else { %>
-                                <li>
-                                    <a href="/login">Login</a>
-                                </li>
-                            <% } %>
-                        </ul>
-
-                    </div> <!--/navigation-block-->
-
-                </nav>
-            </div> <!--/container-->
-
-        </header>
-
         <!-- ========================  Checkout ======================== -->
 
         <section class="page">
@@ -327,15 +206,16 @@
 
                                                 <div class="col-md-6">
                                                     <div class="form-group">
-                                                        <strong>Total Amount (Including VAT)</strong><br />
+                                                        <strong>Total Amount</strong><br />
                                                         <span class="h4 text-success">₦<%= reservation.totalAmount.toLocaleString() %></span>
+                                                        <small class="text-muted d-block">All taxes and charges included</small>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <strong>Payment Status</strong><br />
-                                                        <span class="badge badge-success">UNPAID</span>
+                                                        <span class="badge badge-warning">AWAITING PAYMENT</span>
                                                     </div>
                                                 </div>
 
@@ -343,6 +223,13 @@
                                                     <div class="form-group">
                                                         <strong>Room Type</strong><br />
                                                         <span><%= reservation.room.type %></span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <strong>Rate Type</strong><br />
+                                                        <span class="text-success"><i class="fa fa-check-circle"></i> All-Inclusive</span>
                                                     </div>
                                                 </div>
 
@@ -404,12 +291,16 @@
                                             <strong>Room Number</strong> <%= reservation.room.roomNumber %>
                                         </div>
                                         <div class="text-success mt-2">
-                                            <i class="fa fa-coffee"></i> <strong>Includes:</strong> Complimentary breakfast for one
+                                            <i class="fa fa-check-circle"></i> <strong>All-inclusive rate includes:</strong>
+                                        </div>
+                                        <div class="text-muted ml-3">
+                                            • 7.5% VAT + 5% Consumption Tax + 10% Service Charge<br>
+                                            • Complimentary breakfast for one
                                         </div>
                                     </div>
                                     <div class="price">
                                         <span class="final h3">₦ <%= reservation.totalAmount.toLocaleString() %></span>
-                                        <span class="discount">Total Amount (Including VAT)</span>
+                                        <span class="discount text-success">Final Price - All Taxes Included</span>
                                     </div>
                                 </div>
 
@@ -417,43 +308,42 @@
 
                             <!--cart prices -->
                             <%
-                                // Calculate amounts
+                                // Calculate total amount (already includes all taxes)
                                 const roomRatePerNight = reservation.room.price;
-                                const roomTotal = roomRatePerNight * nights;
-                                const vatRate = 7.5; // 7.5% VAT
-                                const vatAmount = roomTotal * (vatRate / 100);
-                                const totalAmount = roomTotal + vatAmount;
+                                const totalAmount = reservation.totalAmount;
                             %>
 
                             <div class="clearfix">
                                 <div class="cart-block cart-block-footer clearfix">
                                     <div>
-                                        <strong>Room Rate (₦<%= roomRatePerNight.toLocaleString() %> × <%= nights %> nights)</strong>
+                                        <strong>All-Inclusive Rate (₦<%= roomRatePerNight.toLocaleString() %> × <%= nights %> nights)</strong>
+                                        <small class="text-muted d-block">
+                                            <i class="fa fa-check text-success"></i> Includes all taxes and charges
+                                        </small>
                                     </div>
                                     <div>
-                                        <span>₦<%= roomTotal.toLocaleString() %></span>
+                                        <span>₦<%= totalAmount.toLocaleString() %></span>
                                     </div>
                                 </div>
 
-                                <div class="cart-block cart-block-footer clearfix">
+                                <!-- Included Items Summary -->
+                                <div class="cart-block cart-block-footer clearfix" style="background-color: #f8f9fa; border-left: 4px solid #28a745;">
                                     <div>
-                                        <strong>VAT @ 7.5%</strong>
-                                        <small class="text-muted d-block">Value Added Tax included in room rate</small>
+                                        <strong><i class="fa fa-check-circle text-success"></i> Included in Your Rate:</strong>
+                                        <div class="text-muted mt-1">
+                                            <small>
+                                                • 7.5% Value Added Tax (VAT)<br>
+                                                • 5% Consumption Tax<br>
+                                                • 10% Service Charge<br>
+                                                • Complimentary breakfast for one
+                                            </small>
+                                        </div>
                                     </div>
                                     <div>
-                                        <span>₦<%= vatAmount.toLocaleString() %></span>
+                                        <span class="text-success">✓ Included</span>
                                     </div>
                                 </div>
 
-                                <div class="cart-block cart-block-footer clearfix">
-                                    <div>
-                                        <strong>Complimentary Breakfast</strong>
-                                        <small class="text-muted d-block">Breakfast for one included in stay</small>
-                                    </div>
-                                    <div>
-                                        <span class="text-success">FREE</span>
-                                    </div>
-                                </div>
                             </div>
 
                             <!--cart final price -->
@@ -462,16 +352,16 @@
                                 <div class="cart-block cart-block-footer cart-block-footer-price clearfix">
                                     <div>
                                         <div class="mb-2">
-                                            <i class="fa fa-check text-success"></i> Booking Confirmed!
+                                            <i class="fa fa-check text-success"></i> Reservation Confirmed!
                                         </div>
                                         <div class="small text-muted">
-                                            <strong>Note:</strong> Total amount includes 7.5% VAT. Complimentary breakfast for one included.
+                                            <strong>Note:</strong> This is the final all-inclusive price. No additional taxes or charges will be added.
                                         </div>
                                     </div>
                                     <div>
                                         <div class="h2 title">₦<%= totalAmount.toLocaleString() %></div>
-                                        <div class="small text-muted">
-                                            Total including VAT
+                                        <div class="small text-success">
+                                            <i class="fa fa-check-circle"></i> All taxes included
                                         </div>
                                     </div>
                                 </div>
@@ -487,8 +377,8 @@
                                             <li class="mb-2"><i class="fa fa-check text-success mr-2"></i>Free cancellation up to 24 hours before check-in</li>
                                             <li class="mb-2"><i class="fa fa-check text-success mr-2"></i>Present ID and this booking confirmation at check-in</li>
                                             <li class="mb-2"><i class="fa fa-check text-success mr-2"></i>Early check-in available upon request</li>
+                                            <li class="mb-2"><i class="fa fa-check text-success mr-2"></i>All taxes and charges included in rate</li>
                                             <li class="mb-2"><i class="fa fa-coffee text-success mr-2"></i>Complimentary breakfast for one included</li>
-                                            <li class="mb-2"><i class="fa fa-percent text-success mr-2"></i>7.5% VAT included in room rate</li>
                                         </ul>
                                     </div>
                                     <div class="col-md-6">
@@ -502,21 +392,49 @@
                                     </div>
                                 </div>
                                 
-                                <!-- VAT Notice -->
-                                <div class="alert alert-info mt-3">
-                                    <h5><i class="fa fa-info-circle"></i> VAT Information</h5>
+                                <!-- All-Inclusive Rate Information -->
+                                <div class="alert alert-success mt-3">
+                                    <h5><i class="fa fa-check-circle"></i> All-Inclusive Rate Information</h5>
+                                    <p class="mb-2">
+                                        Your booking is confirmed at our <strong>all-inclusive rate</strong> of <strong>₦<%= roomRatePerNight.toLocaleString() %> per night</strong>. This rate already includes:
+                                    </p>
+                                    <ul class="mb-2">
+                                        <li><strong>7.5% Value Added Tax (VAT)</strong> - Required by Nigerian law</li>
+                                        <li><strong>5% Consumption Tax</strong> - Applicable on accommodation services</li>
+                                        <li><strong>10% Service Charge</strong> - For excellent hotel service</li>
+                                        <li><strong>Complimentary Breakfast</strong> - For one person daily</li>
+                                    </ul>
                                     <p class="mb-0">
-                                        The total amount of ₦<%= totalAmount.toLocaleString() %> includes 7.5% Value Added Tax (VAT) of ₦<%= vatAmount.toLocaleString() %>. 
-                                        This VAT is calculated on the room rate of ₦<%= roomTotal.toLocaleString() %> for <%= nights %> night(s).
+                                        <strong>Total for <%= nights %> night(s): ₦<%= totalAmount.toLocaleString() %></strong> - This is the final price with no additional charges.
                                     </p>
                                 </div>
                                 
+                                <!-- Payment Information -->
+                                <div class="alert alert-info mt-2">
+                                    <h5><i class="fa fa-info-circle"></i> Payment Information</h5>
+                                    <p class="mb-2">
+                                        <strong>Important:</strong> Your reservation is confirmed but payment is pending. To guarantee your accommodation, please make payment before 4pm on your arrival date.
+                                    </p>
+                                    <p class="mb-2"><strong>Payment Methods:</strong></p>
+                                    <ul class="mb-2">
+                                        <li><strong>Bank Transfer:</strong> Access Bank - Account Number: 0066351262</li>
+                                        <li><strong>Moniepoint:</strong> 5033192156</li>
+                                        <li><strong>Direct Payment:</strong> At hotel front office</li>
+                                    </ul>
+                                    <p class="mb-0">
+                                        <strong>Send Proof of Payment to:</strong><br>
+                                        📱 WhatsApp: 08123139279<br>
+                                        📧 Email: reservations@fullmoon-hotels.com
+                                    </p>
+                                </div>
+
                                 <!-- Breakfast Information -->
-                                <div class="alert alert-success mt-2">
+                                <div class="alert alert-warning mt-2">
                                     <h5><i class="fa fa-coffee"></i> Breakfast Information</h5>
                                     <p class="mb-0">
                                         Your stay includes complimentary breakfast for one person served daily from 7:00 AM to 10:00 AM. 
                                         Please present your room key at the restaurant. Additional breakfast can be purchased at the restaurant.
+                                        <strong>Note:</strong> Breakfast element shall be removed if discounts are applied on same rates.
                                     </p>
                                 </div>
                             </div>
@@ -638,6 +556,13 @@
             font-size: 12px;
             padding: 5px 10px;
         }
+        .badge-success {
+            background-color: #28a745;
+        }
+        .badge-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
         .text-success {
             color: #28a745 !important;
         }
@@ -645,13 +570,17 @@
             border-radius: 8px;
             border: none;
         }
+        .alert-success {
+            background-color: #e8f7ef;
+            border-left: 4px solid #28a745;
+        }
         .alert-info {
             background-color: #e8f4fd;
             border-left: 4px solid #17a2b8;
         }
-        .alert-success {
-            background-color: #e8f7ef;
-            border-left: 4px solid #28a745;
+        .alert-warning {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
         }
     </style>
 </body>

@@ -58,6 +58,20 @@
 
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 admin-content">
+                <!-- In your layout-admin.ejs, add this after the body content starts -->
+<% if (messages && messages.error) { %>
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <%= messages.error %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+<% } %>
+
+<% if (messages && messages.success) { %>
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <%= messages.success %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+<% } %>
                 <%- body %>
             </main>
         </div>

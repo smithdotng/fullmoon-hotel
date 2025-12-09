@@ -1,30 +1,79 @@
-// routes/rooms.js - FIXED VERSION with VAT
+// routes/rooms.js - UPDATED WITH CAPACITY TRACKING AND PRICE SORTING
 const express = require('express');
 const router = express.Router();
 const Room = require('../models/Room');
 const Reservation = require('../models/Reservation');
 const mongoose = require('mongoose');
 
-console.log('=== ROUTES/ROOMS.JS LOADED WITH VAT ===');
+console.log('=== ROUTES/ROOMS.JS LOADED WITH CAPACITY TRACKING ===');
 
-// Enhanced date parser - handles ISO (YYYY-MM-DD), custom 'dd MM yy', and HTML stripping
+// Room capacity limits based on your breakdown
+const ROOM_CAPACITY = {
+  'Penthouse Double Suite': 1,
+  'Penthouse Single Suite': 2,
+  'Executive Room': 9,
+  'Deluxe Room': 37,
+  'Premiere Room': 20
+};
+
+// Category mapping
+const CATEGORY_MAP = {
+  'penthouse-single': 'Penthouse Single Suite',
+  'penthouse-double': 'Penthouse Double Suite',
+  'executive': 'Executive Room',
+  'deluxe': 'Deluxe Room',
+  'premiere': 'Premiere Room'
+};
+
+// Helper function to extract date from HTML string
+function extractDateFromHTML(htmlString) {
+  if (!htmlString || typeof htmlString !== 'string') return null;
+  
+  // Extract day, month, year from HTML like: <span class=day>15</span> <span class=month>Dec</span> <span class=year>2025</span>
+  const dayMatch = htmlString.match(/class=day>(\d+)<\/span>/);
+  const monthMatch = htmlString.match(/class=month>([A-Za-z]+)<\/span>/);
+  const yearMatch = htmlString.match(/class=year>(\d+)<\/span>/);
+  
+  if (dayMatch && monthMatch && yearMatch) {
+    const day = parseInt(dayMatch[1], 10);
+    const monthStr = monthMatch[1].toLowerCase();
+    const year = parseInt(yearMatch[1], 10);
+    
+    const monthMap = {
+      'jan': 0, 'feb': 1, 'mar': 2, 'apr': 3, 'may': 4, 'jun': 5,
+      'jul': 6, 'aug': 7, 'sep': 8, 'oct': 9, 'nov': 10, 'dec': 11
+    };
+    
+    const month = monthMap[monthStr];
+    if (!isNaN(day) && month !== undefined && !isNaN(year)) {
+      // Create date in local timezone at midnight
+      const date = new Date(year, month, day);
+      return date;
+    }
+  }
+  
+  // If not HTML, try regular parsing
+  return parseCustomDate(htmlString);
+}
+
+// Enhanced date parser - FIXED for timezone issues
 function parseCustomDate(dateStr) {
   if (!dateStr || typeof dateStr !== 'string') return null;
   
-  // Strip HTML tags first (e.g., <span class=day>19</span> -> 19)
+  // Strip HTML tags first
   const cleanDateStr = dateStr.replace(/<[^>]*>/g, '').trim();
   
   // Try ISO format first (YYYY-MM-DD)
   const isoParts = cleanDateStr.split('-');
   if (isoParts.length === 3) {
     const year = parseInt(isoParts[0], 10);
-    const month = parseInt(isoParts[1], 10);
+    const month = parseInt(isoParts[1], 10) - 1; // Month is 0-indexed
     const day = parseInt(isoParts[2], 10);
-    if (!isNaN(year) && !isNaN(month) && !isNaN(day) && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
-      const date = new Date(year, month - 1, day); // Month is 0-indexed
-      if (date.getFullYear() === year && date.getMonth() + 1 === month && date.getDate() === day) {
-        return date;
-      }
+    
+    if (!isNaN(year) && !isNaN(month) && !isNaN(day) && month >= 0 && month <= 11 && day >= 1 && day <= 31) {
+      // Create date in UTC to avoid timezone issues
+      const date = new Date(Date.UTC(year, month, day));
+      return date;
     }
   }
   
@@ -47,25 +96,48 @@ function parseCustomDate(dateStr) {
     
     const month = monthMap[monthStr];
     if (!isNaN(day) && month !== undefined && !isNaN(year) && day >= 1 && day <= 31) {
-      const date = new Date(year, month, day);
-      // Validate the parsed date
-      if (date.getDate() === day && date.getMonth() === month && date.getFullYear() === year) {
-        return date;
-      }
+      // Create date in UTC
+      const date = new Date(Date.UTC(year, month, day));
+      return date;
     }
+  }
+  
+  // Try to parse as a regular date string
+  const parsedDate = new Date(cleanDateStr);
+  if (!isNaN(parsedDate.getTime())) {
+    // Return date at midnight UTC
+    return new Date(Date.UTC(
+      parsedDate.getUTCFullYear(),
+      parsedDate.getUTCMonth(),
+      parsedDate.getUTCDate()
+    ));
   }
   
   return null;
 }
 
+// Helper function to format date for display (local time)
+function formatDateForDisplay(date) {
+  if (!date) return '';
+  // Convert UTC date to local date for display
+  const localDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+  return localDate.toISOString().split('T')[0];
+}
+
+// Helper function to format date for query parameters
+function formatDateForQuery(date) {
+  if (!date) return '';
+  return date.toISOString().split('T')[0];
+}
+
 // ========================
-// ROUTES IN CORRECT ORDER
+// ROUTES
 // ========================
 
-// GET /rooms - Show all rooms
+// GET /rooms - Show all rooms (SORTED BY PRICE)
 router.get('/', async (req, res) => {
   try {
-    const rooms = await Room.find({ available: true });
+    const rooms = await Room.find({ available: true }).sort({ price: 1 }); // Sort by price ascending
     res.render('rooms/index', {
       title: 'Our Rooms - Full Moon Hotels',
       rooms
@@ -79,22 +151,11 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /rooms/category/:category - Category overview (uses different template)
+// GET /rooms/category/:category - Category overview (SORTED BY PRICE)
 router.get('/category/:category', async (req, res) => {
   try {
     const category = req.params.category;
-    
-    // Map category names to exact room types
-    const categoryMap = {
-      'penthouse-single': 'Penthouse Single Suite',
-      'penthouse-double': 'Penthouse Double Suite',
-      'executive': 'Executive Room',
-      'deluxe': 'Deluxe Room',
-      'premiere': 'Premiere Room',
-      'annex': 'Annex Room'
-    };
-
-    const exactType = categoryMap[category.toLowerCase()];
+    const exactType = CATEGORY_MAP[category.toLowerCase()];
     
     if (!exactType) {
       return res.status(404).render('error', {
@@ -106,7 +167,8 @@ router.get('/category/:category', async (req, res) => {
     const rooms = await Room.find({
       type: exactType,
       available: true
-    }).sort({ roomNumber: 1 });
+    }).sort({ price: 1 }) // Sort by price ascending
+      .sort({ roomNumber: 1 });
 
     if (rooms.length === 0) {
       return res.status(404).render('error', {
@@ -129,7 +191,7 @@ router.get('/category/:category', async (req, res) => {
   }
 });
 
-// POST /rooms/check-availability
+// POST /rooms/check-availability - WITH CAPACITY TRACKING AND PRICE SORTING
 router.post('/check-availability', async (req, res) => {
   try {
     console.log('=== CHECK AVAILABILITY POST REQUEST ===');
@@ -143,7 +205,6 @@ router.post('/check-availability', async (req, res) => {
       return res.redirect('/rooms');
     }
 
-    // Parse dates using enhanced parser
     const checkInDate = parseCustomDate(checkIn);
     const checkOutDate = parseCustomDate(checkOut);
 
@@ -154,7 +215,6 @@ router.post('/check-availability', async (req, res) => {
       parsedCheckOut: checkOutDate ? checkOutDate.toISOString().split('T')[0] : 'INVALID'
     });
 
-    // Validate parsed dates
     if (!checkInDate || !checkOutDate) {
       console.error('Invalid date format in request:', { checkIn, checkOut });
       req.flash('error', 'Invalid date format. Please select valid dates.');
@@ -174,31 +234,96 @@ router.post('/check-availability', async (req, res) => {
       return res.redirect('/rooms');
     }
 
-    const allRooms = await Room.find({ available: true });
-    console.log(`Found ${allRooms.length} generally available rooms`);
+    // Get all generally available rooms - SORTED BY PRICE
+    const allRooms = await Room.find({ available: true }).sort({ price: 1 });
+    console.log(`Found ${allRooms.length} generally available rooms (sorted by price)`);
 
-    // Use parsed dates in query
+    // Get overlapping reservations
     const overlappingReservations = await Reservation.find({
       checkIn: { $lt: checkOutDate },
       checkOut: { $gt: checkInDate },
       status: { $ne: 'cancelled' }
     });
 
-    const bookedRoomIds = new Set(overlappingReservations.map(r => r.room.toString()));
-    const rooms = allRooms.filter(room => !bookedRoomIds.has(room._id.toString()));
+    console.log(`Found ${overlappingReservations.length} overlapping reservations`);
 
-    console.log(`Found ${rooms.length} rooms available for the selected dates`);
+    // Count booked rooms by type
+    const bookedRoomsByType = {};
+    
+    // First, populate with all room types
+    Object.keys(ROOM_CAPACITY).forEach(type => {
+      bookedRoomsByType[type] = 0;
+    });
 
-    // Pass formatted dates for display (ISO for consistency)
-    const formattedCheckIn = checkInDate.toISOString().split('T')[0];
-    const formattedCheckOut = checkOutDate.toISOString().split('T')[0];
+    // Count booked rooms
+    for (const reservation of overlappingReservations) {
+      if (reservation.room && reservation.room.type) {
+        const roomType = reservation.room.type;
+        if (bookedRoomsByType[roomType] !== undefined) {
+          bookedRoomsByType[roomType]++;
+        }
+      }
+    }
+
+    console.log('Booked rooms by type:', bookedRoomsByType);
+
+    // Filter available rooms based on capacity
+    const availableRooms = [];
+    
+    for (const room of allRooms) {
+      const roomType = room.type;
+      const totalCapacity = ROOM_CAPACITY[roomType] || 0;
+      const currentlyBooked = bookedRoomsByType[roomType] || 0;
+      
+      // Check if room is already booked in this reservation period
+      const isRoomBooked = overlappingReservations.some(res => 
+        res.room && res.room._id.toString() === room._id.toString()
+      );
+      
+      // Room is available if:
+      // 1. Not specifically booked for these dates
+      // 2. Total booked rooms of this type is less than capacity
+      if (!isRoomBooked && currentlyBooked < totalCapacity) {
+        availableRooms.push(room);
+      }
+    }
+
+    console.log(`Found ${availableRooms.length} rooms available after capacity check`);
+    
+    // Sort available rooms by price (least to most expensive) - if not already sorted from query
+    availableRooms.sort((a, b) => a.price - b.price);
+    
+    if (availableRooms.length > 0) {
+      console.log('Available rooms price range:');
+      console.log(`  Cheapest: ₦${availableRooms[0].price.toLocaleString()} (${availableRooms[0].type})`);
+      console.log(`  Most expensive: ₦${availableRooms[availableRooms.length - 1].price.toLocaleString()} (${availableRooms[availableRooms.length - 1].type})`);
+    }
+    
+    // Format dates for display
+    const formatDateForDisplay = (date) => {
+      if (!date) return '';
+      return date.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    };
+
+    const displayCheckIn = formatDateForDisplay(checkInDate);
+    const displayCheckOut = formatDateForDisplay(checkOutDate);
 
     res.render('rooms/availability', {
       title: 'Available Rooms - Full Moon Hotels',
-      rooms,
-      checkIn: formattedCheckIn,
-      checkOut: formattedCheckOut,
-      guests
+      rooms: availableRooms,
+      checkIn: req.body.checkIn,
+      checkOut: req.body.checkOut,
+      guests: guests,
+      adults: req.body.adults,
+      children: req.body.children,
+      infants: req.body.infants,
+      displayCheckIn,
+      displayCheckOut
     });
 
   } catch (error) {
@@ -209,6 +334,7 @@ router.post('/check-availability', async (req, res) => {
 });
 
 // GET /rooms/booking-confirmation
+// GET /rooms/booking-confirmation - FIXED DATE HANDLING
 router.get('/booking-confirmation', async (req, res) => {
   try {
     console.log('=== BOOKING CONFIRMATION ROUTE HIT ===');
@@ -235,18 +361,33 @@ router.get('/booking-confirmation', async (req, res) => {
       return res.redirect('/rooms');
     }
 
-    // Parse dates using enhanced parser
-    const checkInDate = parseCustomDate(checkIn);
-    const checkOutDate = parseCustomDate(checkOut);
+    // Parse dates from query parameters (should be YYYY-MM-DD format)
+    const parseDateFromQuery = (dateStr) => {
+      if (!dateStr) return null;
+      const parts = dateStr.split('-');
+      if (parts.length !== 3) return null;
+      
+      const year = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1; // Month is 0-indexed
+      const day = parseInt(parts[2], 10);
+      
+      if (isNaN(year) || isNaN(month) || isNaN(day)) return null;
+      
+      // Create date in local timezone
+      return new Date(year, month, day);
+    };
+
+    const checkInDate = parseDateFromQuery(checkIn);
+    const checkOutDate = parseDateFromQuery(checkOut);
 
     console.log('Confirmation parsed dates:', { 
       originalCheckIn: checkIn, 
-      parsedCheckIn: checkInDate ? checkInDate.toISOString().split('T')[0] : 'INVALID',
+      parsedCheckIn: checkInDate ? checkInDate.toDateString() : 'INVALID',
       originalCheckOut: checkOut, 
-      parsedCheckOut: checkOutDate ? checkOutDate.toISOString().split('T')[0] : 'INVALID'
+      parsedCheckOut: checkOutDate ? checkOutDate.toDateString() : 'INVALID'
     });
 
-    if (isNaN(checkInDate.getTime()) || isNaN(checkOutDate.getTime())) {
+    if (!checkInDate || !checkOutDate) {
       console.log('Invalid date format after parsing');
       req.flash('error', 'Invalid date format provided');
       return res.redirect('/rooms');
@@ -263,7 +404,7 @@ router.get('/booking-confirmation', async (req, res) => {
       return res.redirect('/rooms');
     }
 
-    // Calculate stay details with VAT
+    // Calculate stay details
     const nights = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
     
     if (nights <= 0) {
@@ -272,31 +413,41 @@ router.get('/booking-confirmation', async (req, res) => {
       return res.redirect('/rooms');
     }
 
-    const roomTotal = room.price * nights;
-    const vatRate = 7.5; // 7.5% VAT
-    const vatAmount = roomTotal * (vatRate / 100);
-    const totalAmount = roomTotal + vatAmount;
+    const totalAmount = room.price * nights;
 
-    console.log('Booking details calculated with VAT:', {
+    console.log('Booking details:', {
       nights,
       pricePerNight: room.price,
-      roomTotal: roomTotal,
-      vatRate: vatRate + '%',
-      vatAmount: vatAmount,
       totalAmount: totalAmount
     });
 
     console.log('Rendering booking-confirmation.ejs template...');
     
+    // Format dates for display
+    const formatDateForDisplay = (date) => {
+      if (!date) return '';
+      return date.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    };
+
+    const displayCheckIn = formatDateForDisplay(checkInDate);
+    const displayCheckOut = formatDateForDisplay(checkOutDate);
+    
     // Render the confirmation page
     res.render('rooms/booking-confirmation', {
       title: 'Confirm Booking - Full Moon Hotels',
       room,
-      checkIn: checkInDate.toISOString().split('T')[0],
-      checkOut: checkOutDate.toISOString().split('T')[0],
+      checkIn: checkIn, // Pass original YYYY-MM-DD for form
+      checkOut: checkOut, // Pass original YYYY-MM-DD for form
+      displayCheckIn, // For display only
+      displayCheckOut, // For display only
       guests,
       nights,
-      totalAmount, // Pass the VAT-included total
+      totalAmount,
       messages: req.flash()
     });
 
@@ -308,13 +459,12 @@ router.get('/booking-confirmation', async (req, res) => {
   }
 });
 
-// POST /rooms/book/:id - Forward to confirmation (no login)
+// POST /rooms/book/:id
+// POST /rooms/book/:id - FIXED
 router.post('/book/:id', async (req, res) => {
   try {
     console.log('=== BOOKING REQUEST START ===');
-    console.log('Room ID:', req.params.id);
     console.log('Request body:', req.body);
-
     const roomId = req.params.id;
     
     if (!mongoose.Types.ObjectId.isValid(roomId)) {
@@ -323,23 +473,41 @@ router.post('/book/:id', async (req, res) => {
       return res.redirect('/rooms');
     }
 
-    const { checkIn, checkOut, guests } = req.body;
+    // Check for both formats - either direct 'guests' field or calculated from adults/children/infants
+    let guests;
+    
+    if (req.body.guests) {
+      // If guests is directly provided
+      guests = parseInt(req.body.guests, 10);
+    } else if (req.body.adults) {
+      // If coming from availability form with adults/children/infants
+      const adults = parseInt(req.body.adults || 0, 10);
+      const children = parseInt(req.body.children || 0, 10);
+      const infants = parseInt(req.body.infants || 0, 10);
+      guests = adults + children + infants;
+    } else {
+      console.log('Missing guest information');
+      req.flash('error', 'Please provide guest information');
+      return res.redirect('/rooms');
+    }
 
-    if (!checkIn || !checkOut || !guests) {
+    const { checkIn, checkOut } = req.body;
+
+    if (!checkIn || !checkOut || guests <= 0) {
       console.log('Missing required fields');
       req.flash('error', 'Please fill in all required fields');
       return res.redirect('/rooms');
     }
 
-    // Parse dates using enhanced parser (handles ISO)
-    const checkInDate = parseCustomDate(checkIn);
-    const checkOutDate = parseCustomDate(checkOut);
+    // Use the HTML extraction function
+    const checkInDate = extractDateFromHTML(checkIn);
+    const checkOutDate = extractDateFromHTML(checkOut);
 
     console.log('Booking parsed dates:', { 
       originalCheckIn: checkIn, 
-      parsedCheckIn: checkInDate ? checkInDate.toISOString().split('T')[0] : 'INVALID',
+      parsedCheckIn: checkInDate ? checkInDate.toDateString() : 'INVALID',
       originalCheckOut: checkOut, 
-      parsedCheckOut: checkOutDate ? checkOutDate.toISOString().split('T')[0] : 'INVALID'
+      parsedCheckOut: checkOutDate ? checkOutDate.toDateString() : 'INVALID'
     });
 
     if (!checkInDate || !checkOutDate) {
@@ -348,7 +516,6 @@ router.post('/book/:id', async (req, res) => {
       return res.redirect('/rooms');
     }
 
-    // Verify room exists
     const room = await Room.findById(roomId);
     console.log('Room found:', room ? room._id : 'NOT FOUND');
     
@@ -363,14 +530,41 @@ router.post('/book/:id', async (req, res) => {
       return res.redirect('/rooms');
     }
 
+    // Check capacity availability one more time
+    const overlappingReservations = await Reservation.find({
+      checkIn: { $lt: checkOutDate },
+      checkOut: { $gt: checkInDate },
+      status: { $ne: 'cancelled' }
+    }).populate('room');
+
+    const bookedRoomsOfType = overlappingReservations.filter(
+      res => res.room && res.room.type === room.type
+    ).length;
+
+    const roomCapacity = ROOM_CAPACITY[room.type] || 0;
+    
+    if (bookedRoomsOfType >= roomCapacity) {
+      req.flash('error', `Sorry, all ${room.type} rooms are booked for the selected dates.`);
+      return res.redirect('/rooms');
+    }
+
     console.log('=== BOOKING REQUEST SUCCESS - Redirecting to confirmation ===');
+
+    // Format dates as YYYY-MM-DD for the query string
+    const formatDateForQuery = (date) => {
+      if (!date) return '';
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    const queryCheckIn = formatDateForQuery(checkInDate);
+    const queryCheckOut = formatDateForQuery(checkOutDate);
     
-    // Redirect to confirmation with ISO dates
-    const isoCheckIn = checkInDate.toISOString().split('T')[0];
-    const isoCheckOut = checkOutDate.toISOString().split('T')[0];
-    const redirectUrl = `/rooms/booking-confirmation?roomId=${roomId}&checkIn=${encodeURIComponent(isoCheckIn)}&checkOut=${encodeURIComponent(isoCheckOut)}&guests=${encodeURIComponent(guests)}`;
+    const redirectUrl = `/rooms/booking-confirmation?roomId=${roomId}&checkIn=${encodeURIComponent(queryCheckIn)}&checkOut=${encodeURIComponent(queryCheckOut)}&guests=${encodeURIComponent(guests)}`;
     console.log('Redirect URL:', redirectUrl);
-    
+
     res.redirect(redirectUrl);
   } catch (error) {
     console.error('Booking error:', error);
@@ -379,7 +573,7 @@ router.post('/book/:id', async (req, res) => {
   }
 });
 
-// POST /rooms/confirm-booking - Finalize booking (guest) - UPDATED WITH VAT AND BETTER DEBUGGING
+// POST /rooms/confirm-booking - FIXED DATE HANDLING
 router.post('/confirm-booking', async (req, res) => {
   try {
     console.log('=== CONFIRM BOOKING REQUEST START ===');
@@ -442,15 +636,30 @@ router.post('/confirm-booking', async (req, res) => {
       return res.redirect('/rooms');
     }
 
-    // Parse dates using enhanced parser
-    const checkInDate = parseCustomDate(checkIn);
-    const checkOutDate = parseCustomDate(checkOut);
+    // Parse dates from form (should be YYYY-MM-DD format)
+    const parseDateFromForm = (dateStr) => {
+      if (!dateStr) return null;
+      const parts = dateStr.split('-');
+      if (parts.length !== 3) return null;
+      
+      const year = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1; // Month is 0-indexed
+      const day = parseInt(parts[2], 10);
+      
+      if (isNaN(year) || isNaN(month) || isNaN(day)) return null;
+      
+      // Create date in local timezone
+      return new Date(year, month, day);
+    };
+
+    const checkInDate = parseDateFromForm(checkIn);
+    const checkOutDate = parseDateFromForm(checkOut);
 
     console.log('Confirm booking parsed dates:', { 
       originalCheckIn: checkIn, 
-      parsedCheckIn: checkInDate ? checkInDate.toISOString() : 'INVALID',
+      parsedCheckIn: checkInDate ? checkInDate.toDateString() : 'INVALID',
       originalCheckOut: checkOut, 
-      parsedCheckOut: checkOutDate ? checkOutDate.toISOString() : 'INVALID'
+      parsedCheckOut: checkOutDate ? checkOutDate.toDateString() : 'INVALID'
     });
 
     if (!checkInDate || !checkOutDate) {
@@ -459,35 +668,41 @@ router.post('/confirm-booking', async (req, res) => {
       return res.redirect('/rooms/booking-confirmation?roomId=' + roomId + '&checkIn=' + checkIn + '&checkOut=' + checkOut + '&guests=' + guests);
     }
 
-    // Check for overlapping reservations
-    console.log('Checking for overlapping reservations...');
-    const overlap = await Reservation.findOne({
-      room: roomId,
+    // Final capacity check
+    const overlappingReservations = await Reservation.find({
       checkIn: { $lt: checkOutDate },
       checkOut: { $gt: checkInDate },
       status: { $ne: 'cancelled' }
-    });
+    }).populate('room');
 
-    if (overlap) {
-      console.log('Found overlapping reservation:', overlap._id);
-      req.flash('error', 'Room has been booked for the selected dates. Please choose another room.');
+    const bookedRoomsOfType = overlappingReservations.filter(
+      res => res.room && res.room.type === room.type
+    ).length;
+
+    const roomCapacity = ROOM_CAPACITY[room.type] || 0;
+    
+    if (bookedRoomsOfType >= roomCapacity) {
+      req.flash('error', `Sorry, all ${room.type} rooms are now booked for the selected dates.`);
+      return res.redirect('/rooms');
+    }
+
+    // Check if this specific room is already booked
+    const roomOverlap = overlappingReservations.find(
+      res => res.room && res.room._id.toString() === roomId
+    );
+
+    if (roomOverlap) {
+      console.log('Found overlapping reservation for this room:', roomOverlap._id);
+      req.flash('error', 'This specific room has been booked. Please choose another room.');
       return res.redirect('/rooms');
     }
 
     const nights = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
-    
-    // Calculate with VAT
-    const roomTotal = room.price * nights;
-    const vatRate = 7.5; // 7.5% VAT
-    const vatAmount = roomTotal * (vatRate / 100);
-    const totalAmount = roomTotal + vatAmount;
+    const totalAmount = room.price * nights;
 
-    console.log('Creating reservation with VAT calculation:', {
+    console.log('Creating reservation:', {
       nights,
       pricePerNight: room.price,
-      roomTotal: roomTotal,
-      vatRate: vatRate + '%',
-      vatAmount: vatAmount,
       totalAmount: totalAmount
     });
 
@@ -496,45 +711,32 @@ router.post('/confirm-booking', async (req, res) => {
       checkIn: checkInDate,
       checkOut: checkOutDate,
       guests: parseInt(guests),
-      roomRate: room.price, // Store base room rate
-      nights: nights, // Store number of nights
-      roomTotal: roomTotal, // Store room total without VAT
-      vatRate: vatRate, // Store VAT rate
-      vatAmount: vatAmount, // Store VAT amount
-      totalAmount: totalAmount, // Store total with VAT
+      roomRate: room.price,
+      nights: nights,
+      totalAmount: totalAmount,
       guestName: guestName.trim(),
       guestEmail: guestEmail.trim(),
       guestPhone: guestPhone.trim(),
-      status: 'confirmed'
+      status: 'pending',
+      paymentStatus: 'unpaid',
+      notes: 'Reservation created. Awaiting payment confirmation.'
     });
 
     console.log('Attempting to save reservation...');
     await reservation.save();
-    console.log('Guest reservation created with VAT:', reservation._id);
+    console.log('Guest reservation created:', reservation._id);
 
-    // Send confirmation email with VAT details
-    try {
-      // Comment out email sending for now to debug
-      // await sendReservationConfirmation(reservation, room);
-      console.log('Email sending would happen here (commented out for debugging)');
-    } catch (emailError) {
-      console.error('Failed to send confirmation email:', emailError);
-      // Don't fail the reservation if email fails
-    }
-
-    req.flash('success', `Booking confirmed! A confirmation email has been sent to ${guestEmail}`);
+    req.flash('success', `Reservation received! A confirmation has been sent to ${guestEmail}.`);
     
     console.log('=== CONFIRM BOOKING SUCCESS - Redirecting to guest reservation ===');
     console.log('Redirect URL will be:', `/rooms/guest-reservation/${reservation._id}`);
     
-    // Redirect to guest reservation page
     res.redirect(`/rooms/guest-reservation/${reservation._id}`);
 
   } catch (error) {
     console.error('CONFIRM BOOKING ERROR DETAILS:', error);
     console.error('Error stack:', error.stack);
     
-    // Check for specific MongoDB validation errors
     if (error.name === 'ValidationError') {
       const validationErrors = Object.values(error.errors).map(err => err.message);
       console.log('Validation errors:', validationErrors);
@@ -543,19 +745,54 @@ router.post('/confirm-booking', async (req, res) => {
       req.flash('error', `Booking failed: ${error.message}`);
     }
     
-    // Redirect back to booking confirmation with parameters
     const { roomId, checkIn, checkOut, guests } = req.body;
     return res.redirect(`/rooms/booking-confirmation?roomId=${roomId || ''}&checkIn=${checkIn || ''}&checkOut=${checkOut || ''}&guests=${guests || ''}`);
   }
 });
 
-// GET /rooms/guest-reservation/:id - Guest reservation confirmation page
+// GET /rooms/:id - Single room detail
+router.get('/:id', async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).render('error', {
+        title: 'Room Not Found',
+        error: 'The requested room was not found.'
+      });
+    }
+
+    const room = await Room.findById(req.params.id);
+    if (!room) {
+      return res.status(404).render('error', {
+        title: 'Room Not Found',
+        error: 'The requested room was not found.'
+      });
+    }
+
+    res.render('rooms/detail', {
+      title: `${room.type} - Full Moon Hotels`,
+      room
+    });
+  } catch (error) {
+    console.error('Error fetching room details:', error);
+    res.status(500).render('error', {
+      title: 'Server Error',
+      error: 'Failed to load room details'
+    });
+  }
+});
+
+// GET /rooms/guest-reservation/:id
 router.get('/guest-reservation/:id', async (req, res) => {
   try {
     console.log('=== GUEST RESERVATION ROUTE HIT ===');
     const reservationId = req.params.id;
     
     console.log('Looking for reservation:', reservationId);
+    
+    if (reservationId.match(/\.(ico|png|jpg|jpeg|gif|css|js)$/i)) {
+      console.log('Skipping file request:', reservationId);
+      return res.status(404).end();
+    }
     
     if (!mongoose.Types.ObjectId.isValid(reservationId)) {
       console.log('Invalid reservation ID format');
@@ -577,17 +814,9 @@ router.get('/guest-reservation/:id', async (req, res) => {
       });
     }
 
-    // Calculate nights for display
     const nights = Math.ceil((reservation.checkOut - reservation.checkIn) / (1000 * 60 * 60 * 24));
 
     console.log('Rendering guest-reservation.ejs with reservation data');
-    console.log('Reservation details:', {
-      id: reservation._id,
-      guestName: reservation.guestName,
-      guestEmail: reservation.guestEmail,
-      nights: nights,
-      totalAmount: reservation.totalAmount
-    });
     
     res.render('rooms/guest-reservation', {
       title: 'Booking Confirmed - Full Moon Hotels',
@@ -603,36 +832,290 @@ router.get('/guest-reservation/:id', async (req, res) => {
   }
 });
 
-// GET /rooms/:id - Single room detail (MUST COME AFTER booking-confirmation and guest-reservation)
-router.get('/:id', async (req, res) => {
+// ========================
+// ADMIN ROUTES
+// ========================
+
+// GET /rooms/admin/reservations - View all reservations (admin only)
+/* router.get('/admin/reservations', async (req, res) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(404).render('error', {
-        title: 'Room Not Found',
-        error: 'The requested room was not found.'
-      });
+    // Check if user is admin (you'll need to implement proper authentication)
+    if (!req.session.user || (req.session.user.role !== 'admin' && req.session.user.role !== 'super-admin')) {
+      req.flash('error', 'Admin access required');
+      return res.redirect('/login');
     }
 
-    const room = await Room.findById(req.params.id);
-    if (!room) {
-      return res.status(404).render('error', {
-        title: 'Room Not Found',
-        error: 'The requested room was not found.'
-      });
+    const { status, payment, date, createdFrom, createdTo, search } = req.query;
+    
+    let filter = {};
+    
+    if (status && status !== 'all') {
+      filter.status = status;
     }
-
-    res.render('rooms/detail', {
-      title: `${room.type} - Full Moon Hotels`,
-      room  // Single room object for detail view
+    
+    if (payment && payment !== 'all') {
+      filter.paymentStatus = payment;
+    }
+    
+    // Filter by check-in date
+    if (date) {
+      const searchDate = new Date(date);
+      const nextDay = new Date(searchDate);
+      nextDay.setDate(nextDay.getDate() + 1);
+      
+      filter.checkIn = { $gte: searchDate, $lt: nextDay };
+    }
+    
+    // Filter by reservation creation date range
+    if (createdFrom || createdTo) {
+      filter.createdAt = {};
+      
+      if (createdFrom) {
+        const fromDate = new Date(createdFrom);
+        filter.createdAt.$gte = fromDate;
+      }
+      
+      if (createdTo) {
+        const toDate = new Date(createdTo);
+        toDate.setDate(toDate.getDate() + 1); // Include the entire day
+        filter.createdAt.$lt = toDate;
+      }
+    }
+    
+    // Search by guest details
+    if (search) {
+      filter.$or = [
+        { guestName: { $regex: search, $options: 'i' } },
+        { guestEmail: { $regex: search, $options: 'i' } },
+        { guestPhone: { $regex: search, $options: 'i' } },
+        { receiptNumber: { $regex: search, $options: 'i' } },
+        { transactionNo: { $regex: search, $options: 'i' } }
+      ];
+    }
+    
+    // Fetch reservations with room details
+    const reservations = await Reservation.find(filter)
+      .populate('room', 'roomNumber type')
+      .sort({ createdAt: -1 })
+      .lean();
+    
+    // Calculate dashboard stats
+    const stats = {
+      total: await Reservation.countDocuments(),
+      pending: await Reservation.countDocuments({ status: 'pending' }),
+      confirmed: await Reservation.countDocuments({ status: 'confirmed' }),
+      cancelled: await Reservation.countDocuments({ status: 'cancelled' }),
+      unpaid: await Reservation.countDocuments({ paymentStatus: 'unpaid' }),
+      paid: await Reservation.countDocuments({ paymentStatus: 'paid' })
+    };
+    
+    // Format dates for display
+    const formattedReservations = reservations.map(res => {
+      // Format check-in date
+      const checkInDate = res.checkIn ? new Date(res.checkIn) : null;
+      const formattedCheckIn = checkInDate ? checkInDate.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      }) : 'N/A';
+      
+      // Format check-out date
+      const checkOutDate = res.checkOut ? new Date(res.checkOut) : null;
+      const formattedCheckOut = checkOutDate ? checkOutDate.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      }) : 'N/A';
+      
+      // Format created date (reservation date)
+      const createdDate = res.createdAt ? new Date(res.createdAt) : null;
+      const formattedCreatedAt = createdDate ? createdDate.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }) : 'N/A';
+      
+      return {
+        ...res,
+        formattedCheckIn,
+        formattedCheckOut,
+        formattedCreatedAt
+      };
     });
+    
+    res.render('admin/reservations', {
+      title: 'Manage Reservations - Admin',
+      reservations: formattedReservations,
+      stats,
+      query: req.query,
+      user: req.session.user,
+      messages: req.flash()
+    });
+    
   } catch (error) {
-    console.error('Error fetching room details:', error);
-    res.status(500).render('error', {
-      title: 'Server Error',
-      error: 'Failed to load room details'
+    console.error('Error loading admin reservations:', error);
+    req.flash('error', 'Failed to load reservations');
+    res.redirect('/admin');
+  }
+}); */
+
+// GET /rooms/admin/reservations/:id - View reservation details (admin)
+router.get('/admin/reservations/:id', async (req, res) => {
+  try {
+    if (!req.session.user || (req.session.user.role !== 'admin' && req.session.user.role !== 'super-admin')) {
+      req.flash('error', 'Admin access required');
+      return res.redirect('/login');
+    }
+
+    const reservation = await Reservation.findById(req.params.id)
+      .populate('room')
+      .lean();
+    
+    if (!reservation) {
+      req.flash('error', 'Reservation not found');
+      return res.redirect('/rooms/admin/reservations');
+    }
+    
+    // Format dates
+    reservation.formattedCheckIn = new Date(reservation.checkIn).toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
     });
+    
+    reservation.formattedCheckOut = new Date(reservation.checkOut).toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    });
+    
+    res.render('admin/reservation-details', {
+      title: 'Reservation Details - Admin',
+      reservation,
+      user: req.session.user,
+      messages: req.flash()
+    });
+    
+  } catch (error) {
+    console.error('Error loading reservation details:', error);
+    req.flash('error', 'Failed to load reservation');
+    res.redirect('/rooms/admin/reservations');
+  }
+}); 
+
+// POST /rooms/admin/reservations/:id/confirm-payment - Confirm payment (admin) - FIXED VERSION
+router.post('/admin/reservations/:id/confirm-payment', async (req, res) => {
+  try {
+    if (!req.session.user || (req.session.user.role !== 'admin' && req.session.user.role !== 'super-admin')) {
+      req.flash('error', 'Admin access required');
+      return res.redirect('/login');
+    }
+
+    const { 
+      paymentMethod, 
+      receiptNumber, 
+      transferTransactionNo, 
+      posTransactionNo, 
+      sessionId, 
+      bankName, 
+      cardType, 
+      notes 
+    } = req.body;
+    
+    console.log('Payment confirmation data:', req.body);
+    
+    if (!paymentMethod) {
+      req.flash('error', 'Payment method is required');
+      return res.redirect(`/rooms/admin/reservations/${req.params.id}`);
+    }
+    
+    const updateData = {
+      paymentStatus: 'paid',
+      paidAt: new Date(),
+      paymentMethod: paymentMethod,
+      status: 'confirmed',
+      notes: (notes || '') + `\n[${new Date().toISOString()}] Payment confirmed by ${req.session.user.username} using ${paymentMethod}`
+    };
+    
+    // Add method-specific fields
+    if (paymentMethod === 'cash') {
+      if (!receiptNumber) {
+        req.flash('error', 'Receipt number is required for cash payment');
+        return res.redirect(`/rooms/admin/reservations/${req.params.id}`);
+      }
+      updateData.receiptNumber = receiptNumber;
+    } 
+    else if (paymentMethod === 'transfer') {
+      if (!bankName || !transferTransactionNo || !sessionId) {
+        req.flash('error', 'Bank, transaction number, and session ID are required for transfer');
+        return res.redirect(`/rooms/admin/reservations/${req.params.id}`);
+      }
+      updateData.bankName = bankName;
+      updateData.transactionNo = transferTransactionNo; // Use the correct field name
+      updateData.sessionId = sessionId;
+    }
+    else if (paymentMethod === 'pos') {
+      if (!cardType || !posTransactionNo) {
+        req.flash('error', 'Card type and transaction number are required for POS');
+        return res.redirect(`/rooms/admin/reservations/${req.params.id}`);
+      }
+      updateData.cardType = cardType;
+      updateData.transactionNo = posTransactionNo; // Use the correct field name
+    }
+    
+    console.log('Updating reservation with:', updateData);
+    
+    const reservation = await Reservation.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true }
+    ).populate('room');
+    
+    if (!reservation) {
+      req.flash('error', 'Reservation not found');
+      return res.redirect('/rooms/admin/reservations');
+    }
+    
+    console.log(`Payment confirmed for reservation ${reservation._id} by ${req.session.user.username}`);
+    
+    req.flash('success', `Payment confirmed for ${reservation.guestName}. Reservation is now confirmed.`);
+    res.redirect(`/rooms/admin/reservations/${req.params.id}`);
+    
+  } catch (error) {
+    console.error('Error confirming payment:', error);
+    req.flash('error', 'Failed to confirm payment: ' + error.message);
+    res.redirect(`/rooms/admin/reservations/${req.params.id}`);
   }
 });
+ 
+// POST /rooms/admin/reservations/:id/update-status - Update reservation status (admin)
+router.post('/admin/reservations/:id/update-status', async (req, res) => {
+  try {
+    if (!req.session.user || (req.session.user.role !== 'admin' && req.session.user.role !== 'super-admin')) {
+      req.flash('error', 'Admin access required');
+      return res.redirect('/login');
+    }
+
+    const { status } = req.body;
+    const validStatuses = ['pending', 'confirmed', 'cancelled'];
+    
+    if (!validStatuses.includes(status)) {
+      req.flash('error', 'Invalid status');
+      return res.redirect('/rooms/admin/reservations');
+    }
+
+    await Reservation.findByIdAndUpdate(req.params.id, { status });
+    
+    req.flash('success', `Reservation status updated to ${status}`);
+    res.redirect('/rooms/admin/reservations');
+  } catch (error) {
+    console.error('Error updating reservation status:', error);
+    req.flash('error', 'Failed to update reservation status');
+    res.redirect('/rooms/admin/reservations');
+  }
+}); 
 
 // ========================
 // DEBUG ROUTES
@@ -648,7 +1131,6 @@ router.get('/test-booking-flow', async (req, res) => {
 
     console.log('Testing booking flow with room:', room._id);
     
-    // Redirect to booking confirmation with test data (ISO format)
     res.redirect(`/rooms/booking-confirmation?roomId=${room._id}&checkIn=2025-11-14&checkOut=2025-11-16&guests=2`);
   } catch (error) {
     console.error('Test route error:', error);
@@ -671,6 +1153,7 @@ router.get('/debug/room/:id', async (req, res) => {
         _id: room._id,
         roomNumber: room.roomNumber,
         type: room.type,
+        category: room.category,
         price: room.price,
         available: room.available
       } : null
@@ -681,38 +1164,29 @@ router.get('/debug/room/:id', async (req, res) => {
   }
 });
 
-// Debug route to check reservation
-router.get('/debug/reservation/:id', async (req, res) => {
+// Debug route to check capacity
+router.get('/debug/capacity', async (req, res) => {
   try {
-    const reservationId = req.params.id;
-    console.log('Debug reservation lookup for:', reservationId);
+    const roomCounts = {};
     
-    const reservation = await Reservation.findById(reservationId).populate('room');
+    for (const [type, capacity] of Object.entries(ROOM_CAPACITY)) {
+      const totalRooms = await Room.countDocuments({ type: type });
+      const availableRooms = await Room.countDocuments({ type: type, available: true });
+      
+      roomCounts[type] = {
+        capacity: capacity,
+        totalInDatabase: totalRooms,
+        available: availableRooms,
+        booked: totalRooms - availableRooms
+      };
+    }
+    
     res.json({
-      reservationId,
-      isValidObjectId: mongoose.Types.ObjectId.isValid(reservationId),
-      reservationFound: !!reservation,
-      reservation: reservation ? {
-        _id: reservation._id,
-        guestName: reservation.guestName,
-        guestEmail: reservation.guestEmail,
-        checkIn: reservation.checkIn,
-        checkOut: reservation.checkOut,
-        roomRate: reservation.roomRate,
-        nights: reservation.nights,
-        roomTotal: reservation.roomTotal,
-        vatRate: reservation.vatRate,
-        vatAmount: reservation.vatAmount,
-        totalAmount: reservation.totalAmount,
-        room: reservation.room ? {
-          _id: reservation.room._id,
-          type: reservation.room.type,
-          roomNumber: reservation.room.roomNumber
-        } : null
-      } : null
+      roomCapacity: ROOM_CAPACITY,
+      currentStatus: roomCounts
     });
   } catch (error) {
-    console.error('Debug reservation error:', error);
+    console.error('Debug capacity error:', error);
     res.status(500).json({ error: error.message });
   }
 });
