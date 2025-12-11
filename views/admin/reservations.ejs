@@ -7,220 +7,744 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .stats-card {
             border-radius: 10px;
             padding: 15px;
             margin-bottom: 15px;
             color: white;
+            transition: transform 0.3s;
+        }
+        .stats-card:hover {
+            transform: translateY(-5px);
         }
         .bg-total { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
         .bg-pending { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
         .bg-confirmed { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
         .bg-paid { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .bg-checkedin { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .bg-completed { background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); }
+        .bg-occupancy { background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%); }
         .badge-status { font-size: 0.8em; }
         .status-pending { background-color: #ffc107; }
         .status-confirmed { background-color: #28a745; }
+        .status-checked-in { background-color: #17a2b8; }
+        .status-completed { background-color: #6c757d; }
         .status-cancelled { background-color: #dc3545; }
         .payment-unpaid { background-color: #ffcccb; }
         .payment-paid { background-color: #d4edda; }
+        .payment-partially-paid { background-color: #fff3cd; }
+        .action-buttons { white-space: nowrap; }
+        .quick-action-btn {
+            margin: 2px;
+            min-width: 80px;
+        }
+        .modal-lg-custom { max-width: 800px; }
+        .table-hover tbody tr:hover {
+            background-color: rgba(0, 123, 255, 0.05);
+        }
+        .capacity-info {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        .room-type-badge {
+            font-size: 0.7rem;
+            margin: 2px;
+        }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="/admin">Full Moon Hotels Admin</a>
-            <div class="collapse navbar-collapse">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="/admin">Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="/rooms/admin/reservations">Reservations</a>
+                        <a class="nav-link active" href="/admin/reservations">Reservations</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/admin/rooms">Rooms</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/users">Users</a>
+                    </li>
                 </ul>
                 <span class="navbar-text">
-                    Welcome, <%= user.username %> | 
-                    <a href="/logout" class="text-white">Logout</a>
+                    <i class="fas fa-user-circle me-1"></i><%= user.username %> | 
+                    <a href="/logout" class="text-white"><i class="fas fa-sign-out-alt me-1"></i>Logout</a>
                 </span>
             </div>
         </div>
     </nav>
 
     <div class="container-fluid mt-4">
-        <div class="row">
-            <div class="col-md-12">
-                <h1 class="h3 mb-4"><i class="bi bi-calendar-check"></i> Manage Reservations</h1>
-                
-                <% if (messages.error) { %>
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <%= messages.error %>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                <% } %>
-                
-                <% if (messages.success) { %>
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <%= messages.success %>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                <% } %>
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3"><i class="fas fa-calendar-check me-2"></i>Reservations Management</h1>
+                <p class="text-muted">Manage check-ins, check-outs, room assignments, and property operations</p>
+            </div>
+            <div class="btn-group">
+                <a href="/admin/reservations/occupancy-report" class="btn btn-outline-info">
+                    <i class="fas fa-chart-line me-1"></i>Occupancy Report
+                </a>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#todaySummaryModal">
+                    <i class="fas fa-calendar-day me-1"></i>Today's Summary
+                </button>
+            </div>
+        </div>
 
-                <!-- Stats Dashboard -->
-                <div class="row mb-4">
-                    <div class="col-md-2">
-                        <div class="stats-card bg-total">
+        <!-- Flash Messages -->
+        <% if (messages.error) { %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i><%= messages.error %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <% } %>
+        
+        <% if (messages.success) { %>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i><%= messages.success %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <% } %>
+
+        <!-- Room Capacity Breakdown -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-bed me-2"></i>Hotel Room Capacity Breakdown (69 Total Rooms)</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-2 text-center">
+                        <div class="card border-primary mb-3">
+                            <div class="card-body">
+                                <h3 class="text-primary">1</h3>
+                                <h6>Penthouse Double Suite</h6>
+                                <small class="text-muted">Luxury suite</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 text-center">
+                        <div class="card border-info mb-3">
+                            <div class="card-body">
+                                <h3 class="text-info">2</h3>
+                                <h6>Penthouse Single Suite</h6>
+                                <small class="text-muted">Premium suite</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 text-center">
+                        <div class="card border-success mb-3">
+                            <div class="card-body">
+                                <h3 class="text-success">9</h3>
+                                <h6>Executive Room</h6>
+                                <small class="text-muted">Business class</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="card border-warning mb-3">
+                            <div class="card-body">
+                                <h3 class="text-warning">37</h3>
+                                <h6>Deluxe Room</h6>
+                                <small class="text-muted">Most popular choice</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="card border-danger mb-3">
+                            <div class="card-body">
+                                <h3 class="text-danger">20</h3>
+                                <h6>Premiere Room</h6>
+                                <small class="text-muted">Premium comfort</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Stats Dashboard -->
+        <div class="row mb-4">
+            <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+                <div class="stats-card bg-total">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
                             <h5 class="card-title">Total</h5>
                             <h2 class="card-text"><%= stats.total %></h2>
                         </div>
+                        <i class="fas fa-list fa-2x opacity-75"></i>
                     </div>
-                    <div class="col-md-2">
-                        <div class="stats-card bg-pending">
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+                <div class="stats-card bg-pending">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
                             <h5 class="card-title">Pending</h5>
                             <h2 class="card-text"><%= stats.pending %></h2>
                         </div>
+                        <i class="fas fa-clock fa-2x opacity-75"></i>
                     </div>
-                    <div class="col-md-2">
-                        <div class="stats-card bg-confirmed">
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+                <div class="stats-card bg-confirmed">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
                             <h5 class="card-title">Confirmed</h5>
                             <h2 class="card-text"><%= stats.confirmed %></h2>
                         </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="stats-card" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
-                            <h5 class="card-title">Cancelled</h5>
-                            <h2 class="card-text"><%= stats.cancelled %></h2>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="stats-card" style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);">
-                            <h5 class="card-title">Unpaid</h5>
-                            <h2 class="card-text"><%= stats.unpaid %></h2>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="stats-card bg-paid">
-                            <h5 class="card-title">Paid</h5>
-                            <h2 class="card-text"><%= stats.paid %></h2>
-                        </div>
+                        <i class="fas fa-check-circle fa-2x opacity-75"></i>
                     </div>
                 </div>
-
-                <!-- Filters -->
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <form method="GET" class="row g-3">
-                            <div class="col-md-2">
-                                <label class="form-label">Status</label>
-                                <select name="status" class="form-select">
-                                    <option value="all" <%= query.status === 'all' ? 'selected' : '' %>>All Statuses</option>
-                                    <option value="pending" <%= query.status === 'pending' ? 'selected' : '' %>>Pending</option>
-                                    <option value="confirmed" <%= query.status === 'confirmed' ? 'selected' : '' %>>Confirmed</option>
-                                    <option value="cancelled" <%= query.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label">Payment</label>
-                                <select name="payment" class="form-select">
-                                    <option value="all" <%= query.payment === 'all' ? 'selected' : '' %>>All Payments</option>
-                                    <option value="unpaid" <%= query.payment === 'unpaid' ? 'selected' : '' %>>Unpaid</option>
-                                    <option value="paid" <%= query.payment === 'paid' ? 'selected' : '' %>>Paid</option>
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label">Check-in Date</label>
-                                <input type="date" name="date" class="form-control" value="<%= query.date || '' %>">
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label">Reserved From</label>
-                                <input type="date" name="createdFrom" class="form-control" value="<%= query.createdFrom || '' %>">
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label">Reserved To</label>
-                                <input type="date" name="createdTo" class="form-control" value="<%= query.createdTo || '' %>">
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label">Search</label>
-                                <input type="text" name="search" class="form-control" placeholder="Name, email, phone..." value="<%= query.search || '' %>">
-                            </div>
-                            <div class="col-12">
-                                <button type="submit" class="btn btn-primary"><i class="bi bi-filter"></i> Filter</button>
-                                <a href="/rooms/admin/reservations" class="btn btn-secondary">Clear</a>
-                            </div>
-                        </form>
+            </div>
+            <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+                <div class="stats-card bg-checkedin">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">Checked-in</h5>
+                            <h2 class="card-text"><%= stats.checkedIn %></h2>
+                        </div>
+                        <i class="fas fa-sign-in-alt fa-2x opacity-75"></i>
                     </div>
                 </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+                <div class="stats-card bg-completed">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">Completed</h5>
+                            <h2 class="card-text"><%= stats.completed %></h2>
+                        </div>
+                        <i class="fas fa-sign-out-alt fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+                <div class="stats-card bg-occupancy">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">Occupancy</h5>
+                            <h2 class="card-text"><%= occupancyRate %>%</h2>
+                            <small><%= occupiedRooms %>/<%= totalRooms %> rooms</small>
+                        </div>
+                        <i class="fas fa-bed fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                <!-- Reservations Table -->
+        <!-- Today's Quick Stats -->
+        <div class="row mb-4">
+            <div class="col-md-6">
                 <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0"><i class="fas fa-sign-in-alt me-2"></i>Today's Check-ins (<%= todaysCheckIns.length %>)</h5>
+                    </div>
                     <div class="card-body">
+                        <% if (todaysCheckIns.length > 0) { %>
+                            <div class="list-group">
+                                <% todaysCheckIns.forEach(checkin => { %>
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong><%= checkin.guestName %></strong>
+                                            <br>
+                                            <small class="text-muted">
+                                                Room <%= checkin.room?.roomNumber || 'N/A' %> • 
+                                                Check-in: <%= new Date(checkin.checkInDate).toLocaleDateString() %> at <%= new Date(checkin.checkInDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %>
+                                            </small>
+                                        </div>
+                                        <a href="/admin/reservations/<%= checkin._id %>" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-arrow-right"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                <% }) %>
+                            </div>
+                        <% } else { %>
+                            <p class="text-center text-muted mb-0">No check-ins scheduled for today</p>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="card-title mb-0"><i class="fas fa-sign-out-alt me-2"></i>Today's Check-outs (<%= todaysCheckOuts.length %>)</h5>
+                    </div>
+                    <div class="card-body">
+                        <% if (todaysCheckOuts.length > 0) { %>
+                            <div class="list-group">
+                                <% todaysCheckOuts.forEach(checkout => { %>
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong><%= checkout.guestName %></strong>
+                                            <br>
+                                            <small class="text-muted">
+                                                Room <%= checkout.room?.roomNumber || 'N/A' %> • 
+                                                Check-out: <%= new Date(checkout.checkOutDate).toLocaleDateString() %> at <%= new Date(checkout.checkOutDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %>
+                                            </small>
+                                        </div>
+                                        <div>
+                                            <a href="/admin/reservations/<%= checkout._id %>" class="btn btn-sm btn-outline-success me-2">
+                                                Process
+                                            </a>
+                                            <button onclick="quickCheckOut('<%= checkout._id %>')" class="btn btn-sm btn-success">
+                                                <i class="fas fa-sign-out-alt"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <% }) %>
+                            </div>
+                        <% } else { %>
+                            <p class="text-center text-muted mb-0">No check-outs scheduled for today</p>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Filters -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-filter me-2"></i>Advanced Filters</h5>
+            </div>
+            <div class="card-body">
+                <form method="GET" class="row g-3">
+                    <div class="col-md-2">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-select">
+                            <option value="all" <%= query.status === 'all' ? 'selected' : '' %>>All Statuses</option>
+                            <option value="pending" <%= query.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                            <option value="confirmed" <%= query.status === 'confirmed' ? 'selected' : '' %>>Confirmed</option>
+                            <option value="checked-in" <%= query.status === 'checked-in' ? 'selected' : '' %>>Checked-in</option>
+                            <option value="completed" <%= query.status === 'completed' ? 'selected' : '' %>>Completed</option>
+                            <option value="cancelled" <%= query.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Payment</label>
+                        <select name="payment" class="form-select">
+                            <option value="all" <%= query.payment === 'all' ? 'selected' : '' %>>All Payments</option>
+                            <option value="unpaid" <%= query.payment === 'unpaid' ? 'selected' : '' %>>Unpaid</option>
+                            <option value="paid" <%= query.payment === 'paid' ? 'selected' : '' %>>Paid</option>
+                            <option value="partially-paid" <%= query.payment === 'partially-paid' ? 'selected' : '' %>>Partially Paid</option>
+                            <option value="refunded" <%= query.payment === 'refunded' ? 'selected' : '' %>>Refunded</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Check-in Date</label>
+                        <input type="date" name="date" class="form-control" value="<%= query.date || '' %>">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Room Type</label>
+                        <select name="roomType" class="form-select">
+                            <option value="all" <%= query.roomType === 'all' ? 'selected' : '' %>>All Types</option>
+                            <option value="Penthouse Double Suite" <%= query.roomType === 'Penthouse Double Suite' ? 'selected' : '' %>>Penthouse Double</option>
+                            <option value="Penthouse Single Suite" <%= query.roomType === 'Penthouse Single Suite' ? 'selected' : '' %>>Penthouse Single</option>
+                            <option value="Executive Room" <%= query.roomType === 'Executive Room' ? 'selected' : '' %>>Executive</option>
+                            <option value="Deluxe Room" <%= query.roomType === 'Deluxe Room' ? 'selected' : '' %>>Deluxe</option>
+                            <option value="Premiere Room" <%= query.roomType === 'Premiere Room' ? 'selected' : '' %>>Premiere</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Search</label>
+                        <div class="input-group">
+                            <input type="text" name="search" class="form-control" placeholder="Guest name, email, phone, or confirmation code" value="<%= query.search || '' %>">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter me-1"></i> Apply Filters
+                        </button>
+                        <a href="/admin/reservations" class="btn btn-secondary">
+                            <i class="fas fa-redo me-1"></i> Clear Filters
+                        </a>
+                        <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#upcomingArrivalsModal">
+                            <i class="fas fa-plane-arrival me-1"></i> View Upcoming Arrivals (<%= upcomingArrivals.length %>)
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Reservations Table -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-table me-2"></i>Reservations (<%= reservations.length %>)
+                </h5>
+                <div>
+                    <span class="me-3">
+                        <i class="fas fa-bed me-1"></i>
+                        <span class="text-success"><%= occupiedRooms %></span>/<span class="text-muted">69</span> rooms occupied
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <% if (reservations.length > 0) { %>
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="reservationsTable">
+                            <thead>
+                                <tr>
+                                    <th>Confirmation</th>
+                                    <th>Guest</th>
+                                    <th>Room</th>
+                                    <th>Dates & Duration</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Payment</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% reservations.forEach(res => { %>
+                                <tr class="<%= res.status === 'checked-in' ? 'table-success' : 
+                                             res.status === 'pending' ? 'table-warning' : 
+                                             res.status === 'cancelled' ? 'table-danger' : '' %>">
+                                    <td>
+                                        <strong><%= res.confirmationCode || res._id.toString().slice(-8).toUpperCase() %></strong><br>
+                                        <small class="text-muted"><%= new Date(res.createdAt).toLocaleDateString() %></small>
+                                        <% if (res.checkedInBy) { %>
+                                            <br><small>Checked in by: <%= res.checkedInBy %></small>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <strong><%= res.guestName %></strong><br>
+                                        <small class="text-muted"><%= res.guestEmail %></small><br>
+                                        <small><%= res.guestPhone %></small><br>
+                                        <small class="badge bg-info"><%= res.numberOfGuests || res.guests %> guest(s)</small>
+                                    </td>
+                                    <td>
+                                        <% if (res.room) { %>
+                                            <span class="badge bg-dark"><%= res.room.roomNumber %></span><br>
+                                            <small><%= res.room.type %></small><br>
+                                            <small>₦<%= (res.roomPrice || res.room.price || 0).toLocaleString() %>/night</small>
+                                        <% } else { %>
+                                            <span class="badge bg-secondary">Not Assigned</span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <div class="mb-1">
+                                            <strong>Check-in:</strong><br>
+                                            <% if (res.checkInDate) { %>
+                                                <%= new Date(res.checkInDate).toLocaleDateString() %>
+                                            <% } else if (res.checkIn) { %>
+                                                <%= new Date(res.checkIn).toLocaleDateString() %>
+                                            <% } else { %>
+                                                <span class="text-danger">Invalid Date</span>
+                                            <% } %>
+                                            <% if (res.actualCheckIn) { %>
+                                                <br><small class="text-success">Actual: <%= new Date(res.actualCheckIn).toLocaleDateString() %></small>
+                                            <% } %>
+                                        </div>
+                                        <div>
+                                            <strong>Check-out:</strong><br>
+                                            <% if (res.checkOutDate) { %>
+                                                <%= new Date(res.checkOutDate).toLocaleDateString() %>
+                                            <% } else if (res.checkOut) { %>
+                                                <%= new Date(res.checkOut).toLocaleDateString() %>
+                                            <% } else { %>
+                                                <span class="text-danger">Invalid Date</span>
+                                            <% } %>
+                                            <% if (res.actualCheckOut) { %>
+                                                <br><small class="text-success">Actual: <%= new Date(res.actualCheckOut).toLocaleDateString() %></small>
+                                            <% } %>
+                                        </div>
+                                        <div class="mt-1">
+                                            <small class="badge bg-primary"><%= res.nights || Math.ceil(((res.checkOut || res.checkOutDate) - (res.checkIn || res.checkInDate)) / (1000 * 60 * 60 * 24)) %> night(s)</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <strong>₦<%= (res.totalAmount || 0).toLocaleString() %></strong><br>
+                                        <% if (res.paidAmount) { %>
+                                            <small class="text-success">Paid: ₦<%= res.paidAmount.toLocaleString() %></small><br>
+                                        <% } %>
+                                        <% if (res.extraCharges && res.extraCharges > 0) { %>
+                                            <small class="text-warning">Extra: ₦<%= res.extraCharges.toLocaleString() %></small>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <span class="badge <%= 
+                                            res.status === 'confirmed' ? 'bg-success' : 
+                                            res.status === 'pending' ? 'bg-warning' : 
+                                            res.status === 'checked-in' ? 'bg-primary' :
+                                            res.status === 'completed' ? 'bg-info' :
+                                            'bg-danger' %> badge-status">
+                                            <%= res.status ? res.status.toUpperCase() : 'UNKNOWN' %>
+                                        </span>
+                                        <% if (res.status === 'checked-in') { %>
+                                            <br><small>Since: <%= res.actualCheckIn ? new Date(res.actualCheckIn).toLocaleDateString() : 'Today' %></small>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <span class="badge <%= 
+                                            res.paymentStatus === 'paid' ? 'bg-success' : 
+                                            res.paymentStatus === 'partially-paid' ? 'bg-warning' : 
+                                            'bg-danger' %> badge-status">
+                                            <%= res.paymentStatus ? res.paymentStatus.toUpperCase() : 'UNPAID' %>
+                                        </span>
+                                        <% if (res.paymentMethod) { %>
+                                            <br><small><%= res.paymentMethod %></small>
+                                        <% } %>
+                                        <% if (res.transactionId || res.transactionNo) { %>
+                                            <br><small>Ref: <%= res.transactionId || res.transactionNo %></small>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <a href="/admin/reservations/<%= res._id %>" class="btn btn-sm btn-info quick-action-btn mb-1" title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            
+                                            <% if (res.status === 'confirmed') { %>
+                                                <button onclick="checkIn('<%= res._id %>')" class="btn btn-sm btn-success quick-action-btn mb-1" title="Check-in Guest">
+                                                    <i class="fas fa-sign-in-alt"></i>
+                                                </button>
+                                                <button onclick="assignRoom('<%= res._id %>')" class="btn btn-sm btn-secondary quick-action-btn mb-1" title="Assign/Change Room">
+                                                    <i class="fas fa-bed"></i>
+                                                </button>
+                                            <% } %>
+                                            
+                                            <% if (res.status === 'checked-in') { %>
+                                                <button onclick="checkOut('<%= res._id %>')" class="btn btn-sm btn-warning quick-action-btn mb-1" title="Check-out Guest">
+                                                    <i class="fas fa-sign-out-alt"></i>
+                                                </button>
+                                                <button onclick="earlyCheckOut('<%= res._id %>')" class="btn btn-sm btn-danger quick-action-btn mb-1" title="Early Check-out">
+                                                    <i class="fas fa-running"></i>
+                                                </button>
+                                            <% } %>
+                                            
+                                            <% if (res.status === 'pending' && res.paymentStatus !== 'paid') { %>
+                                                <button onclick="confirmPayment('<%= res._id %>')" class="btn btn-sm btn-primary quick-action-btn mb-1" title="Confirm Payment">
+                                                    <i class="fas fa-money-check-alt"></i>
+                                                </button>
+                                            <% } %>
+                                            
+                                            <% if (['pending', 'confirmed'].includes(res.status)) { %>
+                                                <button onclick="cancelReservation('<%= res._id %>')" class="btn btn-sm btn-outline-danger quick-action-btn mb-1" title="Cancel Reservation">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            <% } %>
+                                            
+                                            <a href="/admin/reservations/invoice/<%= res._id %>" class="btn btn-sm btn-outline-info quick-action-btn mb-1" title="Generate Invoice">
+                                                <i class="fas fa-file-invoice"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                <% } else { %>
+                    <div class="text-center py-5">
+                        <i class="fas fa-bed fa-4x text-muted mb-3"></i>
+                        <h5>No reservations found</h5>
+                        <p class="text-muted">Try adjusting your filters or create a new reservation</p>
+                        <a href="/" class="btn btn-primary">
+                            <i class="fas fa-home me-1"></i> View Website
+                        </a>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <!-- Today's Summary Modal -->
+    <div class="modal fade" id="todaySummaryModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-lg-custom">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="fas fa-calendar-day me-2"></i>Today's Operations Summary</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-success text-white">
+                                    <h6 class="mb-0">Check-ins (<%= todaysCheckIns.length %>)</h6>
+                                </div>
+                                <div class="card-body">
+                                    <% if (todaysCheckIns.length > 0) { %>
+                                        <ul class="list-unstyled">
+                                            <% todaysCheckIns.forEach(checkin => { %>
+                                            <li class="mb-2">
+                                                <i class="fas fa-user text-success me-2"></i>
+                                                <strong><%= checkin.guestName %></strong>
+                                                <span class="badge bg-dark ms-2">Room <%= checkin.room?.roomNumber || 'N/A' %></span>
+                                                <br>
+                                                <small class="text-muted">
+                                                    <%= checkin.room?.type %> • 
+                                                    <%= new Date(checkin.checkInDate).toLocaleDateString() %> at <%= new Date(checkin.checkInDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %>
+                                                </small>
+                                            </li>
+                                            <% }) %>
+                                        </ul>
+                                    <% } else { %>
+                                        <p class="text-muted text-center mb-0">No check-ins today</p>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-warning text-white">
+                                    <h6 class="mb-0">Check-outs (<%= todaysCheckOuts.length %>)</h6>
+                                </div>
+                                <div class="card-body">
+                                    <% if (todaysCheckOuts.length > 0) { %>
+                                        <ul class="list-unstyled">
+                                            <% todaysCheckOuts.forEach(checkout => { %>
+                                            <li class="mb-2">
+                                                <i class="fas fa-user text-warning me-2"></i>
+                                                <strong><%= checkout.guestName %></strong>
+                                                <span class="badge bg-dark ms-2">Room <%= checkout.room?.roomNumber || 'N/A' %></span>
+                                                <br>
+                                                <small class="text-muted">
+                                                    Check-out: <%= new Date(checkout.checkOutDate).toLocaleDateString() %> at <%= new Date(checkout.checkOutDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %>
+                                                </small>
+                                            </li>
+                                            <% }) %>
+                                        </ul>
+                                    <% } else { %>
+                                        <p class="text-muted text-center mb-0">No check-outs today</p>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0">Property Status (69 Total Rooms)</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row text-center">
+                                        <div class="col-md-4">
+                                            <h3 class="text-success"><%= occupiedRooms %></h3>
+                                            <small class="text-muted">Occupied Rooms</small>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <h3 class="text-primary"><%= 69 - occupiedRooms %></h3>
+                                            <small class="text-muted">Available Rooms</small>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <h3 class="text-info"><%= occupancyRate %>%</h3>
+                                            <small class="text-muted">Occupancy Rate</small>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <h6 class="mb-2">Room Type Distribution:</h6>
+                                            <div class="d-flex flex-wrap gap-2">
+                                                <span class="badge bg-primary">1 Penthouse Double Suite</span>
+                                                <span class="badge bg-info">2 Penthouse Single Suites</span>
+                                                <span class="badge bg-success">9 Executive Rooms</span>
+                                                <span class="badge bg-warning">37 Deluxe Rooms</span>
+                                                <span class="badge bg-danger">20 Premiere Rooms</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Arrivals Modal -->
+    <div class="modal fade" id="upcomingArrivalsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-lg-custom">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title"><i class="fas fa-plane-arrival me-2"></i>Upcoming Arrivals (Next 7 Days)</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <% if (upcomingArrivals.length > 0) { %>
                         <div class="table-responsive">
-                            <table class="table table-hover" id="reservationsTable">
+                            <table class="table table-sm">
                                 <thead>
                                     <tr>
-                                        <th>Reserved Date</th>
                                         <th>Guest</th>
+                                        <th>Arrival</th>
                                         <th>Room</th>
-                                        <th>Dates</th>
-                                        <th>Amount</th>
+                                        <th>Nights</th>
                                         <th>Status</th>
-                                        <th>Payment</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <% reservations.forEach(res => { %>
-                                    <tr class="<%= res.paymentStatus === 'unpaid' ? 'payment-unpaid' : 'payment-paid' %>">
+                                    <% upcomingArrivals.forEach(arrival => { %>
+                                    <tr>
                                         <td>
-                                            <small><%= res.formattedCreatedAt || (res.createdAt ? new Date(res.createdAt).toLocaleDateString('en-GB') : 'N/A') %></small>
+                                            <strong><%= arrival.guestName %></strong><br>
+                                            <small class="text-muted"><%= arrival.guestEmail %></small>
                                         </td>
                                         <td>
-                                            <strong><%= res.guestName %></strong><br>
-                                            <small class="text-muted"><%= res.guestEmail %></small><br>
-                                            <small class="text-muted"><%= res.guestPhone %></small>
+                                            <%= new Date(arrival.checkInDate).toLocaleDateString() %><br>
+                                            <small class="text-muted"><%= new Date(arrival.checkInDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %></small>
                                         </td>
-                                        <td><%= res.room?.type || 'N/A' %><br><small><%= res.room?.roomNumber || '' %></small></td>
                                         <td>
-                                            <small><strong>Check-in:</strong> <%= res.formattedCheckIn || (res.checkIn ? new Date(res.checkIn).toLocaleDateString('en-GB') : 'N/A') %></small><br>
-                                            <small><strong>Check-out:</strong> <%= res.formattedCheckOut || (res.checkOut ? new Date(res.checkOut).toLocaleDateString('en-GB') : 'N/A') %></small><br>
-                                            <small><%= res.nights %> night(s), <%= res.guests %> guest(s)</small>
+                                            <% if (arrival.room) { %>
+                                                <span class="badge bg-dark"><%= arrival.room.roomNumber %></span><br>
+                                                <small><%= arrival.room.type %></small>
+                                            <% } else { %>
+                                                <span class="badge bg-warning">Room to assign</span>
+                                            <% } %>
                                         </td>
-                                        <td>₦<%= (res.totalAmount || 0).toLocaleString() %></td>
+                                        <td><%= arrival.nights %></td>
                                         <td>
-                                            <span class="badge <%= res.status === 'confirmed' ? 'bg-success' : res.status === 'pending' ? 'bg-warning' : 'bg-danger' %> badge-status">
-                                                <%= res.status ? res.status.toUpperCase() : 'UNKNOWN' %>
+                                            <span class="badge <%= arrival.paymentStatus === 'paid' ? 'bg-success' : 'bg-warning' %>">
+                                                <%= arrival.paymentStatus %>
                                             </span>
                                         </td>
                                         <td>
-                                            <% if (res.paymentStatus === 'paid') { %>
-                                                <span class="badge bg-success badge-status">PAID</span><br>
-                                                <small><%= res.paymentMethod || '' %></small>
-                                                <% if (res.receiptNumber) { %>
-                                                    <br><small>Receipt: <%= res.receiptNumber %></small>
-                                                <% } %>
-                                            <% } else { %>
-                                                <span class="badge bg-danger badge-status">UNPAID</span>
-                                            <% } %>
-                                        </td>
-                                        <td>
-                                            <a href="/rooms/admin/reservations/<%= res._id %>" class="btn btn-sm btn-info mb-1">
-                                                <i class="bi bi-eye"></i> View
+                                            <a href="/admin/reservations/<%= arrival._id %>" class="btn btn-sm btn-outline-info">
+                                                <i class="fas fa-eye"></i>
                                             </a>
-                                            <% if (res.paymentStatus === 'unpaid') { %>
-                                                <a href="/rooms/admin/reservations/<%= res._id %>" class="btn btn-sm btn-success mb-1">
-                                                    <i class="bi bi-cash"></i> Confirm Payment
-                                                </a>
+                                            <% if (!arrival.room) { %>
+                                                <button onclick="assignRoom('<%= arrival._id %>')" class="btn btn-sm btn-outline-success">
+                                                    <i class="fas fa-bed"></i>
+                                                </button>
                                             <% } %>
                                         </td>
                                     </tr>
-                                    <% }); %>
+                                    <% }) %>
                                 </tbody>
                             </table>
                         </div>
-                    </div>
+                    <% } else { %>
+                        <p class="text-center text-muted py-3">No upcoming arrivals in the next 7 days</p>
+                    <% } %>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -234,25 +758,7 @@
         $(document).ready(function() {
             $('#reservationsTable').DataTable({
                 pageLength: 25,
-                order: [[0, 'desc']], // Sort by reserved date (newest first)
-                columnDefs: [
-                    { 
-                        targets: 0, // Reserved Date column
-                        type: 'date', // Tell DataTables this is a date column
-                        render: function(data, type, row) {
-                            if (type === 'sort' || type === 'type') {
-                                // Convert displayed date to sortable format
-                                const dateParts = data.split('/');
-                                if (dateParts.length === 3) {
-                                    // Convert DD/MM/YYYY to YYYY-MM-DD for sorting
-                                    return dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];
-                                }
-                                return data;
-                            }
-                            return data;
-                        }
-                    }
-                ],
+                order: [[0, 'desc']],
                 language: {
                     search: "Search reservations:",
                     lengthMenu: "Show _MENU_ reservations per page",
@@ -263,9 +769,144 @@
                         next: "Next",
                         previous: "Previous"
                     }
-                }
+                },
+                columnDefs: [
+                    { orderable: true, targets: [0, 1, 2, 3, 4, 5, 6] },
+                    { orderable: false, targets: [7] } // Actions column
+                ]
             });
         });
+
+        function checkIn(reservationId) {
+            if (confirm('Are you sure you want to check in this guest? This will mark the room as occupied.')) {
+                // Create a form and submit it
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/admin/reservations/checkin/${reservationId}`;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+
+        function checkOut(reservationId) {
+            if (confirm('Are you sure you want to check out this guest? This will free up the room.')) {
+                // Create a form and submit it
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/admin/reservations/checkout/${reservationId}`;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+
+        function quickCheckOut(reservationId) {
+            if (confirm('Process check-out without extra charges?')) {
+                // Create a form and submit it
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/admin/reservations/checkout/${reservationId}`;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+
+        function confirmPayment(reservationId) {
+            const amount = prompt('Enter payment amount:', '');
+            if (amount !== null) {
+                const paymentMethod = prompt('Payment method (Cash, Card, Transfer):', 'Cash');
+                if (paymentMethod !== null) {
+                    const transactionId = prompt('Transaction ID (optional):', '');
+                    
+                    // Create a form and submit it
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/admin/reservations/confirm-payment/${reservationId}`;
+                    
+                    // Add hidden inputs
+                    const paymentAmount = document.createElement('input');
+                    paymentAmount.type = 'hidden';
+                    paymentAmount.name = 'paymentAmount';
+                    paymentAmount.value = amount;
+                    form.appendChild(paymentAmount);
+                    
+                    const method = document.createElement('input');
+                    method.type = 'hidden';
+                    method.name = 'paymentMethod';
+                    method.value = paymentMethod;
+                    form.appendChild(method);
+                    
+                    if (transactionId && transactionId.trim() !== '') {
+                        const transaction = document.createElement('input');
+                        transaction.type = 'hidden';
+                        transaction.name = 'transactionId';
+                        transaction.value = transactionId;
+                        form.appendChild(transaction);
+                    }
+                    
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            }
+        }
+
+        function cancelReservation(reservationId) {
+            const reason = prompt('Please enter cancellation reason:', '');
+            if (reason !== null && reason.trim() !== '') {
+                // Create a form and submit it
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/admin/reservations/cancel/${reservationId}`;
+                
+                const cancellationReason = document.createElement('input');
+                cancellationReason.type = 'hidden';
+                cancellationReason.name = 'cancellationReason';
+                cancellationReason.value = reason;
+                form.appendChild(cancellationReason);
+                
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+
+        function earlyCheckOut(reservationId) {
+            const reason = prompt('Reason for early check-out:', '');
+            if (reason !== null) {
+                const refund = prompt('Refund amount (if any):', '0');
+                if (refund !== null) {
+                    // Create a form and submit it
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/admin/reservations/early-checkout/${reservationId}`;
+                    
+                    // Add hidden inputs
+                    const earlyReason = document.createElement('input');
+                    earlyReason.type = 'hidden';
+                    earlyReason.name = 'reason';
+                    earlyReason.value = reason;
+                    form.appendChild(earlyReason);
+                    
+                    const refundAmount = document.createElement('input');
+                    refundAmount.type = 'hidden';
+                    refundAmount.name = 'refundAmount';
+                    refundAmount.value = refund;
+                    form.appendChild(refundAmount);
+                    
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            }
+        }
+
+        function assignRoom(reservationId) {
+            // In a real implementation, this would open a modal with available rooms
+            // For now, redirect to the reservation details page
+            window.location.href = `/admin/reservations/${reservationId}#assign-room`;
+        }
+
+        // Auto-refresh every 5 minutes
+        setTimeout(function() {
+            window.location.reload();
+        }, 5 * 60 * 1000);
     </script>
 </body>
 </html>

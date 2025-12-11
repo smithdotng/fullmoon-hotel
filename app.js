@@ -143,7 +143,12 @@ app.get('/', async (req, res) => {
   }
 });
 
-
+// Privacy Policy Route
+app.get('/privacy-policy', (req, res) => {
+    res.render('privacy-policy', {
+        title: 'Privacy Policy - Full Moon Hotels'
+    });
+});
 
 app.get('/register', (req, res) => {
   res.render('auth/register', { 

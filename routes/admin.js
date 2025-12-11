@@ -649,10 +649,13 @@ router.get('/facilities-config/sample', canManageUsers, async (req, res) => {
   }
 });
 
-// Reservations, Profile, User Edit (unchanged)
+ // ========================
+// ENHANCED RESERVATIONS MANAGEMENT
+// ========================
+
 router.get('/reservations', isAdmin, async (req, res) => { 
-   try {
-    const { status, payment, date, search } = req.query;
+  try {
+    const { status, payment, date, search, roomNumber } = req.query;
     
     // Build query
     let query = {};
@@ -675,12 +678,26 @@ router.get('/reservations', isAdmin, async (req, res) => {
       query.checkInDate = { $gte: startDate, $lt: endDate };
     }
     
+    // Room number filter
+    if (roomNumber) {
+      // Find room by number first
+      const Room = require('../models/Room');
+      const room = await Room.findOne({ roomNumber: { $regex: roomNumber, $options: 'i' } });
+      if (room) {
+        query.room = room._id;
+      } else {
+        // If no room found, return empty results
+        query.room = null;
+      }
+    }
+    
     // Search filter
     if (search) {
       query.$or = [
         { guestName: { $regex: search, $options: 'i' } },
         { guestEmail: { $regex: search, $options: 'i' } },
-        { guestPhone: { $regex: search, $options: 'i' } }
+        { guestPhone: { $regex: search, $options: 'i' } },
+        { confirmationCode: { $regex: search, $options: 'i' } }
       ];
     }
     
@@ -689,20 +706,65 @@ router.get('/reservations', isAdmin, async (req, res) => {
       .populate('room', 'roomNumber type price')
       .sort({ createdAt: -1 });
     
+    // Fetch today's check-ins and check-outs
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    const todaysCheckIns = await Reservation.find({
+      checkInDate: { $gte: today, $lt: tomorrow },
+      status: 'confirmed'
+    }).populate('room', 'roomNumber type');
+    
+    const todaysCheckOuts = await Reservation.find({
+      checkOutDate: { $gte: today, $lt: tomorrow },
+      status: 'confirmed'
+    }).populate('room', 'roomNumber type');
+    
+    // Fetch upcoming arrivals (next 7 days)
+    const nextWeek = new Date(today);
+    nextWeek.setDate(nextWeek.getDate() + 7);
+    
+    const upcomingArrivals = await Reservation.find({
+      checkInDate: { $gte: tomorrow, $lt: nextWeek },
+      status: 'confirmed'
+    }).populate('room', 'roomNumber type').sort({ checkInDate: 1 });
+    
     // Calculate statistics
     const stats = {
       total: await Reservation.countDocuments(),
       pending: await Reservation.countDocuments({ status: 'pending' }),
       confirmed: await Reservation.countDocuments({ status: 'confirmed' }),
       cancelled: await Reservation.countDocuments({ status: 'cancelled' }),
+      checkedIn: await Reservation.countDocuments({ status: 'checked-in' }),
+      completed: await Reservation.countDocuments({ status: 'completed' }),
       unpaid: await Reservation.countDocuments({ paymentStatus: 'unpaid' }),
-      paid: await Reservation.countDocuments({ paymentStatus: 'paid' })
+      paid: await Reservation.countDocuments({ paymentStatus: 'paid' }),
+      partiallyPaid: await Reservation.countDocuments({ paymentStatus: 'partially-paid' })
     };
+    
+    // Occupancy statistics for current day
+    const occupiedRooms = await Reservation.countDocuments({
+      status: 'checked-in',
+      checkInDate: { $lte: today },
+      checkOutDate: { $gt: today }
+    });
+    
+    const RoomModel = require('../models/Room');
+    const totalRooms = await RoomModel.countDocuments({ available: true });
+    const occupancyRate = totalRooms > 0 ? Math.round((occupiedRooms / totalRooms) * 100) : 0;
     
     res.render('admin/reservations', {
       title: 'Manage Room Reservations',
       reservations,
+      todaysCheckIns,
+      todaysCheckOuts,
+      upcomingArrivals,
       stats,
+      occupancyRate,
+      occupiedRooms,
+      totalRooms,
       query: req.query,
       messages: req.flash(),
       user: req.session.user,
@@ -732,7 +794,7 @@ router.get('/reservations/:id', isAdmin, async (req, res) => {
       reservation,
       messages: req.flash(),
       user: req.session.user,
-      
+      layout: 'layout-admin'
     });
   } catch (error) {
     console.error('Error loading reservation details:', error);
@@ -741,19 +803,493 @@ router.get('/reservations/:id', isAdmin, async (req, res) => {
   }
 });
 
-router.post('/reservations/update-status/:id', isAdmin, canManageUsers, async (req, res) => { /* ... */ });
-router.post('/reservations/confirm-payment/:id', isAdmin, canManageUsers, async (req, res) => { /* ... */ });
-router.post('/reservations/delete/:id', isAdmin, canManageUsers, async (req, res) => { /* ... */ });
-
-router.get('/profile', isAdmin, canManageUsers, (req, res) => {
-  res.render('admin/profile', { title: 'My Profile', currentUser: req.session.user, layout: 'layout-admin' });
+// Check-in functionality - UPDATED FOR EXISTING MODEL
+router.post('/reservations/checkin/:id', isAdmin, canManageUsers, async (req, res) => {
+  try {
+    const Reservation = require('../models/Reservation');
+    const Room = require('../models/Room');
+    
+    const reservation = await Reservation.findById(req.params.id)
+      .populate('room', 'roomNumber type price available');
+    
+    if (!reservation) {
+      req.flash('error', 'Reservation not found');
+      return res.redirect('/admin/reservations');
+    }
+    
+    // Check if already checked in
+    if (reservation.status === 'checked-in') {
+      req.flash('warning', 'Guest is already checked in');
+      return res.redirect(`/admin/reservations/${req.params.id}`);
+    }
+    
+    // Check if room is available
+    if (!reservation.room) {
+      req.flash('error', 'No room assigned to this reservation');
+      return res.redirect(`/admin/reservations/${req.params.id}`);
+    }
+    
+    // Check if room is currently available
+    if (!reservation.room.available) {
+      const conflictingReservation = await Reservation.findOne({
+        room: reservation.room._id,
+        status: 'checked-in',
+        _id: { $ne: reservation._id }
+      });
+      
+      if (conflictingReservation) {
+        req.flash('error', `Room ${reservation.room.roomNumber} is currently occupied`);
+        return res.redirect(`/admin/reservations/${req.params.id}`);
+      }
+    }
+    
+    // Update reservation with check-in details
+    const updateData = {
+      status: 'checked-in',
+      actualCheckIn: new Date(),
+      checkedInBy: req.session.user.username
+    };
+    
+    // Add check-in time from form if provided
+    if (req.body.checkInTime) {
+      updateData.actualCheckIn = new Date(req.body.checkInTime);
+    }
+    
+    await Reservation.findByIdAndUpdate(req.params.id, updateData);
+    
+    // Update room status
+    await Room.findByIdAndUpdate(reservation.room._id, { 
+      available: false,
+      currentOccupancy: reservation.guests || 1
+    });
+    
+    req.flash('success', `Guest checked in successfully to Room ${reservation.room.roomNumber}`);
+    res.redirect(`/admin/reservations/${req.params.id}`);
+  } catch (error) {
+    console.error('Error during check-in:', error);
+    req.flash('error', 'Failed to check in guest: ' + error.message);
+    res.redirect(`/admin/reservations/${req.params.id}`);
+  }
 });
 
-router.post('/profile/change-password', isAdmin, canManageUsers, async (req, res) => { /* your full code */ });
+// Check-out functionality
+router.post('/reservations/checkout/:id', isAdmin, canManageUsers, async (req, res) => {
+  try {
+    const Reservation = require('../models/Reservation');
+    const Room = require('../models/Room');
+    
+    const reservation = await Reservation.findById(req.params.id)
+      .populate('room', 'roomNumber');
+    
+    if (!reservation) {
+      req.flash('error', 'Reservation not found');
+      return res.redirect('/admin/reservations');
+    }
+    
+    // Check if not checked in
+    if (reservation.status !== 'checked-in') {
+      req.flash('warning', 'Guest is not checked in');
+      return res.redirect(`/admin/reservations/${req.params.id}`);
+    }
+    
+    // Calculate extended stay if any
+    const actualCheckOut = new Date();
+    const plannedCheckOut = new Date(reservation.checkOutDate);
+    let extraNights = 0;
+    
+    if (actualCheckOut > plannedCheckOut) {
+      const diffTime = Math.abs(actualCheckOut - plannedCheckOut);
+      extraNights = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      // Calculate extra charges
+      const extraCharges = extraNights * reservation.roomPrice;
+      reservation.extraCharges = extraCharges;
+      reservation.totalAmount += extraCharges;
+    }
+    
+    // Update reservation status
+    reservation.status = 'completed';
+    reservation.actualCheckOut = actualCheckOut;
+    reservation.checkedOutBy = req.session.user.username;
+    reservation.extraNights = extraNights;
+    
+    await reservation.save();
+    
+    // Update room status
+    await Room.findByIdAndUpdate(reservation.room._id, { 
+      available: true,
+      currentOccupancy: 0,
+      lastCleaned: new Date()
+    });
+    
+    // Generate invoice
+    reservation.invoiceNumber = `INV-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    await reservation.save();
+    
+    req.flash('success', `Guest checked out successfully from Room ${reservation.room.roomNumber}`);
+    res.redirect(`/admin/reservations/${req.params.id}`);
+  } catch (error) {
+    console.error('Error during check-out:', error);
+    req.flash('error', 'Failed to check out guest');
+    res.redirect(`/admin/reservations/${req.params.id}`);
+  }
+});
 
-router.get('/users/edit/:id', isAdmin, canManageUsers, async (req, res) => { /* ... */ });
-router.post('/users/update/:id', isAdmin, canManageUsers, async (req, res) => { /* ... */ });
-router.post('/users/toggle-status/:id', isAdmin, canManageUsers, async (req, res) => { /* ... */ });
+// Early check-out
+router.post('/reservations/early-checkout/:id', isAdmin, canManageUsers, async (req, res) => {
+  try {
+    const { reason, refundAmount } = req.body;
+    const Reservation = require('../models/Reservation');
+    const Room = require('../models/Room');
+    
+    const reservation = await Reservation.findById(req.params.id)
+      .populate('room', 'roomNumber');
+    
+    if (!reservation) {
+      req.flash('error', 'Reservation not found');
+      return res.redirect('/admin/reservations');
+    }
+    
+    // Update reservation
+    reservation.status = 'completed';
+    reservation.actualCheckOut = new Date();
+    reservation.checkedOutBy = req.session.user.username;
+    reservation.earlyCheckoutReason = reason;
+    reservation.refundAmount = parseFloat(refundAmount) || 0;
+    reservation.status = 'cancelled';
+    
+    // If there's a refund, update payment status
+    if (reservation.refundAmount > 0) {
+      reservation.paymentStatus = 'refunded';
+    }
+    
+    await reservation.save();
+    
+    // Update room status
+    await Room.findByIdAndUpdate(reservation.room._id, { 
+      available: true,
+      currentOccupancy: 0
+    });
+    
+    req.flash('success', `Early check-out processed for Room ${reservation.room.roomNumber}`);
+    res.redirect(`/admin/reservations/${req.params.id}`);
+  } catch (error) {
+    console.error('Error during early check-out:', error);
+    req.flash('error', 'Failed to process early check-out');
+    res.redirect(`/admin/reservations/${req.params.id}`);
+  }
+});
+
+// Cancel reservation
+router.post('/reservations/cancel/:id', isAdmin, canManageUsers, async (req, res) => {
+  try {
+    const { cancellationReason } = req.body;
+    const Reservation = require('../models/Reservation');
+    
+    const reservation = await Reservation.findById(req.params.id);
+    
+    if (!reservation) {
+      req.flash('error', 'Reservation not found');
+      return res.redirect('/admin/reservations');
+    }
+    
+    // Update reservation
+    reservation.status = 'cancelled';
+    reservation.cancellationReason = cancellationReason;
+    reservation.cancelledBy = req.session.user.username;
+    reservation.cancelledAt = new Date();
+    
+    // If guest was checked in, make room available
+    if (reservation.status === 'checked-in') {
+      const Room = require('../models/Room');
+      await Room.findByIdAndUpdate(reservation.room, { 
+        available: true,
+        currentOccupancy: 0
+      });
+    }
+    
+    await reservation.save();
+    
+    req.flash('success', 'Reservation cancelled successfully');
+    res.redirect(`/admin/reservations/${req.params.id}`);
+  } catch (error) {
+    console.error('Error cancelling reservation:', error);
+    req.flash('error', 'Failed to cancel reservation');
+    res.redirect(`/admin/reservations/${req.params.id}`);
+  }
+});
+
+// Update reservation status
+router.post('/reservations/update-status/:id', isAdmin, canManageUsers, async (req, res) => {
+  try {
+    const { status } = req.body;
+    const validStatuses = ['pending', 'confirmed', 'cancelled', 'checked-in', 'completed'];
+    
+    if (!validStatuses.includes(status)) {
+      req.flash('error', 'Invalid status');
+      return res.redirect(`/admin/reservations/${req.params.id}`);
+    }
+    
+    const Reservation = require('../models/Reservation');
+    const reservation = await Reservation.findById(req.params.id);
+    
+    if (!reservation) {
+      req.flash('error', 'Reservation not found');
+      return res.redirect('/admin/reservations');
+    }
+    
+    const oldStatus = reservation.status;
+    reservation.status = status;
+    
+    // Handle room availability based on status change
+    if (status === 'checked-in' && oldStatus !== 'checked-in') {
+      reservation.actualCheckIn = new Date();
+      reservation.checkedInBy = req.session.user.username;
+      
+      const Room = require('../models/Room');
+      await Room.findByIdAndUpdate(reservation.room, { 
+        available: false,
+        currentOccupancy: reservation.numberOfGuests
+      });
+    } else if ((status === 'cancelled' || status === 'completed') && oldStatus === 'checked-in') {
+      const Room = require('../models/Room');
+      await Room.findByIdAndUpdate(reservation.room, { 
+        available: true,
+        currentOccupancy: 0
+      });
+    }
+    
+    await reservation.save();
+    
+    req.flash('success', `Reservation status updated from ${oldStatus} to ${status}`);
+    res.redirect(`/admin/reservations/${req.params.id}`);
+  } catch (error) {
+    console.error('Error updating reservation status:', error);
+    req.flash('error', 'Failed to update reservation status');
+    res.redirect(`/admin/reservations/${req.params.id}`);
+  }
+});
+
+// Confirm payment
+router.post('/reservations/confirm-payment/:id', isAdmin, canManageUsers, async (req, res) => {
+  try {
+    const { paymentMethod, transactionId, paymentAmount } = req.body;
+    
+    const Reservation = require('../models/Reservation');
+    const reservation = await Reservation.findById(req.params.id);
+    
+    if (!reservation) {
+      req.flash('error', 'Reservation not found');
+      return res.redirect('/admin/reservations');
+    }
+    
+    // Update payment details
+    reservation.paymentStatus = 'paid';
+    reservation.paymentMethod = paymentMethod || 'manual';
+    reservation.transactionId = transactionId || `MANUAL-${Date.now()}`;
+    reservation.paidAmount = parseFloat(paymentAmount) || reservation.totalAmount;
+    reservation.paymentConfirmedBy = req.session.user.username;
+    reservation.paymentConfirmedAt = new Date();
+    
+    // If payment is confirmed, also confirm reservation if pending
+    if (reservation.status === 'pending') {
+      reservation.status = 'confirmed';
+    }
+    
+    await reservation.save();
+    
+    req.flash('success', `Payment confirmed for ₦${reservation.paidAmount.toLocaleString()}`);
+    res.redirect(`/admin/reservations/${req.params.id}`);
+  } catch (error) {
+    console.error('Error confirming payment:', error);
+    req.flash('error', 'Failed to confirm payment');
+    res.redirect(`/admin/reservations/${req.params.id}`);
+  }
+});
+
+// Delete reservation
+router.post('/reservations/delete/:id', isAdmin, canManageUsers, async (req, res) => {
+  try {
+    const Reservation = require('../models/Reservation');
+    const reservation = await Reservation.findById(req.params.id);
+    
+    if (!reservation) {
+      req.flash('error', 'Reservation not found');
+      return res.redirect('/admin/reservations');
+    }
+    
+    // If guest is checked in, free the room first
+    if (reservation.status === 'checked-in') {
+      const Room = require('../models/Room');
+      await Room.findByIdAndUpdate(reservation.room, { 
+        available: true,
+        currentOccupancy: 0
+      });
+    }
+    
+    await Reservation.findByIdAndDelete(req.params.id);
+    
+    req.flash('success', 'Reservation deleted successfully');
+    res.redirect('/admin/reservations');
+  } catch (error) {
+    console.error('Error deleting reservation:', error);
+    req.flash('error', 'Failed to delete reservation');
+    res.redirect(`/admin/reservations/${req.params.id}`);
+  }
+});
+
+// Occupancy report
+router.get('/reservations/occupancy-report', isAdmin, canManageUsers, async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    
+    const start = startDate ? new Date(startDate) : new Date();
+    const end = endDate ? new Date(endDate) : new Date();
+    end.setDate(end.getDate() + 30); // Default to next 30 days
+    
+    const Reservation = require('../models/Reservation');
+    const Room = require('../models/Room');
+    
+    // Get all reservations within date range
+    const reservations = await Reservation.find({
+      $or: [
+        { checkInDate: { $lte: end, $gte: start } },
+        { checkOutDate: { $lte: end, $gte: start } },
+        { 
+          checkInDate: { $lte: start },
+          checkOutDate: { $gte: end }
+        }
+      ]
+    }).populate('room', 'roomNumber type');
+    
+    // Get all rooms
+    const allRooms = await Room.find({ available: true }).sort('roomNumber');
+    
+    // Calculate daily occupancy
+    const dailyOccupancy = {};
+    const currentDate = new Date(start);
+    
+    while (currentDate <= end) {
+      const dateStr = currentDate.toISOString().split('T')[0];
+      const occupiedRooms = reservations.filter(res => {
+        const checkIn = new Date(res.checkInDate);
+        const checkOut = new Date(res.checkOutDate);
+        return checkIn <= currentDate && checkOut > currentDate && 
+               ['confirmed', 'checked-in'].includes(res.status);
+      }).length;
+      
+      dailyOccupancy[dateStr] = {
+        date: new Date(currentDate),
+        occupied: occupiedRooms,
+        total: allRooms.length,
+        rate: allRooms.length > 0 ? Math.round((occupiedRooms / allRooms.length) * 100) : 0
+      };
+      
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    res.render('admin/occupancy-report', {
+      title: 'Occupancy Report',
+      dailyOccupancy,
+      startDate: start,
+      endDate: end,
+      allRooms,
+      layout: 'layout-admin'
+    });
+  } catch (error) {
+    console.error('Error generating occupancy report:', error);
+    req.flash('error', 'Failed to generate occupancy report');
+    res.redirect('/admin/reservations');
+  }
+});
+
+// Room assignment
+router.post('/reservations/assign-room/:id', isAdmin, canManageUsers, async (req, res) => {
+  try {
+    const { roomId } = req.body;
+    
+    if (!roomId) {
+      req.flash('error', 'Please select a room');
+      return res.redirect(`/admin/reservations/${req.params.id}`);
+    }
+    
+    const Reservation = require('../models/Reservation');
+    const Room = require('../models/Room');
+    
+    // Check if new room is available
+    const room = await Room.findById(roomId);
+    if (!room || !room.available) {
+      req.flash('error', 'Selected room is not available');
+      return res.redirect(`/admin/reservations/${req.params.id}`);
+    }
+    
+    const reservation = await Reservation.findById(req.params.id);
+    if (!reservation) {
+      req.flash('error', 'Reservation not found');
+      return res.redirect('/admin/reservations');
+    }
+    
+    // Free old room if it was assigned
+    if (reservation.room && reservation.status === 'checked-in') {
+      await Room.findByIdAndUpdate(reservation.room, { 
+        available: true,
+        currentOccupancy: 0
+      });
+    }
+    
+    // Assign new room
+    const oldRoomId = reservation.room;
+    reservation.room = roomId;
+    
+    // Update room status if guest is checked in
+    if (reservation.status === 'checked-in') {
+      await Room.findByIdAndUpdate(roomId, { 
+        available: false,
+        currentOccupancy: reservation.numberOfGuests
+      });
+    }
+    
+    await reservation.save();
+    
+    req.flash('success', `Room assigned: ${room.roomNumber} (${room.type})`);
+    res.redirect(`/admin/reservations/${req.params.id}`);
+  } catch (error) {
+    console.error('Error assigning room:', error);
+    req.flash('error', 'Failed to assign room');
+    res.redirect(`/admin/reservations/${req.params.id}`);
+  }
+});
+
+// Generate invoice PDF
+router.get('/reservations/invoice/:id', isAdmin, canManageUsers, async (req, res) => {
+  try {
+    const Reservation = require('../models/Reservation');
+    const reservation = await Reservation.findById(req.params.id)
+      .populate('room', 'roomNumber type price')
+      .populate('user', 'name email phone address');
+    
+    if (!reservation) {
+      req.flash('error', 'Reservation not found');
+      return res.redirect('/admin/reservations');
+    }
+    
+    // Generate invoice number if not exists
+    if (!reservation.invoiceNumber) {
+      reservation.invoiceNumber = `INV-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      await reservation.save();
+    }
+    
+    res.render('admin/invoice', {
+      title: `Invoice #${reservation.invoiceNumber}`,
+      reservation,
+      layout: 'layout-admin'
+    });
+  } catch (error) {
+    console.error('Error generating invoice:', error);
+    req.flash('error', 'Failed to generate invoice');
+    res.redirect(`/admin/reservations/${req.params.id}`);
+  }
+});
 
 // ========================
 // FINAL EXPORT

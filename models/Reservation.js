@@ -14,22 +14,39 @@ const reservationSchema = new mongoose.Schema({
     totalAmount: { type: Number, required: true },
     status: { 
         type: String, 
-        enum: ['pending', 'confirmed', 'cancelled'],
+        enum: ['pending', 'confirmed', 'checked-in', 'completed', 'cancelled'], // ADDED 'checked-in' and 'completed'
         default: 'pending'
     },
     paymentStatus: {
         type: String,
-        enum: ['unpaid', 'paid'],
+        enum: ['unpaid', 'paid', 'partially-paid', 'refunded'], // UPDATED with new values
         default: 'unpaid'
     },
     paymentMethod: String,
     receiptNumber: String,
     transactionNo: String,
+    transactionId: String, // ADDED for consistency
     sessionId: String,
     bankName: String,
     cardType: String,
     notes: String,
-    paidAt: Date
+    paidAt: Date,
+    // New fields for check-in/check-out functionality
+    actualCheckIn: Date,
+    actualCheckOut: Date,
+    checkedInBy: String,
+    checkedOutBy: String,
+    extraCharges: { type: Number, default: 0 },
+    extraNights: { type: Number, default: 0 },
+    earlyCheckoutReason: String,
+    refundAmount: { type: Number, default: 0 },
+    cancellationReason: String,
+    cancelledBy: String,
+    cancelledAt: Date,
+    invoiceNumber: String,
+    paymentConfirmedBy: String,
+    paymentConfirmedAt: Date,
+    paidAmount: { type: Number, default: 0 }
 }, {
     timestamps: true,
     toJSON: { virtuals: true },
@@ -102,34 +119,14 @@ reservationSchema.virtual('shortCheckOut').get(function() {
     return this.checkOut.toLocaleDateString('en-GB');
 });
 
-// In your Reservation schema, add this after the schema definition:
-reservationSchema.virtual('formattedCreatedAt').get(function() {
-  if (!this.createdAt) return '';
-  return this.createdAt.toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-});
-
-reservationSchema.virtual('formattedCheckIn').get(function() {
-  if (!this.checkIn) return '';
-  return this.checkIn.toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
-  });
-});
-
-reservationSchema.virtual('formattedCheckOut').get(function() {
-  if (!this.checkOut) return '';
-  return this.checkOut.toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
-  });
+// Generate confirmation code
+reservationSchema.pre('save', function(next) {
+    if (!this.confirmationCode) {
+        const timestamp = Date.now().toString().slice(-6);
+        const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+        this.confirmationCode = `FMH-${timestamp}${random}`;
+    }
+    next();
 });
 
 module.exports = mongoose.model('Reservation', reservationSchema);

@@ -137,7 +137,7 @@ function formatDateForQuery(date) {
 // GET /rooms - Show all rooms (SORTED BY PRICE)
 router.get('/', async (req, res) => {
   try {
-    const rooms = await Room.find({ available: true }).sort({ price: 1 }); // Sort by price ascending
+    const rooms = await Room.find({ }).sort({ price: -1 }); // Sort by price ascending
     res.render('rooms/index', {
       title: 'Our Rooms - Full Moon Hotels',
       rooms
@@ -150,6 +150,8 @@ router.get('/', async (req, res) => {
     });
   }
 });
+
+
 
 // GET /rooms/category/:category - Category overview (SORTED BY PRICE)
 router.get('/category/:category', async (req, res) => {
