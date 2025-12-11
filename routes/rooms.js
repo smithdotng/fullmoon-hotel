@@ -134,16 +134,33 @@ function formatDateForQuery(date) {
 // ROUTES
 // ========================
 
-// GET /rooms - Show all rooms (SORTED BY PRICE)
+// GET /rooms - Show ALL rooms (available and unavailable), sorted by price descending
 router.get('/', async (req, res) => {
   try {
-    const rooms = await Room.find({ }).sort({ price: -1 }); // Sort by price ascending
+    // Fetch ALL rooms, not filtering by availability
+    const rooms = await Room.find({}).sort({ price: -1 }); // -1 for descending (most expensive first)
+    
+    // Log for debugging
+    console.log(`Fetched ${rooms.length} total rooms from database`);
+    
+    // Debug: Check each room's images
+    rooms.forEach((room, index) => {
+      console.log(`Room ${index + 1}: ${room.type} (${room.roomNumber})`);
+      console.log(`  Available: ${room.available}`);
+      console.log(`  Price: ₦${room.price}`);
+      console.log(`  Images count: ${room.images ? room.images.length : 0}`);
+      if (room.images && room.images.length > 0) {
+        console.log(`  Image URLs: ${room.images.join(', ')}`);
+      }
+    });
+    
     res.render('rooms/index', {
-      title: 'Our Rooms - Full Moon Hotels',
-      rooms
+      title: 'All Rooms & Suites - Full Moon Hotels',
+      rooms: rooms,
+      showAllRooms: true // Flag to show all rooms in template
     });
   } catch (error) {
-    console.error('Error fetching rooms:', error);
+    console.error('Error fetching all rooms:', error);
     res.status(500).render('error', {
       title: 'Server Error',
       error: 'Failed to load rooms'
@@ -153,42 +170,85 @@ router.get('/', async (req, res) => {
 
 
 
-// GET /rooms/category/:category - Category overview (SORTED BY PRICE)
+// GET /rooms/category/:category - Shows ALL rooms in category (available or not)
 router.get('/category/:category', async (req, res) => {
   try {
-    const category = req.params.category;
-    const exactType = CATEGORY_MAP[category.toLowerCase()];
+    const category = req.params.category.toLowerCase();
     
-    if (!exactType) {
+    console.log(`=== CATEGORY ROUTE: Looking for "${category}" ===`);
+    
+    // Map URL categories to EXACT room types in your database
+    const urlToRoomTypeMap = {
+      'premiere': 'Premiere Room',
+      'deluxe': 'Deluxe Room', 
+      'executive': 'Executive Room',
+      'penthouse-single': 'Penthouse Single Suite',
+      'penthouse-double': 'Penthouse Double Suite',
+      'annex': 'Annex Room'
+    };
+    
+    const roomType = urlToRoomTypeMap[category];
+    
+    if (!roomType) {
+      console.log(`Invalid category requested: ${category}`);
+      
+      // Try to suggest available categories
+      const distinctTypes = await Room.distinct('type');
+      const suggestions = distinctTypes.map(type => {
+        const slug = type.toLowerCase().replace(/\s+/g, '-');
+        return `<a href="/rooms/category/${slug}">${type}</a>`;
+      });
+      
       return res.status(404).render('error', {
         title: 'Category Not Found',
-        error: `No room category found: ${category}`
+        error: `Invalid category: ${category}`,
+        suggestions: `Available categories: ${suggestions.join(', ')}`
       });
     }
-
+    
+    console.log(`Searching for ALL rooms of type: "${roomType}"`);
+    
+    // REMOVED: available: true filter - Now showing ALL rooms regardless of availability
     const rooms = await Room.find({
-      type: exactType,
-      available: true
-    }).sort({ price: 1 }) // Sort by price ascending
-      .sort({ roomNumber: 1 });
+      type: roomType
+    }).sort({ price: 1, roomNumber: 1 });
 
+    console.log(`Found ${rooms.length} ${roomType} rooms (including unavailable)`);
+    
     if (rooms.length === 0) {
+      // Even though we're showing all, if no rooms exist at all
       return res.status(404).render('error', {
-        title: 'Category Not Found',
-        error: `No rooms found for category: ${category}`
+        title: 'No Rooms Found',
+        error: `No ${roomType} rooms exist in the database.`
       });
     }
-
+    
+    // Count available vs unavailable
+    const availableRooms = rooms.filter(r => r.available);
+    const unavailableRooms = rooms.filter(r => !r.available);
+    
+    console.log(`Available: ${availableRooms.length}, Unavailable: ${unavailableRooms.length}`);
+    
+    const displayName = roomType;
+    
+    console.log(`✓ Rendering ${rooms.length} ${displayName} rooms`);
+    
+    // Pass additional info to template
     res.render('rooms/category', {
-      title: `${exactType} - Full Moon Hotels`,
+      title: `${displayName} - Full Moon Hotels`,
       rooms,
-      category: exactType
+      category: displayName,
+      totalRooms: rooms.length,
+      availableCount: availableRooms.length,
+      unavailableCount: unavailableRooms.length,
+      hasAvailableRooms: availableRooms.length > 0
     });
+    
   } catch (error) {
     console.error('Error fetching rooms by category:', error);
     res.status(500).render('error', {
       title: 'Server Error',
-      error: 'Failed to load room category'
+      error: 'Failed to load room category: ' + error.message
     });
   }
 });

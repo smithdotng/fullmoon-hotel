@@ -124,7 +124,7 @@ app.get('/', async (req, res) => {
     }
 
     // Fetch rooms sorted by price (least to most expensive)
-    const rooms = await Room.find({ available: true })
+    const rooms = await Room.find({ })
       .sort({ price: 1 })  // 1 = ascending (least to most expensive)
       .limit(6);
     

@@ -403,7 +403,7 @@
 
         <!-- ========================  Rooms ======================== -->
 
-     <!-- ========================  Rooms ======================== -->
+         <!-- ========================  Rooms ======================== -->
 
 <section class="rooms rooms-widget">
 
@@ -428,7 +428,21 @@
                     <article>
                         <div class="image">
                             <% if (room.images && room.images.length > 0) { %>
+                                <!-- Carousel for multiple images -->
+                                <% if (room.images.length > 1) { %>
+                                <div class="room-image-carousel">
+                                    <div class="owl-carousel">
+                                        <% room.images.forEach(image => { %>
+                                        <div class="image-slide">
+                                            <img src="<%= image %>" alt="<%= room.type %>" />
+                                        </div>
+                                        <% }) %>
+                                    </div>
+                                </div>
+                                <% } else { %>
+                                <!-- Single image -->
                                 <img src="<%= room.images[0] %>" alt="<%= room.type %>" />
+                                <% } %>
                             <% } else { %>
                                 <!-- Fallback images based on room type -->
                                 <% if (room.type.includes('Annex')) { %>
@@ -450,7 +464,7 @@
                         </div>
                         <div class="details">
                             <div class="text">
-                                <!-- CHANGED: Room title now links to category page -->
+                                <!-- Room title linking to category page -->
                                 <% 
                                 // Determine category from room type
                                 let category = 'rooms';
@@ -479,10 +493,15 @@
                                         </small>
                                     </div>
                                 <% } %>
+                                <% if (room.roomNumber) { %>
+                                    <div class="room-number">
+                                        <small><strong>Room:</strong> <%= room.roomNumber %></small>
+                                    </div>
+                                <% } %>
                             </div>
                             <div class="book">
                                 <div>
-                                    <a href="/rooms/<%= room._id %>" class="btn btn-main">Book now</a>
+                                    <a href="/rooms/<%= room._id %>" class="btn btn-main">View Details</a>
                                 </div>
                                 <div>
                                     <span class="price h4">₦ <%= room.price.toLocaleString() %></span>
@@ -494,9 +513,8 @@
                 </div>
                 <% }) %>
             <% } else { %>
-                <!-- Fallback content if no rooms in database -->
-                
-
+                <!-- Fallback content if no rooms in database or data not loaded -->
+                <!-- You should ensure rooms data is passed from your server -->
                 <div class="item">
                     <article>
                         <div class="image">
@@ -504,7 +522,6 @@
                         </div>
                         <div class="details">
                             <div class="text">
-                                <!-- CHANGED: Fallback room titles also link to category pages -->
                                 <h3 class="title"><a href="/rooms/category/Premiere">Premiere Room</a></h3>
                                 <p>Panoramic city view, high floor</p>
                             </div>
@@ -528,7 +545,6 @@
                         </div>
                         <div class="details">
                             <div class="text">
-                                <!-- CHANGED: Fallback room titles also link to category pages -->
                                 <h3 class="title"><a href="/rooms/category/Deluxe">Deluxe Room</a></h3>
                                 <p>Separate lounge and dining set</p>
                             </div>
