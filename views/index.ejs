@@ -63,115 +63,435 @@
 
     <!-- Custom Fix CSS -->
     <style>
-        .guests {
-            position: relative;
-        }
-        .guests .guest-list {
-            display: none !important;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: #fff;
-            border: 1px solid #ddd;
-            border-top: none;
-            z-index: 9999 !important;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            border-radius: 0 0 4px 4px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .guests .guest-list.open {
-            display: block !important;
-        }
-        .guests .result {
-            cursor: pointer;
-        }
-        .qty-apply, .qty-close {
-            cursor: pointer;
-            float: right;
-            padding: 12px 15px;
-            font-size: 18px;
-            color: #666;
-        }
-        .qty-apply:hover, .qty-close:hover {
-            color: #333;
-        }
-        .guest-list .header {
-            background: #f8f8f8;
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-            font-weight: 600;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .date-value {
-            opacity: 0.6;
-            transition: opacity 0.3s;
-        }
-        .date-value.filled {
-            opacity: 1;
-            font-weight: 500;
-        }
-        .guest-list li.clearfix {
-            padding: 15px;
-            border-bottom: 1px solid #f0f0f0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .guest-list li.clearfix:last-child {
-            border-bottom: none;
-        }
-        .guest-list li.clearfix > div:first-child {
-            flex: 0 0 60px;
-        }
-        .guest-list li.clearfix > div:nth-child(2) {
-            flex: 1;
-            margin-left: 15px;
-        }
-        .guest-list li.clearfix > div:last-child {
-            flex: 0 0 auto;
-            display: flex;
-            gap: 5px;
-        }
-        .guest-list .qty-amount {
-            font-size: 24px;
-            font-weight: bold;
-            text-align: center;
-            width: 60px;
-            border: none;
-            background: none;
-        }
-        .guest-list .qty-btn {
-            background: #f8f8f8;
-            border: 1px solid #ddd;
-            padding: 8px 12px;
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: bold;
-            width: 40px;
-            height: 40px;
-            border-radius: 4px;
-        }
-        .guest-list .qty-btn:hover {
-            background: #e8e8e8;
-        }
-        .guest-list .qty-btn:active {
-            background: #ddd;
-        }
-        .guest-list .qty-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }     
-        /* Mobile padding fix */
-@media (max-width: 991px) {
-    .frontpage-slider {
-        padding-top: 60px;
+    /* ======================= CSS VARIABLES ======================= */
+    :root {
+        --primary: #00486c;     /* Your hotel's primary blue color */
+        --gold: #8B7355;        /* Your hotel's gold color */
     }
+
+    
+
+    /* ======================= EXISTING STYLES (Keep these) ======================= */
+    .guests {
+        position: relative;
+    }
+    .guests .guest-list {
+        display: none !important;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-top: none;
+        z-index: 9999 !important;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        border-radius: 0 0 4px 4px;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    .guests .guest-list.open {
+        display: block !important;
+    }
+    .guests .result {
+        cursor: pointer;
+    }
+    .qty-apply, .qty-close {
+        cursor: pointer;
+        float: right;
+        padding: 12px 15px;
+        font-size: 18px;
+        color: #666;
+    }
+    .qty-apply:hover, .qty-close:hover {
+        color: #333;
+    }
+    .guest-list .header {
+        background: #f8f8f8;
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+        font-weight: 600;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .date-value {
+        opacity: 0.6;
+        transition: opacity 0.3s;
+    }
+    .date-value.filled {
+        opacity: 1;
+        font-weight: 500;
+    }
+    .guest-list li.clearfix {
+        padding: 15px;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .guest-list li.clearfix:last-child {
+        border-bottom: none;
+    }
+    .guest-list li.clearfix > div:first-child {
+        flex: 0 0 60px;
+    }
+    .guest-list li.clearfix > div:nth-child(2) {
+        flex: 1;
+        margin-left: 15px;
+    }
+    .guest-list li.clearfix > div:last-child {
+        flex: 0 0 auto;
+        display: flex;
+        gap: 5px;
+    }
+    .guest-list .qty-amount {
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center;
+        width: 60px;
+        border: none;
+        background: none;
+    }
+    .guest-list .qty-btn {
+        background: #f8f8f8;
+        border: 1px solid #ddd;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: bold;
+        width: 40px;
+        height: 40px;
+        border-radius: 4px;
+    }
+    .guest-list .qty-btn:hover {
+        background: #e8e8e8;
+    }
+    .guest-list .qty-btn:active {
+        background: #ddd;
+    }
+    .guest-list .qty-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }     
+    
+    /* ======================= SUBSCRIPTION STYLES (FIXED) ======================= */
+    .subscribe {
+        background-color: #00486c; /* Using direct color instead of var() for safety */
+        padding: 60px 0;
+        text-align: center;
+        color: white;
+    }
+
+    .subscribe .box {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .subscribe .title {
+        color: white;
+        font-family: 'Playfair Display', serif;
+        font-size: 36px;
+        margin-bottom: 15px;
+        font-weight: 700;
+    }
+
+    .subscribe .text p {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 18px;
+        margin-bottom: 30px;
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    .subscribe .form-group {
+        margin-bottom: 0;
+    }
+
+    .subscribe .input-group {
+        display: flex;
+        flex-wrap: nowrap;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .subscribe .form-control {
+        height: 52px;
+        border: none;
+        padding: 15px 20px;
+        font-size: 16px;
+        font-family: 'Montserrat', sans-serif;
+        border-radius: 0;
+        flex-grow: 1;
+        color: #333; /* Ensure text is visible */
+    }
+
+    .subscribe .form-control:focus {
+        box-shadow: none;
+        outline: none;
+    }
+
+    .subscribe .btn-main {
+        background-color: #8B7355 !important; /* Using !important to override Bootstrap */
+        border-color: #8B7355 !important;
+        color: white !important;
+        height: 52px;
+        padding: 0 30px !important;
+        font-size: 16px !important;
+        font-weight: 600 !important;
+        font-family: 'Montserrat', sans-serif !important;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-radius: 0 !important;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .subscribe .btn-main:hover {
+        background-color: #9a7f5f !important;
+        border-color: #9a7f5f !important;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(139, 115, 85, 0.4);
+    }
+
+    .subscribe .btn-main:active {
+        transform: translateY(0);
+    }
+
+    .subscribe .btn-main:disabled {
+        background-color: #cccccc !important;
+        border-color: #cccccc !important;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    /* Message Styles */
+    #newsletterMessage {
+        border-radius: 4px;
+        padding: 15px;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 14px;
+        text-align: center;
+        animation: fadeIn 0.3s ease;
+        display: none; /* Start hidden */
+    }
+
+    #newsletterMessage .alert {
+        margin: 0;
+        padding: 10px 15px;
+    }
+
+    #newsletterMessage.success .alert {
+        background-color: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+        border: 1px solid rgba(40, 167, 69, 0.2);
+    }
+
+    #newsletterMessage.error .alert {
+        background-color: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+        border: 1px solid rgba(220, 53, 69, 0.2);
+    }
+
+    
+
+    /* Validation Styles */
+    .subscribe .form-control.is-invalid {
+        border: 2px solid #dc3545 !important;
+    }
+
+    .subscribe .form-control.is-valid {
+        border: 2px solid #28a745 !important;
+    }
+
+    /* Spinner for loading state */
+    .spinner-border-sm {
+        width: 1rem;
+        height: 1rem;
+        border-width: 0.2em;
+    }
+
+    /* Simplified Subscription Form Styles */
+.newsletter-form {
+    max-width: 500px;
+    margin: 0 auto;
 }
-    </style>
+
+.subscribe-form-group {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.email-input-wrapper {
+    flex: 1;
+}
+
+.subscribe-email {
+    width: 100%;
+    height: 52px;
+    padding: 0 20px;
+    border: none;
+    font-size: 16px;
+    font-family: 'Montserrat', sans-serif;
+    border-radius: 4px 0 0 4px;
+    color: #333;
+}
+
+.subscribe-btn {
+    background: #8B7355;
+    color: white;
+    border: none;
+    padding: 0 30px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: 'Montserrat', sans-serif;
+    cursor: pointer;
+    border-radius: 0 4px 4px 0;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+    height: 52px;
+}
+
+.subscribe-btn:hover {
+    background: #9a7f5f;
+    transform: translateY(-2px);
+}
+
+.subscribe-btn:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.subscribe-note {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+    text-align: center;
+    margin-top: 10px;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.newsletter-message {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 4px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    text-align: center;
+    display: none;
+}
+
+.newsletter-message.success {
+    background: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+    border: 1px solid rgba(40, 167, 69, 0.2);
+    display: block;
+}
+
+.newsletter-message.error {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.2);
+    display: block;
+}
+
+.subscribe-spinner {
+    margin-left: 8px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+
+    /* ======================= RESPONSIVE STYLES ======================= */
+    
+    /* Mobile padding fix for slider */
+    @media (max-width: 991px) {
+        .frontpage-slider {
+            padding-top: 60px;
+        }
+    }
+
+    
+  
+
+    
+    /* Mobile responsive for subscribe section */
+    @media (max-width: 768px) {
+        .subscribe {
+            padding: 40px 15px;
+        }
+        
+        .subscribe .title {
+            font-size: 28px;
+        }
+        
+        .subscribe .text p {
+            font-size: 16px;
+        }
+        
+        .subscribe .input-group {
+            flex-direction: column;
+            box-shadow: none;
+        }
+        
+        .subscribe .form-control {
+            border-radius: 4px !important;
+            margin-bottom: 10px;
+            height: 48px;
+            text-align: center;
+        }
+        
+        .subscribe .btn-main {
+            width: 100%;
+            height: 48px;
+            border-radius: 4px !important;
+        }
+
+          .subscribe-form-group {
+        flex-direction: column;
+    }
+    
+    .subscribe-email {
+        border-radius: 4px;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+    
+    .subscribe-btn {
+        width: 100%;
+        border-radius: 4px;
+    }
+    }
+
+    /* ======================= FIX FOR INPUT-GROUP-APPEND ======================= */
+    .subscribe .input-group-append {
+        display: flex;
+    }
+    
+    .subscribe .input-group-append .btn {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+    
+    /* Fix for mobile where input-group-append might not work */
+    @media (max-width: 768px) {
+        .subscribe .input-group-append {
+            width: 100%;
+        }
+    }
+</style>
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -1149,22 +1469,44 @@
             </div>
         </section>
 
-        <!-- ========================  Subscribe ======================== -->
-
-        <section class="subscribe">
-            <div class="container">
-                <div class="box">
-                    <h2 class="title">Special Offers</h2>
-                    <div class="text">
-                        <p>Subscribe to receive exclusive deals & promotions</p>
-                    </div>
-                    <div class="form-group">
-                        <input type="text" value="" placeholder="Your email" class="form-control" />
-                        <button class="btn btn-sm btn-main">Subscribe</button>
-                    </div>
-                </div>
+    <!-- ========================  Subscribe ======================== -->
+<section class="subscribe">
+    <div class="container">
+        <div class="box">
+            <h2 class="title">Special Offers</h2>
+            <div class="text">
+                <p>Subscribe to receive exclusive deals & promotions</p>
             </div>
-        </section> 
+            
+            <!-- SIMPLIFIED Subscription Form -->
+            <form id="newsletterForm" class="newsletter-form" novalidate>
+                <div class="subscribe-form-group">
+                    <div class="email-input-wrapper">
+                        <input type="email" 
+                               id="newsletterEmail" 
+                               name="email"
+                               value="" 
+                               placeholder="Your email address" 
+                               class="subscribe-email" 
+                               required />
+                    </div>
+                    <button type="submit" 
+                            id="subscribe-button"
+                            class="subscribe-btn">
+                        <span id="subscribe-text">Subscribe</span>
+                        <span id="subscribe-spinner" class="subscribe-spinner" style="display: none;">⌛</span>
+                    </button>
+                </div>
+                <div class="subscribe-note">
+                    We respect your privacy. Unsubscribe at any time.
+                </div>
+            </form>
+            
+            <!-- Success/Error Messages -->
+            <div id="newsletterMessage" class="newsletter-message"></div>
+        </div>
+    </div>
+</section>
 
         
 
@@ -1312,6 +1654,112 @@
             }
         });
     </script>
+
+ <script>
+    $(document).ready(function() {
+        console.log('Page loaded - testing subscription...');
+        
+        // Handle subscription form
+        $('#newsletterForm').on('submit', function(e) {
+            e.preventDefault();
+            console.log('Form submitted');
+            
+            const email = $('#newsletterEmail').val().trim();
+            const $message = $('#newsletterMessage');
+            
+            // Clear previous messages
+            $message.removeClass('success error').hide().empty();
+            
+            // Validation
+            if (!email) {
+                showMessage('Please enter your email address.', 'error');
+                return;
+            }
+            
+            if (!isValidEmail(email)) {
+                showMessage('Please enter a valid email address.', 'error');
+                return;
+            }
+            
+            // Show loading
+            const $button = $('#subscribe-button');
+            const $buttonText = $('#subscribe-text');
+            const $spinner = $('#subscribe-spinner');
+            const originalText = $buttonText.text();
+            
+            $button.prop('disabled', true);
+            $buttonText.text('Subscribing...');
+            $spinner.show();
+            
+            // Send request
+            $.ajax({
+                url: '/subscribe',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ email: email }),
+                dataType: 'json',
+                success: function(response) {
+                    console.log('Success response:', response);
+                    if (response.success) {
+                        showMessage(response.message, 'success');
+                        $('#newsletterEmail').val('');
+                    } else {
+                        showMessage(response.message, 'error');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', {
+                        status: xhr.status,
+                        statusText: xhr.statusText,
+                        response: xhr.responseText,
+                        error: error
+                    });
+                    
+                    let message = 'An error occurred. Please try again.';
+                    
+                    if (xhr.status === 404) {
+                        message = 'Subscription service not found. Please contact support.';
+                    } else if (xhr.status === 400) {
+                        try {
+                            const data = JSON.parse(xhr.responseText);
+                            message = data.message || message;
+                        } catch (e) {
+                            message = 'Invalid email address.';
+                        }
+                    }
+                    
+                    showMessage(message, 'error');
+                },
+                complete: function() {
+                    $button.prop('disabled', false);
+                    $buttonText.text(originalText);
+                    $spinner.hide();
+                }
+            });
+        });
+        
+        function isValidEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+        
+        function showMessage(text, type) {
+            const $message = $('#newsletterMessage');
+            const icon = type === 'success' ? '✓' : '✗';
+            
+            $message.html(`${icon} ${text}`)
+                   .addClass(type)
+                   .fadeIn();
+            
+            // Auto-hide success messages after 5 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    $message.fadeOut();
+                }, 5000);
+            }
+        }
+    });
+</script>
 </body>
 
 </html>

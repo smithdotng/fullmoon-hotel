@@ -2,6 +2,7 @@
 
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const Room = require('../models/Room');
 const Blog = require('../models/Blog');
 const multer = require('multer');
@@ -9,6 +10,7 @@ const path = require('path');
 const Reservation = require('../models/Reservation');
 const FacilityBooking = require('../models/FacilityBooking');
 const Facility = require('../models/Facility'); // ← THIS WAS MISSING
+
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -77,6 +79,14 @@ const isSuperAdmin = (req, res, next) => {
 // ADMIN DASHBOARD
 // ========================
 
+// ========================
+// ADMIN DASHBOARD - FIXED WITH SUBSCRIBER VARIABLES
+// ========================
+
+// ========================
+// ADMIN DASHBOARD - FIXED
+// ========================
+
 router.get('/', isAdmin, async (req, res) => {
   try {
     const roomCount = await Room.countDocuments();
@@ -113,6 +123,8 @@ router.get('/', isAdmin, async (req, res) => {
     
     let reservationStats = null;
     let recentReservations = [];
+    let subscriberCount = 0;
+    let recentSubscribers = [];
     
     try {
       reservationStats = {
@@ -123,6 +135,41 @@ router.get('/', isAdmin, async (req, res) => {
         unpaid: await Reservation.countDocuments({ paymentStatus: 'unpaid' }),
         paid: await Reservation.countDocuments({ paymentStatus: 'paid' })
       };
+
+      // Get subscriber stats safely
+      try {
+        // Check if Subscriber model exists
+        if (mongoose.models.Subscriber) {
+          const SubscriberModel = mongoose.models.Subscriber;
+          subscriberCount = await SubscriberModel.countDocuments({ isActive: true });
+          
+          const recentSubscriberDocs = await SubscriberModel.find({ isActive: true })
+            .sort({ subscribedAt: -1 })
+            .limit(5)
+            .select('email subscribedAt');
+          
+          recentSubscribers = recentSubscriberDocs.map(sub => sub.email);
+        } else {
+           console.log('Subscriber model not found in mongoose models');
+            // Try alternative approach
+            try {
+                // Get subscriber count from your routes/subscribe.js helper function
+                const { getSubscriberStats } = require('./subscribe');
+                const stats = await getSubscriberStats();
+                subscriberCount = stats.total;
+                recentSubscribers = stats.recent.map(sub => sub.email);
+            } catch (helperError) {
+                console.log('Could not get subscriber stats from helper:', helperError.message);
+                // Use fallback values
+                subscriberCount = 0;
+                recentSubscribers = [];
+            }
+        }
+    } catch (subscriberError) {
+        console.log('Error loading subscribers:', subscriberError.message);
+        subscriberCount = 0;
+        recentSubscribers = [];
+    }
       
       recentReservations = await Reservation.find()
         .populate('room', 'roomNumber type')
@@ -139,6 +186,8 @@ router.get('/', isAdmin, async (req, res) => {
       facilityBookings, confirmedFacilityBookings, facilityRevenue,
       recentFacilityBookings, popularFacilities,
       reservationStats, recentReservations,
+      subscriberCount,
+      recentSubscribers,
       layout: 'layout-admin'
     });
   } catch (error) {
@@ -1288,6 +1337,59 @@ router.get('/reservations/invoice/:id', isAdmin, canManageUsers, async (req, res
     console.error('Error generating invoice:', error);
     req.flash('error', 'Failed to generate invoice');
     res.redirect(`/admin/reservations/${req.params.id}`);
+  }
+});
+
+
+// ========================
+// SUBSCRIBER MANAGEMENT
+// ========================
+
+router.get('/subscribers', isAdmin, async (req, res) => {
+  try {
+    // Try multiple approaches to get Subscriber model
+    let SubscriberModel;
+    
+    if (mongoose.models.Subscriber) {
+      SubscriberModel = mongoose.models.Subscriber;
+    } else {
+      // Try to get from routes/subscribe.js
+      const { Subscriber } = require('./subscribe');
+      SubscriberModel = Subscriber || mongoose.model('Subscriber');
+    }
+    
+    if (!SubscriberModel) {
+      req.flash('error', 'Subscriber model not available');
+      return res.redirect('/admin');
+    }
+    
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 50;
+    const skip = (page - 1) * limit;
+    
+    const subscribers = await SubscriberModel.find({})
+      .sort({ subscribedAt: -1 })
+      .skip(skip)
+      .limit(limit);
+    
+    const total = await SubscriberModel.countDocuments({});
+    const activeCount = await SubscriberModel.countDocuments({ isActive: true });
+    const inactiveCount = await SubscriberModel.countDocuments({ isActive: false });
+    
+    res.render('admin/subscribers', {
+      title: 'Newsletter Subscribers',
+      subscribers,
+      subscriberCount: total,
+      activeCount,
+      inactiveCount,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      layout: 'layout-admin'
+    });
+  } catch (error) {
+    console.error('Error loading subscribers:', error);
+    req.flash('error', 'Failed to load subscribers');
+    res.redirect('/admin');
   }
 });
 

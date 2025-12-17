@@ -247,6 +247,7 @@ try {
   const contactRoutes = require('./routes/contact');
   const laundryRoutes = require('./routes/laundry');
   const gymRoutes = require('./routes/gym');
+  const subscribeRoutes = require('./routes/subscribe');
   
   // Mount routes - IMPORTANT: Mount admin routes AFTER auth routes
   app.use('/', authRoutes); // This handles POST /login
@@ -259,6 +260,7 @@ try {
   app.use('/contact', contactRoutes);
   app.use('/laundry', laundryRoutes);
   app.use('/gym', gymRoutes);
+  app.use('/', subscribeRoutes); // This handles POST /subscribe
   
   console.log('✅ All routes loaded successfully');
 } catch (error) {
@@ -368,6 +370,19 @@ app.get('/add-sample-rooms', async (req, res) => {
     console.error('Error adding sample rooms:', error);
     res.status(500).json({ error: error.message });
   }
+});
+
+// Test route - add this before other app.use() calls
+app.get('/test-route', (req, res) => {
+    res.json({ message: 'Test route works!' });
+});
+
+app.get('/test-post', (req, res) => {
+    res.json({ message: 'Test POST endpoint', method: 'GET' });
+});
+
+app.post('/test-post', (req, res) => {
+    res.json({ message: 'Test POST endpoint', method: 'POST', body: req.body });
 });
 
 // Route debug endpoint

@@ -61,6 +61,34 @@
             </div>
         </div>
     </div>
+
+    <!-- Subscribers Statistics -->
+<div class="col-md-3">
+    <div class="card text-white" style="background: linear-gradient(135deg, #8B7355 0%, #9a7f5f 100%);">
+        <div class="card-body">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <h5 class="card-title">Newsletter Subscribers</h5>
+                    <h2 class="card-text"><%= subscriberCount || 0 %></h2>
+                    <small>Recent: <%= recentSubscribers ? recentSubscribers.length : 0 %></small>
+                </div>
+                <div class="align-self-center">
+                    <i class="fa fa-users fa-2x"></i>
+                </div>
+            </div>
+            <% if (subscriberCount > 0) { %>
+            <div class="mt-3">
+                <a href="/admin/subscribers" class="btn btn-sm btn-light">
+                    <i class="fa fa-eye me-1"></i> View All
+                </a>
+                <a href="/admin/subscribers/export" class="btn btn-sm btn-outline-light ms-1" download>
+                    <i class="fa fa-download me-1"></i> Export
+                </a>
+            </div>
+            <% } %>
+        </div>
+    </div>
+</div>
     
     <!-- Facilities Statistics -->
     <div class="col-md-3">
@@ -153,6 +181,17 @@
                             <i class="fa fa-edit me-2"></i>Add Blog Post
                         </a>
                     </div>
+                    <!-- Subscribers Management -->
+<div class="col-md-3 mb-3">
+    <a href="/admin/subscribers" class="btn btn-outline-secondary w-100">
+        <i class="fa fa-users me-2"></i>View Subscribers
+    </a>
+</div>
+<div class="col-md-3 mb-3">
+    <a href="/admin/subscribers/export" class="btn btn-outline-info w-100">
+        <i class="fa fa-download me-2"></i>Export Subscribers
+    </a>
+</div>
                 </div>
                 
                 <div class="row mt-2">
@@ -335,6 +374,50 @@
             </div>
         </div>
     </div>
+
+    <!-- Recent Subscribers -->
+<div class="col-md-6">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Recent Subscribers</h5>
+            <a href="/admin/subscribers" class="btn btn-sm btn-outline-secondary">View All</a>
+        </div>
+        <div class="card-body">
+            <% if (recentSubscribers && recentSubscribers.length > 0) { %>
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% recentSubscribers.forEach((email, index) => { %>
+                            <tr>
+                                <td><%= index + 1 %></td>
+                                <td>
+                                    <strong><%= email %></strong>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success">Subscribed</span>
+                                </td>
+                            </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <div class="text-center py-3">
+                    <i class="fa fa-users fa-2x text-muted mb-2"></i>
+                    <p class="text-muted mb-0">No subscribers yet</p>
+                    <p class="text-muted small">Subscribers will appear here when they sign up</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
 
     <!-- Recent Room Reservations -->
 <div class="col-md-6">

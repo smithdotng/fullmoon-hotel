@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title || 'Subscribers Management' %></title>
+    
+    <style>
+        .subscriber-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #8B7355 0%, #9a7f5f 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .stat-card h3 {
+            font-size: 2.5rem;
+            margin: 0;
+        }
+        .email-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .email-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+        .email-item:hover {
+            background-color: #f8f9fa;
+        }
+        .email-item:last-child {
+            border-bottom: none;
+        }
+        .copy-btn {
+            cursor: pointer;
+            color: #6c757d;
+            transition: color 0.2s;
+        }
+        .copy-btn:hover {
+            color: #00486c;
+        }
+        .email-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
+        }
+        .email-address {
+            font-weight: 600;
+            color: #333;
+            font-size: 16px;
+        }
+        .subscription-date {
+            color: #6c757d;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .subscription-date i {
+            font-size: 12px;
+        }
+        .email-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .status-badge {
+            font-size: 12px;
+            padding: 3px 10px;
+            border-radius: 12px;
+        }
+        .badge-active {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+        .badge-inactive {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+        .source-badge {
+            background-color: #e7f1ff;
+            color: #0a58ca;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        .table-header {
+            display: grid;
+            grid-template-columns: 50px 2fr 1fr 100px 100px 80px;
+            padding: 12px 15px;
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            color: #495057;
+        }
+        .table-row {
+            display: grid;
+            grid-template-columns: 50px 2fr 1fr 100px 100px 80px;
+            padding: 12px 15px;
+            align-items: center;
+        }
+        .table-row:nth-child(even) {
+            background-color: #fcfcfc;
+        }
+        .table-container {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        .pagination-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+        }
+        .time-ago {
+            font-size: 11px;
+            color: #999;
+            margin-left: 5px;
+        }
+        .email-cell {
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="container-fluid">
+        <div class="row">
+            
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2"><i class="fa fa-users me-2"></i>Newsletter Subscribers</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <a href="/admin" class="btn btn-sm btn-outline-secondary">
+                                <i class="fa fa-arrow-left me-1"></i>Back to Dashboard
+                            </a>
+                            <a href="/admin/subscribers/export" class="btn btn-sm btn-success" download>
+                                <i class="fa fa-download me-1"></i>Export CSV
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <% if (messages && messages.success) { %>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <%= messages.success %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                <% } %>
+
+                <% if (messages && messages.error) { %>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <%= messages.error %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                <% } %>
+
+                <!-- Set default values for variables -->
+                <% 
+                    const subscriberCount = subscribers ? subscribers.length : 0;
+                    const activeCount = subscribers ? subscribers.filter(s => s.isActive === true || s.isActive === 'true').length : 0;
+                    const inactiveCount = subscribers ? subscribers.filter(s => !(s.isActive === true || s.isActive === 'true')).length : 0;
+                    const currentPage = 1;
+                    const totalPages = 1;
+                    const limit = 50;
+                %>
+
+                <!-- Statistics -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <h3><%= subscriberCount %></h3>
+                            <p class="mb-0">Total Subscribers</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                            <h3><%= activeCount %></h3>
+                            <p class="mb-0">Active</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card" style="background: linear-gradient(135deg, #6c757d 0%, #adb5bd 100%);">
+                            <h3><%= inactiveCount %></h3>
+                            <p class="mb-0">Inactive</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h6 class="card-title">Quick Stats</h6>
+                                <div class="small">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>This Month:</span>
+                                        <span>0</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>Last 7 Days:</span>
+                                        <span><%= subscriberCount %></span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span>Today:</span>
+                                        <span>0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Quick Actions</h5>
+                        <div class="subscriber-actions">
+                            <button onclick="copyAllEmails()" class="btn btn-outline-primary">
+                                <i class="fa fa-copy me-1"></i>Copy All Emails
+                            </button>
+                            <button onclick="exportEmails()" class="btn btn-outline-success">
+                                <i class="fa fa-download me-1"></i>Export as Text
+                            </button>
+                            <button onclick="sendTestEmail()" class="btn btn-outline-info">
+                                <i class="fa fa-envelope me-1"></i>Send Test Email
+                            </button>
+                            <a href="/admin/subscribers/export?format=csv" class="btn btn-outline-secondary">
+                                <i class="fa fa-file-excel me-1"></i>Export CSV
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subscribers Table -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Subscriber List</h5>
+                        <div class="d-flex align-items-center">
+                            <div class="input-group input-group-sm me-2" style="width: 300px;">
+                                <input type="text" id="searchInput" class="form-control" placeholder="Search emails...">
+                                <button class="btn btn-outline-secondary" type="button" onclick="searchEmails()">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </div>
+                            <span class="badge bg-secondary"><%= subscriberCount %> subscribers</span>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <% if (subscribers && subscribers.length > 0) { %>
+                            <div class="table-header">
+                                <div>#</div>
+                                <div>Email Address</div>
+                                <div>Subscribed Date</div>
+                                <div>Source</div>
+                                <div>Status</div>
+                                <div>Actions</div>
+                            </div>
+                            
+                            <% subscribers.forEach((subscriber, index) => { 
+                                const rowNumber = index + 1;
+                                const isActive = subscriber.isActive === true || subscriber.isActive === 'true';
+                                const source = subscriber.source || 'website';
+                                const subscribedDate = subscriber.subscribedAt ? new Date(subscriber.subscribedAt) : new Date();
+                                const now = new Date();
+                                const diffTime = Math.abs(now - subscribedDate);
+                                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                                let timeAgo = '';
+                                
+                                if (diffDays === 0) {
+                                    timeAgo = 'Today';
+                                } else if (diffDays === 1) {
+                                    timeAgo = 'Yesterday';
+                                } else if (diffDays < 7) {
+                                    timeAgo = diffDays + ' days ago';
+                                } else if (diffDays < 30) {
+                                    timeAgo = Math.floor(diffDays / 7) + ' weeks ago';
+                                } else if (diffDays < 365) {
+                                    timeAgo = Math.floor(diffDays / 30) + ' months ago';
+                                } else {
+                                    timeAgo = Math.floor(diffDays / 365) + ' years ago';
+                                }
+                            %>
+                            <div class="table-row" data-email="<%= subscriber.email.toLowerCase() %>">
+                                <div><%= rowNumber %></div>
+                                <div class="email-cell">
+                                    <div class="email-address"><%= subscriber.email %></div>
+                                </div>
+                                <div>
+                                    <div><%= subscribedDate.toLocaleDateString() %></div>
+                                    <small class="time-ago"><%= timeAgo %></small>
+                                </div>
+                                <div>
+                                    <span class="source-badge"><%= source %></span>
+                                </div>
+                                <div>
+                                    <% if (isActive) { %>
+                                        <span class="status-badge badge-active">Active</span>
+                                    <% } else { %>
+                                        <span class="status-badge badge-inactive">Inactive</span>
+                                    <% } %>
+                                </div>
+                                <div class="email-actions">
+                                    <i class="fa fa-copy copy-btn" onclick="copyEmail('<%= subscriber.email %>')" 
+                                       title="Copy email"></i>
+                                    <a href="mailto:<%= subscriber.email %>" class="text-decoration-none" title="Send email">
+                                        <i class="fa fa-envelope text-primary"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <% }) %>
+                        <% } else { %>
+                            <div class="no-data">
+                                <i class="fa fa-users fa-4x text-muted mb-3"></i>
+                                <h4 class="text-muted">No Subscribers Yet</h4>
+                                <p class="text-muted">Your newsletter subscription list is currently empty.</p>
+                                <p class="text-muted">New subscribers will appear here when they sign up on your website.</p>
+                            </div>
+                        <% } %>
+                    </div>
+                    
+                    <!-- Footer Info -->
+                    <div class="card-footer">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <small class="text-muted">
+                                    Showing <%= subscriberCount %> of <%= subscriberCount %> entries
+                                </small>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <small class="text-muted">
+                                    Last updated: <%= new Date().toLocaleString() %>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Info -->
+                <div class="mt-3 text-end">
+                    <small class="text-muted">
+                        Active: <%= activeCount %> | Inactive: <%= inactiveCount %>
+                    </small>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Copy single email
+        function copyEmail(email) {
+            navigator.clipboard.writeText(email).then(() => {
+                showToast('Email copied to clipboard: ' + email);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = email;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showToast('Email copied to clipboard: ' + email);
+            });
+        }
+
+        // Copy all emails
+        function copyAllEmails() {
+            const emails = [];
+            document.querySelectorAll('.table-row').forEach(row => {
+                const email = row.querySelector('.email-address').textContent;
+                emails.push(email);
+            });
+            
+            if (emails.length === 0) {
+                showToast('No emails to copy');
+                return;
+            }
+            
+            const emailText = emails.join('\n');
+            navigator.clipboard.writeText(emailText).then(() => {
+                showToast('All ' + emails.length + ' emails copied to clipboard');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = emailText;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showToast('All ' + emails.length + ' emails copied to clipboard');
+            });
+        }
+
+        // Export emails as text file
+        function exportEmails() {
+            const emails = [];
+            document.querySelectorAll('.table-row').forEach(row => {
+                const email = row.querySelector('.email-address').textContent;
+                const date = row.querySelector('div:nth-child(3) div').textContent;
+                emails.push(email + ' - ' + date);
+            });
+            
+            if (emails.length === 0) {
+                showToast('No emails to export');
+                return;
+            }
+            
+            const emailText = emails.join('\n');
+            const blob = new Blob([emailText], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'subscribers_' + new Date().toISOString().split('T')[0] + '.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            showToast('Exported ' + emails.length + ' emails as text file');
+        }
+
+        // Send test email (placeholder)
+        function sendTestEmail() {
+            const emailCount = <%= subscriberCount %>;
+            if (emailCount === 0) {
+                alert('No subscribers to send test email to.');
+                return;
+            }
+            
+            if (confirm('This would send a test email to all ' + emailCount + ' subscribers. Continue?')) {
+                showToast('Test email feature would be implemented with your email service provider.');
+            }
+        }
+
+        // Search emails
+        function searchEmails() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            const rows = document.querySelectorAll('.table-row');
+            let visibleCount = 0;
+            
+            rows.forEach(row => {
+                const email = row.getAttribute('data-email');
+                if (!searchTerm || email.includes(searchTerm)) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            // Update count display
+            const countBadge = document.querySelector('.badge.bg-secondary');
+            if (countBadge) {
+                countBadge.textContent = visibleCount + ' of ' + rows.length + ' subscribers';
+            }
+        }
+
+        // Toast notification
+        function showToast(message) {
+            // Remove existing toasts
+            const existingToasts = document.querySelectorAll('.custom-toast');
+            existingToasts.forEach(toast => toast.remove());
+            
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = 'custom-toast position-fixed bottom-0 end-0 p-3';
+            toast.style.zIndex = '1050';
+            
+            toast.innerHTML = `
+                <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header bg-success text-white">
+                        <strong class="me-auto"><i class="fa fa-check-circle me-1"></i>Success</strong>
+                        <button type="button" class="btn-close btn-close-white" onclick="this.closest('.custom-toast').remove()"></button>
+                    </div>
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.remove();
+                }
+            }, 3000);
+        }
+
+        // Search on Enter key
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchEmails();
+                }
+            });
+        }
+
+        // Auto-focus search input
+        if (searchInput) {
+            searchInput.focus();
+        }
+
+        // Format dates nicely
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effects for copy buttons
+            document.querySelectorAll('.copy-btn').forEach(btn => {
+                btn.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.1)';
+                });
+                btn.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+            
+            // Add click effect for copy buttons
+            document.querySelectorAll('.copy-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.style.color = '#28a745';
+                    setTimeout(() => {
+                        this.style.color = '#6c757d';
+                    }, 500);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
