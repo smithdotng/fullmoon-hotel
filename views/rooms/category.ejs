@@ -599,70 +599,84 @@
                                         
 
                                         <!-- === Room amenities === -->
-                                        <div class="room-block room-aminities">
-                                            <h2 class="title">Room amenities</h2>
-                                            <div class="row">
-                                                <!--=== item ===-->
-                                                <div class="col-xs-6 col-sm-2">
-                                                    <figure>
-                                                        <figcaption>
-                                                            <span class="hotelicon hotelicon-air-condition"></span>
-                                                            <p>Aircondition</p>
-                                                        </figcaption>
-                                                    </figure>
-                                                </div>
+<div class="room-block room-aminities">
+    <h2 class="title">Room amenities</h2>
+    <div class="row">
+        <!--=== item ===-->
+        <div class="col-xs-6 col-sm-2">
+            <figure>
+                <figcaption>
+                    <span class="hotelicon hotelicon-air-condition"></span>
+                    <p>Aircondition</p>
+                </figcaption>
+            </figure>
+        </div>
 
-                                                <!--=== item ===-->
-                                                <div class="col-xs-6 col-sm-2">
-                                                    <figure>
-                                                        <figcaption>
-                                                            <span class="hotelicon hotelicon-king-bed"></span>
-                                                            <p>1 Kingsize bed</p>
-                                                        </figcaption>
-                                                    </figure>
-                                                </div>
+        <!--=== item ===-->
+        <div class="col-xs-6 col-sm-2">
+            <figure>
+                <figcaption>
+                    <% if (r.type === 'Penthouse Double Suite') { %>
+                        <span class="hotelicon hotelicon-king-bed"></span>
+                        <p>2 Kingsize beds</p>
+                    <% } else if (r.type === 'Penthouse Single Suite') { %>
+                        <span class="hotelicon hotelicon-king-bed"></span>
+                        <p>1 Kingsize bed</p>
+                    <% } else { %>
+                        <span class="hotelicon hotelicon-king-bed"></span>
+                        <p><%= r.maxGuests || 2 %> People</p>
+                    <% } %>
+                </figcaption>
+            </figure>
+        </div>
 
-                                                <!--=== item ===-->
-                                                <div class="col-xs-6 col-sm-2">
-                                                    <figure>
-                                                        <figcaption>
-                                                            <span class="hotelicon hotelicon-guest"></span>
-                                                            <p>2 People</p>
-                                                        </figcaption>
-                                                    </figure>
-                                                </div>
+        <!--=== item ===-->
+        <div class="col-xs-6 col-sm-2">
+            <figure>
+                <figcaption>
+                    <span class="hotelicon hotelicon-guest"></span>
+                    <% if (r.type === 'Penthouse Double Suite') { %>
+                        <p>4 People</p>
+                    <% } else if (r.type === 'Penthouse Single Suite') { %>
+                        <p>2 People</p>
+                    <% } else { %>
+                        <p><%= r.maxGuests || 2 %> People</p>
+                    <% } %>
+                </figcaption>
+            </figure>
+        </div>
 
-                                                <!--=== item ===-->
-                                                <div class="col-xs-6 col-sm-2">
-                                                    <figure>
-                                                        <figcaption>
-                                                            <span class="hotelicon hotelicon-wifi"></span>
-                                                            <p>Internet</p>
-                                                        </figcaption>
-                                                    </figure>
-                                                </div>
+        <!--=== item ===-->
+        <div class="col-xs-6 col-sm-2">
+            <figure>
+                <figcaption>
+                    <span class="hotelicon hotelicon-wifi"></span>
+                    <p>Internet</p>
+                </figcaption>
+            </figure>
+        </div>
 
-                                                <!--=== item ===-->
-                                                <div class="col-xs-6 col-sm-2">
-                                                    <figure>
-                                                        <figcaption>
-                                                            <span class="hotelicon hotelicon-washer"></span>
-                                                            <p>Washer</p>
-                                                        </figcaption>
-                                                    </figure>
-                                                </div>
+        <!--=== item ===-->
+        <div class="col-xs-6 col-sm-2">
+            <figure>
+                <figcaption>
+                    <span class="hotelicon hotelicon-washer"></span>
+                    <p>Washer</p>
+                </figcaption>
+            </figure>
+        </div>
 
-                                                <!--=== item ===-->
-                                                <div class="col-xs-6 col-sm-2">
-                                                    <figure>
-                                                        <figcaption>
-                                                            <span class="hotelicon hotelicon-roomservice"></span>
-                                                            <p>Room service</p>
-                                                        </figcaption>
-                                                    </figure>
-                                                </div>
-                                            </div>
-                                        </div>
+        <!--=== item ===-->
+        <div class="col-xs-6 col-sm-2">
+            <figure>
+                <figcaption>
+                    <span class="hotelicon hotelicon-roomservice"></span>
+                    <p>Room service</p>
+                </figcaption>
+            </figure>
+        </div>
+    </div>
+</div>
 
                                         <!-- === Room block === -->
                                         <div class="room-block">
