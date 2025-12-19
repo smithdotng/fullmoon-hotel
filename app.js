@@ -36,11 +36,36 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/fullmoonh
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// Static file serving
+// =============================================================================
+// STATIC FILE SERVING - UPDATED FOR CORRECT PATHS
+// =============================================================================
+
+// Create required directories if they don't exist
+const requiredDirs = [
+  'public',
+  'public/assets',
+  'public/assets/images',
+  'public/css',
+  'public/js',
+  'public/uploads',
+  'public/uploads/rooms'
+];
+
+requiredDirs.forEach(dir => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+    console.log(`📁 Created directory: ${dir}`);
+  }
+});
+
+// Serve static files from public directory
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Serve assets with correct path
 app.use('/assets', express.static(path.join(__dirname, 'public/assets')));
-app.use('/css', express.static(path.join(__dirname, 'public/css')));
-app.use('/js', express.static(path.join(__dirname, 'public/js')));
+
+// Serve uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 // Session configuration
 app.use(session({
@@ -53,9 +78,17 @@ app.use(session({
 // Flash messages
 app.use(flash());
 
-// Request logging middleware
+// Request logging middleware - ENHANCED TO SHOW STATIC FILE REQUESTS
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  
+  // Log if it's a static file request
+  if (req.url.match(/\.(jpg|jpeg|png|gif|ico|css|js)$/)) {
+    const filePath = path.join(__dirname, 'public', req.url);
+    const exists = fs.existsSync(filePath);
+    console.log(`   Static file: ${exists ? '✅ Found' : '❌ Not found'}`);
+  }
+  
   next();
 });
 
@@ -79,21 +112,29 @@ app.use((req, res, next) => {
 });
 
 // =============================================================================
-// FILE UPLOAD DIRECTORIES SETUP
+// FIX FOR MISSING IMAGES
 // =============================================================================
 
-const uploadDirs = [
-  'public/uploads/rooms',
-  'public/uploads/blog',
-  'public/uploads/menu',
-  'public/uploads/facilities',
-  'public/uploads/proofs'
+// Check for missing essential images and create placeholders if needed
+const essentialImages = [
+  'testimonial-bg.jpg',
+  'room-premiere.jpg',
+  'room-deluxe.jpg',
+  'room-executive.jpg',
+  'room-penthouse-single.jpg',
+  'room-penthouse-double.jpg',
+  'room-default.jpg',
+  'slide-beach.jpg',
+  'slide-lobby.jpg',
+  'slide-coffee.jpg',
+  'poolside-bar-night.jpg'
 ];
 
-uploadDirs.forEach(dir => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-    console.log(`📁 Created directory: ${dir}`);
+essentialImages.forEach(imageName => {
+  const imagePath = path.join(__dirname, 'public/assets/images', imageName);
+  if (!fs.existsSync(imagePath)) {
+    console.log(`⚠️  Missing essential image: ${imageName}`);
+    // You could create a placeholder image here or download it
   }
 });
 
@@ -101,7 +142,7 @@ uploadDirs.forEach(dir => {
 // CORE APPLICATION ROUTES (DEFINE THESE FIRST)
 // =============================================================================
 
-// Add this before your route imports
+// Add request logging
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
   if (req.method === 'POST') {
@@ -110,7 +151,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Home route - MUST be defined before other routes that might conflict
+// Home route - UPDATED WITH IMAGE FALLBACKS
 app.get('/', async (req, res) => {
   try {
     const Room = require('./models/Room');
@@ -124,11 +165,52 @@ app.get('/', async (req, res) => {
     }
 
     // Fetch rooms sorted by price (least to most expensive)
-    const rooms = await Room.find({ })
+    let rooms = await Room.find({ })
       .sort({ price: 1 })  // 1 = ascending (least to most expensive)
       .limit(6);
     
     console.log(`Found ${rooms.length} rooms for homepage, sorted by price`);
+    
+    // Process room images to ensure they have proper paths
+    rooms = rooms.map(room => {
+      const roomObj = room.toObject ? room.toObject() : room;
+      
+      // Check if room has images
+      if (!roomObj.images || !Array.isArray(roomObj.images) || roomObj.images.length === 0) {
+        console.log(`Room ${roomObj.type} has no images, adding fallback`);
+        
+        // Add fallback image based on room type
+        let fallbackImage = '/assets/images/room-default.jpg';
+        if (roomObj.type && roomObj.type.includes('Premiere')) {
+          fallbackImage = '/assets/images/room-premiere.jpg';
+        } else if (roomObj.type && roomObj.type.includes('Deluxe')) {
+          fallbackImage = '/assets/images/room-deluxe.jpg';
+        } else if (roomObj.type && roomObj.type.includes('Executive')) {
+          fallbackImage = '/assets/images/room-executive.jpg';
+        } else if (roomObj.type && roomObj.type.includes('Penthouse Single')) {
+          fallbackImage = '/assets/images/room-penthouse-single.jpg';
+        } else if (roomObj.type && roomObj.type.includes('Penthouse Double')) {
+          fallbackImage = '/assets/images/room-penthouse-double.jpg';
+        }
+        
+        roomObj.images = [fallbackImage];
+      } else {
+        // Process existing images to ensure they have correct paths
+        roomObj.images = roomObj.images.map(img => {
+          if (!img) return '/assets/images/room-default.jpg';
+          
+          // If it's already a full URL or starts with /, keep it
+          if (img.startsWith('http') || img.startsWith('/')) {
+            return img;
+          }
+          
+          // If it's a filename, assume it's in uploads/rooms
+          return '/uploads/rooms/' + img;
+        });
+      }
+      
+      return roomObj;
+    });
     
     res.render('index', { 
       title: 'Full Moon Hotels - Luxury Accommodation in Owerri',
@@ -136,9 +218,38 @@ app.get('/', async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching rooms:', error);
+    
+    // Provide fallback rooms if database fails
+    const fallbackRooms = [
+      {
+        _id: 'fallback-1',
+        type: 'Premiere Room',
+        description: 'Panoramic city view, high floor',
+        price: 55000,
+        images: ['/assets/images/room-premiere.jpg'],
+        amenities: ['Free WiFi', 'Smart TV', 'Mini Bar']
+      },
+      {
+        _id: 'fallback-2',
+        type: 'Deluxe Room',
+        description: 'Separate lounge and dining set',
+        price: 65000,
+        images: ['/assets/images/room-deluxe.jpg'],
+        amenities: ['Free WiFi', 'Smart TV', 'Mini Bar', 'Work Desk']
+      },
+      {
+        _id: 'fallback-3',
+        type: 'Executive Room',
+        description: 'Spacious work area with city views',
+        price: 85000,
+        images: ['/assets/images/room-executive.jpg'],
+        amenities: ['Free WiFi', 'Smart TV', 'Mini Bar', 'Executive Desk']
+      }
+    ];
+    
     res.render('index', { 
       title: 'Full Moon Hotels - Luxury Accommodation in Owerri',
-      rooms: [] 
+      rooms: fallbackRooms 
     });
   }
 });
@@ -272,18 +383,54 @@ try {
 // DEBUG & UTILITY ROUTES
 // =============================================================================
 
+// Static file debug route
+app.get('/debug-static', (req, res) => {
+  const publicPath = path.join(__dirname, 'public');
+  const assetsPath = path.join(__dirname, 'public/assets');
+  const imagesPath = path.join(__dirname, 'public/assets/images');
+  const uploadsPath = path.join(__dirname, 'public/uploads');
+  const roomsUploadsPath = path.join(__dirname, 'public/uploads/rooms');
+  
+  const dirs = [
+    { name: 'public', path: publicPath, exists: fs.existsSync(publicPath) },
+    { name: 'assets', path: assetsPath, exists: fs.existsSync(assetsPath) },
+    { name: 'images', path: imagesPath, exists: fs.existsSync(imagesPath) },
+    { name: 'uploads', path: uploadsPath, exists: fs.existsSync(uploadsPath) },
+    { name: 'uploads/rooms', path: roomsUploadsPath, exists: fs.existsSync(roomsUploadsPath) }
+  ];
+  
+  // List files in images directory
+  let imageFiles = [];
+  if (fs.existsSync(imagesPath)) {
+    imageFiles = fs.readdirSync(imagesPath);
+  }
+  
+  // List files in uploads/rooms directory
+  let roomImages = [];
+  if (fs.existsSync(roomsUploadsPath)) {
+    roomImages = fs.readdirSync(roomsUploadsPath);
+  }
+  
+  res.json({
+    directories: dirs.map(dir => ({
+      name: dir.name,
+      exists: dir.exists,
+      path: dir.path
+    })),
+    imageFiles,
+    roomImages,
+    essentialImagesMissing: essentialImages.filter(img => !fs.existsSync(path.join(imagesPath, img)))
+  });
+});
+
 // Database debug route
 app.get('/debug-db', async (req, res) => {
   try {
     console.log('=== DATABASE DEBUG INFO ===');
     
     const Room = require('./models/Room');
-    const Blog = require('./models/Blog');
-    const Reservation = require('./models/Reservation');
     
     console.log('Room model:', Room ? 'Loaded' : 'NOT LOADED');
-    console.log('Blog model:', Blog ? 'Loaded' : 'NOT LOADED');
-    console.log('Reservation model:', Reservation ? 'Loaded' : 'NOT LOADED');
     console.log('Mongoose connection state:', mongoose.connection.readyState);
     
     let roomCount = 0;
@@ -291,15 +438,19 @@ app.get('/debug-db', async (req, res) => {
     
     if (Room) {
       roomCount = await Room.countDocuments();
-      sampleRooms = await Room.find({}).limit(5);
+      sampleRooms = await Room.find({}).limit(5).lean();
       console.log('Total rooms in database:', roomCount);
-      console.log('Sample rooms:', sampleRooms);
+      
+      // Log room images for debugging
+      sampleRooms.forEach((room, i) => {
+        console.log(`Room ${i+1}: ${room.type}`);
+        console.log(`  Images: ${room.images ? JSON.stringify(room.images) : 'None'}`);
+        console.log(`  Price: ₦${room.price ? room.price.toLocaleString() : 'N/A'}`);
+      });
     }
     
     res.json({
       roomModelLoaded: !!Room,
-      blogModelLoaded: !!Blog,
-      reservationModelLoaded: !!Reservation,
       dbConnected: mongoose.connection.readyState === 1,
       roomCount: roomCount,
       sampleRooms: sampleRooms
@@ -310,65 +461,6 @@ app.get('/debug-db', async (req, res) => {
       error: error.message,
       dbConnected: mongoose.connection.readyState === 1
     });
-  }
-});
-
-// Sample rooms route (for testing - remove in production)
-app.get('/add-sample-rooms', async (req, res) => {
-  try {
-    const Room = require('./models/Room');
-    
-    if (!Room) {
-      return res.status(500).json({ error: 'Room model not loaded' });
-    }
-
-    const sampleRooms = [
-      {
-        roomNumber: '101',
-        type: 'Deluxe Room',
-        price: 25000,
-        description: 'Spacious deluxe room with city view',
-        amenities: ['WiFi', 'AC', 'TV', 'Mini Bar'],
-        available: true
-      },
-      {
-        roomNumber: '102', 
-        type: 'Executive Room',
-        price: 35000,
-        description: 'Luxurious executive suite',
-        amenities: ['WiFi', 'AC', 'TV', 'Mini Bar', 'Jacuzzi'],
-        available: true
-      },
-      {
-        roomNumber: '201',
-        type: 'Premiere Room',
-        price: 45000,
-        description: 'Premium room with balcony',
-        amenities: ['WiFi', 'AC', 'TV', 'Mini Bar', 'Balcony', 'Coffee Maker'],
-        available: true
-      },
-      {
-        roomNumber: '301',
-        type: 'Penthouse Suite',
-        price: 75000,
-        description: 'Luxurious penthouse with panoramic views',
-        amenities: ['WiFi', 'AC', 'TV', 'Mini Bar', 'Jacuzzi', 'Balcony', 'Kitchenette'],
-        available: true
-      }
-    ];
-
-    // Clear existing rooms and insert new ones
-    await Room.deleteMany({});
-    const result = await Room.insertMany(sampleRooms);
-    
-    res.json({ 
-      message: 'Sample rooms added successfully',
-      roomsAdded: result.length,
-      rooms: result 
-    });
-  } catch (error) {
-    console.error('Error adding sample rooms:', error);
-    res.status(500).json({ error: error.message });
   }
 });
 
@@ -451,9 +543,9 @@ app.listen(PORT, () => {
   console.log(`📍 Port: ${PORT}`);
   console.log(`🌐 Visit: http://localhost:${PORT}`);
   console.log('\n🔧 Debug routes available:');
+  console.log(`   - Static file debug: http://localhost:${PORT}/debug-static`);
   console.log(`   - Database check: http://localhost:${PORT}/debug-db`);
   console.log(`   - Route debug: http://localhost:${PORT}/debug-routes`);
-  console.log(`   - Add sample rooms: http://localhost:${PORT}/add-sample-rooms`);
   console.log('\n🚀 Server ready to accept requests...\n');
 });
 

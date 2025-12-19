@@ -117,56 +117,99 @@
             </div>
         <% } %>
 
-        <!-- Room Capacity Breakdown -->
+        <!-- Room Capacity Breakdown - Updated with Real-time Availability -->
         <div class="card mb-4">
             <div class="card-header">
-                <h5 class="card-title mb-0"><i class="fas fa-bed me-2"></i>Hotel Room Capacity Breakdown (69 Total Rooms)</h5>
+                <h5 class="card-title mb-0"><i class="fas fa-bed me-2"></i>Hotel Room Capacity Breakdown (Real-time)</h5>
             </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-2 text-center">
                         <div class="card border-primary mb-3">
                             <div class="card-body">
-                                <h3 class="text-primary">1</h3>
+                                <h3 class="text-primary"><%= availabilityByType && availabilityByType['Penthouse Double Suite'] ? availabilityByType['Penthouse Double Suite'].booked : 0 %>/1</h3>
                                 <h6>Penthouse Double Suite</h6>
-                                <small class="text-muted">Luxury suite</small>
+                                <div class="progress mb-2" style="height: 10px;">
+                                    <div class="progress-bar bg-primary" 
+                                         style="width: <%= availabilityByType && availabilityByType['Penthouse Double Suite'] ? availabilityByType['Penthouse Double Suite'].percentage : 0 %>%;">
+                                    </div>
+                                </div>
+                                <small class="text-muted">
+                                    <%= availabilityByType && availabilityByType['Penthouse Double Suite'] ? availabilityByType['Penthouse Double Suite'].available : 1 %> available
+                                </small>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-2 text-center">
                         <div class="card border-info mb-3">
                             <div class="card-body">
-                                <h3 class="text-info">2</h3>
+                                <h3 class="text-info"><%= availabilityByType && availabilityByType['Penthouse Single Suite'] ? availabilityByType['Penthouse Single Suite'].booked : 0 %>/2</h3>
                                 <h6>Penthouse Single Suite</h6>
-                                <small class="text-muted">Premium suite</small>
+                                <div class="progress mb-2" style="height: 10px;">
+                                    <div class="progress-bar bg-info" 
+                                         style="width: <%= availabilityByType && availabilityByType['Penthouse Single Suite'] ? availabilityByType['Penthouse Single Suite'].percentage : 0 %>%;">
+                                    </div>
+                                </div>
+                                <small class="text-muted">
+                                    <%= availabilityByType && availabilityByType['Penthouse Single Suite'] ? availabilityByType['Penthouse Single Suite'].available : 2 %> available
+                                </small>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-2 text-center">
+                    <div class="col-md-3 text-center">
                         <div class="card border-success mb-3">
                             <div class="card-body">
-                                <h3 class="text-success">9</h3>
+                                <h3 class="text-success"><%= availabilityByType && availabilityByType['Executive Room'] ? availabilityByType['Executive Room'].booked : 0 %>/9</h3>
                                 <h6>Executive Room</h6>
-                                <small class="text-muted">Business class</small>
+                                <div class="progress mb-2" style="height: 10px;">
+                                    <div class="progress-bar bg-success" 
+                                         style="width: <%= availabilityByType && availabilityByType['Executive Room'] ? availabilityByType['Executive Room'].percentage : 0 %>%;">
+                                    </div>
+                                </div>
+                                <small class="text-muted">
+                                    <%= availabilityByType && availabilityByType['Executive Room'] ? availabilityByType['Executive Room'].available : 9 %> available
+                                </small>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3 text-center">
                         <div class="card border-warning mb-3">
                             <div class="card-body">
-                                <h3 class="text-warning">37</h3>
+                                <h3 class="text-warning"><%= availabilityByType && availabilityByType['Deluxe Room'] ? availabilityByType['Deluxe Room'].booked : 0 %>/37</h3>
                                 <h6>Deluxe Room</h6>
-                                <small class="text-muted">Most popular choice</small>
+                                <div class="progress mb-2" style="height: 10px;">
+                                    <div class="progress-bar bg-warning" 
+                                         style="width: <%= availabilityByType && availabilityByType['Deluxe Room'] ? availabilityByType['Deluxe Room'].percentage : 0 %>%;">
+                                    </div>
+                                </div>
+                                <small class="text-muted">
+                                    <%= availabilityByType && availabilityByType['Deluxe Room'] ? availabilityByType['Deluxe Room'].available : 37 %> available
+                                </small>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3 text-center">
+                    <div class="col-md-2 text-center">
                         <div class="card border-danger mb-3">
                             <div class="card-body">
-                                <h3 class="text-danger">20</h3>
+                                <h3 class="text-danger"><%= availabilityByType && availabilityByType['Premiere Room'] ? availabilityByType['Premiere Room'].booked : 0 %>/20</h3>
                                 <h6>Premiere Room</h6>
-                                <small class="text-muted">Premium comfort</small>
+                                <div class="progress mb-2" style="height: 10px;">
+                                    <div class="progress-bar bg-danger" 
+                                         style="width: <%= availabilityByType && availabilityByType['Premiere Room'] ? availabilityByType['Premiere Room'].percentage : 0 %>%;">
+                                    </div>
+                                </div>
+                                <small class="text-muted">
+                                    <%= availabilityByType && availabilityByType['Premiere Room'] ? availabilityByType['Premiere Room'].available : 20 %> available
+                                </small>
                             </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Note:</strong> All room types are treated as classes. When a room is reserved, it reduces the availability for that entire class, not just the specific room.
                         </div>
                     </div>
                 </div>
@@ -262,7 +305,7 @@
                                             <br>
                                             <small class="text-muted">
                                                 Room <%= checkin.room?.roomNumber || 'N/A' %> • 
-                                                Check-in: <%= new Date(checkin.checkInDate).toLocaleDateString() %> at <%= new Date(checkin.checkInDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %>
+                                                Check-in: <%= new Date(checkin.checkInDate || checkin.checkIn).toLocaleDateString() %> at <%= new Date(checkin.checkInDate || checkin.checkIn).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %>
                                             </small>
                                         </div>
                                         <a href="/admin/reservations/<%= checkin._id %>" class="btn btn-sm btn-outline-primary">
@@ -294,7 +337,7 @@
                                             <br>
                                             <small class="text-muted">
                                                 Room <%= checkout.room?.roomNumber || 'N/A' %> • 
-                                                Check-out: <%= new Date(checkout.checkOutDate).toLocaleDateString() %> at <%= new Date(checkout.checkOutDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %>
+                                                Check-out: <%= new Date(checkout.checkOutDate || checkout.checkOut).toLocaleDateString() %> at <%= new Date(checkout.checkOutDate || checkout.checkOut).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %>
                                             </small>
                                         </div>
                                         <div>
@@ -393,7 +436,8 @@
                 <div>
                     <span class="me-3">
                         <i class="fas fa-bed me-1"></i>
-                        <span class="text-success"><%= occupiedRooms %></span>/<span class="text-muted">69</span> rooms occupied
+                        <span class="text-success"><%= occupiedRooms %></span>/<span class="text-muted"><%= totalRooms %></span> rooms occupied
+                        (<span class="text-info"><%= occupancyRate %>%</span>)
                     </span>
                 </div>
             </div>
@@ -435,7 +479,7 @@
                                         <% if (res.room) { %>
                                             <span class="badge bg-dark"><%= res.room.roomNumber %></span><br>
                                             <small><%= res.room.type %></small><br>
-                                            <small>₦<%= (res.roomPrice || res.room.price || 0).toLocaleString() %>/night</small>
+                                            <small>₦<%= (res.roomRate || res.room.price || 0).toLocaleString() %>/night</small>
                                         <% } else { %>
                                             <span class="badge bg-secondary">Not Assigned</span>
                                         <% } %>
@@ -593,7 +637,7 @@
                                                 <br>
                                                 <small class="text-muted">
                                                     <%= checkin.room?.type %> • 
-                                                    <%= new Date(checkin.checkInDate).toLocaleDateString() %> at <%= new Date(checkin.checkInDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %>
+                                                    <%= new Date(checkin.checkInDate || checkin.checkIn).toLocaleDateString() %> at <%= new Date(checkin.checkInDate || checkin.checkIn).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %>
                                                 </small>
                                             </li>
                                             <% }) %>
@@ -619,7 +663,7 @@
                                                 <span class="badge bg-dark ms-2">Room <%= checkout.room?.roomNumber || 'N/A' %></span>
                                                 <br>
                                                 <small class="text-muted">
-                                                    Check-out: <%= new Date(checkout.checkOutDate).toLocaleDateString() %> at <%= new Date(checkout.checkOutDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %>
+                                                    Check-out: <%= new Date(checkout.checkOutDate || checkout.checkOut).toLocaleDateString() %> at <%= new Date(checkout.checkOutDate || checkout.checkOut).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %>
                                                 </small>
                                             </li>
                                             <% }) %>
@@ -644,7 +688,7 @@
                                             <small class="text-muted">Occupied Rooms</small>
                                         </div>
                                         <div class="col-md-4">
-                                            <h3 class="text-primary"><%= 69 - occupiedRooms %></h3>
+                                            <h3 class="text-primary"><%= totalRooms - occupiedRooms %></h3>
                                             <small class="text-muted">Available Rooms</small>
                                         </div>
                                         <div class="col-md-4">
@@ -655,13 +699,23 @@
                                     <hr>
                                     <div class="row">
                                         <div class="col-12">
-                                            <h6 class="mb-2">Room Type Distribution:</h6>
+                                            <h6 class="mb-2">Current Availability by Type:</h6>
                                             <div class="d-flex flex-wrap gap-2">
-                                                <span class="badge bg-primary">1 Penthouse Double Suite</span>
-                                                <span class="badge bg-info">2 Penthouse Single Suites</span>
-                                                <span class="badge bg-success">9 Executive Rooms</span>
-                                                <span class="badge bg-warning">37 Deluxe Rooms</span>
-                                                <span class="badge bg-danger">20 Premiere Rooms</span>
+                                                <span class="badge bg-primary">
+                                                    Penthouse Double: <%= availabilityByType && availabilityByType['Penthouse Double Suite'] ? availabilityByType['Penthouse Double Suite'].available : 1 %>/1
+                                                </span>
+                                                <span class="badge bg-info">
+                                                    Penthouse Single: <%= availabilityByType && availabilityByType['Penthouse Single Suite'] ? availabilityByType['Penthouse Single Suite'].available : 2 %>/2
+                                                </span>
+                                                <span class="badge bg-success">
+                                                    Executive: <%= availabilityByType && availabilityByType['Executive Room'] ? availabilityByType['Executive Room'].available : 9 %>/9
+                                                </span>
+                                                <span class="badge bg-warning">
+                                                    Deluxe: <%= availabilityByType && availabilityByType['Deluxe Room'] ? availabilityByType['Deluxe Room'].available : 37 %>/37
+                                                </span>
+                                                <span class="badge bg-danger">
+                                                    Premiere: <%= availabilityByType && availabilityByType['Premiere Room'] ? availabilityByType['Premiere Room'].available : 20 %>/20
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
@@ -707,8 +761,8 @@
                                             <small class="text-muted"><%= arrival.guestEmail %></small>
                                         </td>
                                         <td>
-                                            <%= new Date(arrival.checkInDate).toLocaleDateString() %><br>
-                                            <small class="text-muted"><%= new Date(arrival.checkInDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %></small>
+                                            <%= new Date(arrival.checkInDate || arrival.checkIn).toLocaleDateString() %><br>
+                                            <small class="text-muted"><%= new Date(arrival.checkInDate || arrival.checkIn).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %></small>
                                         </td>
                                         <td>
                                             <% if (arrival.room) { %>

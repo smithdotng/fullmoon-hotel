@@ -702,9 +702,26 @@ router.get('/facilities-config/sample', canManageUsers, async (req, res) => {
 // ENHANCED RESERVATIONS MANAGEMENT
 // ========================
 
+// routes/admin.js - Update the /admin/reservations route section
+
+// routes/admin.js - Update the reservations route section
+
+// ========================
+// ENHANCED RESERVATIONS MANAGEMENT - UPDATED WITH CLASS-BASED AVAILABILITY
+// ========================
+
+// Room capacity for all classes - Add this at the top of the file
+const ROOM_CAPACITY = {
+  'Penthouse Double Suite': 1,
+  'Penthouse Single Suite': 2,
+  'Executive Room': 9,
+  'Deluxe Room': 37,
+  'Premiere Room': 20
+};
+
 router.get('/reservations', isAdmin, async (req, res) => { 
   try {
-    const { status, payment, date, search, roomNumber } = req.query;
+    const { status, payment, date, search, roomNumber, roomType } = req.query;
     
     // Build query
     let query = {};
@@ -724,7 +741,7 @@ router.get('/reservations', isAdmin, async (req, res) => {
       const startDate = new Date(date);
       const endDate = new Date(date);
       endDate.setDate(endDate.getDate() + 1);
-      query.checkInDate = { $gte: startDate, $lt: endDate };
+      query.checkIn = { $gte: startDate, $lt: endDate };
     }
     
     // Room number filter
@@ -740,6 +757,15 @@ router.get('/reservations', isAdmin, async (req, res) => {
       }
     }
     
+    // Room type filter
+    if (roomType && roomType !== 'all') {
+      // Find rooms of this type first
+      const Room = require('../models/Room');
+      const rooms = await Room.find({ type: roomType });
+      const roomIds = rooms.map(room => room._id);
+      query.room = { $in: roomIds };
+    }
+    
     // Search filter
     if (search) {
       query.$or = [
@@ -751,6 +777,8 @@ router.get('/reservations', isAdmin, async (req, res) => {
     }
     
     const Reservation = require('../models/Reservation');
+    const Room = require('../models/Room');
+    
     const reservations = await Reservation.find(query)
       .populate('room', 'roomNumber type price')
       .sort({ createdAt: -1 });
@@ -762,13 +790,13 @@ router.get('/reservations', isAdmin, async (req, res) => {
     tomorrow.setDate(tomorrow.getDate() + 1);
     
     const todaysCheckIns = await Reservation.find({
-      checkInDate: { $gte: today, $lt: tomorrow },
-      status: 'confirmed'
+      checkIn: { $gte: today, $lt: tomorrow },
+      status: { $in: ['confirmed', 'checked-in'] }
     }).populate('room', 'roomNumber type');
     
     const todaysCheckOuts = await Reservation.find({
-      checkOutDate: { $gte: today, $lt: tomorrow },
-      status: 'confirmed'
+      checkOut: { $gte: today, $lt: tomorrow },
+      status: { $in: ['confirmed', 'checked-in'] }
     }).populate('room', 'roomNumber type');
     
     // Fetch upcoming arrivals (next 7 days)
@@ -776,9 +804,56 @@ router.get('/reservations', isAdmin, async (req, res) => {
     nextWeek.setDate(nextWeek.getDate() + 7);
     
     const upcomingArrivals = await Reservation.find({
-      checkInDate: { $gte: tomorrow, $lt: nextWeek },
-      status: 'confirmed'
-    }).populate('room', 'roomNumber type').sort({ checkInDate: 1 });
+      checkIn: { $gte: tomorrow, $lt: nextWeek },
+      status: { $in: ['confirmed', 'pending'] }
+    }).populate('room', 'roomNumber type').sort({ checkIn: 1 });
+    
+    // ========================
+    // IMPORTANT: Get current availability using CLASS-BASED LOGIC
+    // ========================
+    
+    // Get all reservations that overlap with today
+    const todayReservations = await Reservation.find({
+      checkIn: { $lt: tomorrow },
+      checkOut: { $gt: today },
+      status: { $in: ['confirmed', 'checked-in'] }
+    }).populate('room', 'type');
+    
+    // Count booked rooms by type
+    const bookedRoomsByType = {};
+    Object.keys(ROOM_CAPACITY).forEach(type => {
+      bookedRoomsByType[type] = 0;
+    });
+    
+    // Count booked rooms from reservations
+    todayReservations.forEach(reservation => {
+      if (reservation.room && reservation.room.type) {
+        const roomType = reservation.room.type;
+        if (bookedRoomsByType[roomType] !== undefined) {
+          bookedRoomsByType[roomType]++;
+        }
+      }
+    });
+    
+    // Calculate availability by type
+    const availabilityByType = {};
+    Object.keys(ROOM_CAPACITY).forEach(type => {
+      const capacity = ROOM_CAPACITY[type];
+      const booked = bookedRoomsByType[type] || 0;
+      const available = Math.max(0, capacity - booked);
+      
+      availabilityByType[type] = {
+        capacity,
+        booked,
+        available,
+        percentage: capacity > 0 ? Math.round((booked / capacity) * 100) : 0
+      };
+    });
+    
+    // Calculate total occupied rooms
+    const totalOccupiedRooms = Object.values(bookedRoomsByType).reduce((a, b) => a + b, 0);
+    const totalRooms = Object.values(ROOM_CAPACITY).reduce((a, b) => a + b, 0);
+    const occupancyRate = totalRooms > 0 ? Math.round((totalOccupiedRooms / totalRooms) * 100) : 0;
     
     // Calculate statistics
     const stats = {
@@ -793,16 +868,13 @@ router.get('/reservations', isAdmin, async (req, res) => {
       partiallyPaid: await Reservation.countDocuments({ paymentStatus: 'partially-paid' })
     };
     
-    // Occupancy statistics for current day
-    const occupiedRooms = await Reservation.countDocuments({
-      status: 'checked-in',
-      checkInDate: { $lte: today },
-      checkOutDate: { $gt: today }
+    console.log('Reservations data:', {
+      totalReservations: reservations.length,
+      availabilityByType,
+      totalOccupiedRooms,
+      totalRooms,
+      occupancyRate
     });
-    
-    const RoomModel = require('../models/Room');
-    const totalRooms = await RoomModel.countDocuments({ available: true });
-    const occupancyRate = totalRooms > 0 ? Math.round((occupiedRooms / totalRooms) * 100) : 0;
     
     res.render('admin/reservations', {
       title: 'Manage Room Reservations',
@@ -812,8 +884,10 @@ router.get('/reservations', isAdmin, async (req, res) => {
       upcomingArrivals,
       stats,
       occupancyRate,
-      occupiedRooms,
+      occupiedRooms: totalOccupiedRooms,
       totalRooms,
+      availabilityByType,
+      ROOM_CAPACITY, // Pass the ROOM_CAPACITY to the template
       query: req.query,
       messages: req.flash(),
       user: req.session.user,

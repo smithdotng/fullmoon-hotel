@@ -747,41 +747,37 @@
                 <div class="item">
                     <article>
                         <div class="image">
-                            <% if (room.images && room.images.length > 0) { %>
-                                <!-- Carousel for multiple images -->
-                                <% if (room.images.length > 1) { %>
-                                <div class="room-image-carousel">
-                                    <div class="owl-carousel">
-                                        <% room.images.forEach(image => { %>
-                                        <div class="image-slide">
-                                            <img src="<%= image %>" alt="<%= room.type %>" />
-                                        </div>
-                                        <% }) %>
-                                    </div>
-                                </div>
-                                <% } else { %>
-                                <!-- Single image -->
-                                <img src="<%= room.images[0] %>" alt="<%= room.type %>" />
-                                <% } %>
-                            <% } else { %>
-                                <!-- Fallback images based on room type -->
-                                <% if (room.type.includes('Annex')) { %>
-                                    <img src="/assets/images/room-annex.jpg" alt="<%= room.type %>" />
-                                <% } else if (room.type.includes('Premiere')) { %>
-                                    <img src="/assets/images/room-premiere.jpg" alt="<%= room.type %>" />
-                                <% } else if (room.type.includes('Deluxe')) { %>
-                                    <img src="/assets/images/room-deluxe.jpg" alt="<%= room.type %>" />
-                                <% } else if (room.type.includes('Executive')) { %>
-                                    <img src="/assets/images/room-executive.jpg" alt="<%= room.type %>" />
-                                <% } else if (room.type.includes('Penthouse Single')) { %>
-                                    <img src="/assets/images/room-penthouse-single.jpg" alt="<%= room.type %>" />
-                                <% } else if (room.type.includes('Penthouse Double')) { %>
-                                    <img src="/assets/images/room-penthouse-double.jpg" alt="<%= room.type %>" />
-                                <% } else { %>
-                                    <img src="/assets/images/room-default.jpg" alt="<%= room.type %>" />
-                                <% } %>
-                            <% } %>
-                        </div>
+    <% 
+    // Determine the image to show
+    let roomImage = '/assets/images/room-default.jpg';
+    
+    if (room.images && room.images.length > 0) {
+        // Use the first image
+        roomImage = room.images[0];
+        
+        // Ensure it's a valid path
+        if (!roomImage.startsWith('http') && !roomImage.startsWith('/')) {
+            roomImage = '/uploads/rooms/' + roomImage;
+        }
+    } else if (room.type) {
+        // Use fallback based on room type
+        if (room.type.includes('Premiere')) {
+            roomImage = '/assets/images/room-premiere.jpg';
+        } else if (room.type.includes('Deluxe')) {
+            roomImage = '/assets/images/room-deluxe.jpg';
+        } else if (room.type.includes('Executive')) {
+            roomImage = '/assets/images/room-executive.jpg';
+        } else if (room.type.includes('Penthouse Single')) {
+            roomImage = '/assets/images/room-penthouse-single.jpg';
+        } else if (room.type.includes('Penthouse Double')) {
+            roomImage = '/assets/images/room-penthouse-double.jpg';
+        }
+    }
+    %>
+    
+    <img src="<%= roomImage %>" alt="<%= room.type %>" 
+         onerror="this.onerror=null; this.src='/assets/images/room-default.jpg';" />
+</div>
                         <div class="details">
                             <div class="text">
                                 <!-- Room title linking to category page -->
