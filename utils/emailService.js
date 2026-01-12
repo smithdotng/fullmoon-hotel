@@ -166,8 +166,8 @@ async function sendReservationConfirmation(reservation) {
                     <div class="highlight-box">
                         <h3>Important Information:</h3>
                         <p><strong>Payment Details:</strong></p>
-                        <p>• Access Bank Account: 0066351262</p>
                         <p>• ΜΟΝΙΕΡΟΙΝΤ: 5033192156</p>
+                        <p>• Access Bank Account: 0066351262</p>
                         <p>• One night deposit required to guarantee reservation</p>
                         
                         <p><strong>Check-in/Check-out:</strong></p>
