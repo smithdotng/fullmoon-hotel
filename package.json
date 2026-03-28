@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "description": "Full Moon Hotel Management System",
   "main": "app.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "start": "node app.js",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "build": "npm install"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
