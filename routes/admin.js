@@ -311,24 +311,53 @@ router.get('/rooms/add', canManageUsers, (req, res) => {
 });
 
 router.post('/rooms', canManageUsers, upload.array('images', 5), async (req, res) => {
-  try {
-    const { roomNumber, type, price, description, amenities } = req.body;
-    const roomData = {
-      roomNumber, type, price: parseFloat(price), description,
-      amenities: amenities ? amenities.split(',').map(a => a.trim()) : []
-    };
-    if (req.files && req.files.length > 0) {
-      roomData.images = req.files.map(file => `/uploads/rooms/${file.filename}`);
+    try {
+        console.log('POST body received:', req.body); // Debug log
+        
+        const { 
+            roomNumber, 
+            type, 
+            category,  // ADD THIS - it was missing!
+            price, 
+            description, 
+            amenities,
+            available 
+        } = req.body;
+        
+        // Validate required fields
+        if (!roomNumber || !type || !category || !price) {
+            console.log('Missing required fields:', { roomNumber, type, category, price });
+            req.flash('error', 'Room Number, Type, Category, and Price are required');
+            return res.redirect('/admin/rooms/add');
+        }
+        
+        const roomData = {
+            roomNumber,
+            type,
+            category,  // ADD THIS
+            price: parseFloat(price),
+            description: description || '',
+            amenities: amenities ? amenities.split(',').map(a => a.trim()) : [],
+            available: available === 'true' || available === true,
+            // Add default values for other required fields
+            floor: req.body.floor || '',
+            maxGuests: parseInt(req.body.maxGuests) || 2
+        };
+        
+        if (req.files && req.files.length > 0) {
+            roomData.images = req.files.map(file => `/uploads/rooms/${file.filename}`);
+        }
+        
+        const room = new Room(roomData);
+        await room.save();
+        
+        req.flash('success', 'Room created successfully');
+        res.redirect('/admin/rooms');
+    } catch (error) {
+        console.error('Error creating room:', error);
+        req.flash('error', 'Failed to create room: ' + error.message);
+        res.redirect('/admin/rooms/add');
     }
-    const room = new Room(roomData);
-    await room.save();
-    req.flash('success', 'Room created successfully');
-    res.redirect('/admin/rooms');
-  } catch (error) {
-    console.error(error);
-    req.flash('error', 'Failed to create room: ' + error.message);
-    res.redirect('/admin/rooms/add');
-  }
 });
 
 router.get('/rooms/edit/:id', canManageUsers, async (req, res) => {
@@ -347,24 +376,42 @@ router.get('/rooms/edit/:id', canManageUsers, async (req, res) => {
 });
 
 router.post('/rooms/update/:id', canManageUsers, upload.array('images', 5), async (req, res) => {
-  try {
-    const { roomNumber, type, price, description, amenities } = req.body;
-    const updateData = {
-      roomNumber, type, price: parseFloat(price), description,
-      amenities: amenities ? amenities.split(',').map(a => a.trim()) : []
-    };
-    if (req.files && req.files.length > 0) {
-      const newImages = req.files.map(file => `/uploads/rooms/${file.filename}`);
-      updateData.$push = { images: { $each: newImages } };
+    try {
+        const { 
+            roomNumber, 
+            type, 
+            category,  // ADD THIS
+            price, 
+            description, 
+            amenities,
+            available 
+        } = req.body;
+        
+        const updateData = {
+            roomNumber,
+            type,
+            category,  // ADD THIS
+            price: parseFloat(price),
+            description: description || '',
+            amenities: amenities ? amenities.split(',').map(a => a.trim()) : [],
+            available: available === 'true' || available === true,
+            floor: req.body.floor || '',
+            maxGuests: parseInt(req.body.maxGuests) || 2
+        };
+        
+        if (req.files && req.files.length > 0) {
+            const newImages = req.files.map(file => `/uploads/rooms/${file.filename}`);
+            updateData.$push = { images: { $each: newImages } };
+        }
+        
+        await Room.findByIdAndUpdate(req.params.id, updateData);
+        req.flash('success', 'Room updated successfully');
+        res.redirect('/admin/rooms');
+    } catch (error) {
+        console.error('Error updating room:', error);
+        req.flash('error', 'Failed to update room: ' + error.message);
+        res.redirect(`/admin/rooms/edit/${req.params.id}`);
     }
-    await Room.findByIdAndUpdate(req.params.id, updateData);
-    req.flash('success', 'Room updated successfully');
-    res.redirect('/admin/rooms');
-  } catch (error) {
-    console.error(error);
-    req.flash('error', 'Failed to update room: ' + error.message);
-    res.redirect(`/admin/rooms/edit/${req.params.id}`);
-  }
 });
 
 router.post('/rooms/delete/:id', canManageUsers, async (req, res) => {

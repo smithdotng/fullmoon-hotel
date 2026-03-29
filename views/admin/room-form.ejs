@@ -35,6 +35,19 @@
     </div>
 
     <div class="col-md-6">
+    <label for="category" class="form-label">Category (URL Slug) *</label>
+    <select class="form-select" id="category" name="category" required>
+        <option value="">Select Category</option>
+        <option value="premiere" <%= room && room.category === 'premiere' ? 'selected' : '' %>>Premiere Room</option>
+        <option value="deluxe" <%= room && room.category === 'deluxe' ? 'selected' : '' %>>Deluxe Room</option>
+        <option value="executive" <%= room && room.category === 'executive' ? 'selected' : '' %>>Executive Room</option>
+        <option value="penthouse-single" <%= room && room.category === 'penthouse-single' ? 'selected' : '' %>>Penthouse Single Suite</option>
+        <option value="penthouse-double" <%= room && room.category === 'penthouse-double' ? 'selected' : '' %>>Penthouse Double Suite</option>
+    </select>
+    <div class="form-text">This is used for URL routing (e.g., /rooms/category/premiere)</div>
+</div>
+
+    <div class="col-md-6">
         <label for="price" class="form-label">Price per Night (₦) *</label>
         <input type="number" class="form-control" id="price" name="price" 
                value="<%= room ? room.price : '' %>" step="0.01" min="0" required>
