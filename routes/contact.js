@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const nodemailer = require('nodemailer');
+const { transporter, EMAIL_FROM, isEmailConfigured } = require('../utils/emailService');
 
 // GET /contact - Contact page
 router.get('/', (req, res) => {
@@ -40,20 +40,13 @@ router.post('/send', async (req, res) => {
             return res.redirect('/contact');
         }
 
-        // Create email transporter (using console log for development)
-        if (process.env.NODE_ENV === 'production') {
-            // For production - configure with real email service
-            const transporter = nodemailer.createTransporter({
-                service: 'gmail',
-                auth: {
-                    user: process.env.EMAIL_USER || 'your-email@gmail.com',
-                    pass: process.env.EMAIL_PASS || 'your-app-password'
-                }
-            });
-
+        // Send emails when SMTP is configured, otherwise just log the submission
+        if (isEmailConfigured()) {
             // Email content for admin
             const adminMailOptions = {
-                from: email,
+                // Must be our own mailbox: the mail server rejects mail "from" other domains
+                from: `"Website Contact Form" <${EMAIL_FROM}>`,
+                replyTo: email,
                 to: process.env.CONTACT_EMAIL || 'info@fullmoon-hotels.com',
                 subject: `New Contact Form: ${subject}`,
                 html: `
@@ -77,7 +70,8 @@ router.post('/send', async (req, res) => {
 
             // Auto-reply to user
             const userMailOptions = {
-                from: process.env.CONTACT_EMAIL || 'info@fullmoon-hotels.com',
+                from: `"Full Moon Hotels" <${EMAIL_FROM}>`,
+                replyTo: process.env.CONTACT_EMAIL || 'info@fullmoon-hotels.com',
                 to: email,
                 subject: 'Thank you for contacting Full Moon Hotels',
                 html: `

@@ -1,7 +1,7 @@
 // routes/gym.js
 const express = require('express');
 const router = express.Router();
-const nodemailer = require('nodemailer');
+const { transporter, EMAIL_FROM } = require('../utils/emailService');
 
 // GET /gym - Gym & Fitness Centre page
 router.get('/', (req, res) => {
@@ -36,20 +36,10 @@ router.post('/send-enquiry', async (req, res) => {
             return res.redirect('/gym');
         }
 
-        // Create email transporter
-        const transporter = nodemailer.createTransporter({
-            host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-            port: process.env.EMAIL_PORT || 587,
-            secure: false,
-            auth: {
-                user: process.env.EMAIL_USER || 'reservations@fullmoon-hotels.com',
-                pass: process.env.EMAIL_PASS || 'your-email-password'
-            }
-        });
-
         // Email content for hotel management
         const managementEmail = {
-            from: `"Gym Enquiry" <${process.env.EMAIL_USER || 'reservations@fullmoon-hotels.com'}>`,
+            from: `"Gym Enquiry" <${EMAIL_FROM}>`,
+            replyTo: email,
             to: process.env.GYM_ENQUIRY_EMAIL || 'reservations@fullmoon-hotels.com',
             subject: `Gym Enquiry: ${subject || 'Membership Information'}`,
             html: `
@@ -110,7 +100,7 @@ router.post('/send-enquiry', async (req, res) => {
 
         // Confirmation email for the guest
         const guestConfirmationEmail = {
-            from: `"Full Moon Hotels Fitness Centre" <${process.env.EMAIL_USER || 'reservations@fullmoon-hotels.com'}>`,
+            from: `"Full Moon Hotels Fitness Centre" <${EMAIL_FROM}>`,
             to: email,
             subject: 'Thank You for Your Gym Enquiry - Full Moon Hotels',
             html: `

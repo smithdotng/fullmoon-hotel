@@ -1,19 +1,64 @@
 // utils/emailService.js
 const nodemailer = require('nodemailer');
 
-// Create transporter
+// -----------------------------------------------------------------------------
+// SMTP configuration (all values come from .env)
+//
+//   EMAIL_HOST  e.g. mail.fullmoon-hotels.com
+//   EMAIL_PORT  465 (SSL/TLS) or 587 (STARTTLS)
+//   EMAIL_USER  full mailbox address, e.g. reservations@fullmoon-hotels.com
+//   EMAIL_PASS  mailbox password
+//   EMAIL_FROM  optional "from" address (defaults to EMAIL_USER)
+//
+// Port 465 needs an encrypted connection from the first byte (secure: true).
+// Port 587/25 start in plain text and upgrade with STARTTLS (secure: false).
+// Getting this wrong makes Nodemailer hang until "Greeting never received",
+// so `secure` is derived from the port instead of being hard-coded.
+// -----------------------------------------------------------------------------
+const EMAIL_HOST = process.env.EMAIL_HOST || 'mail.fullmoon-hotels.com';
+const EMAIL_PORT = Number(process.env.EMAIL_PORT) || 465;
+const EMAIL_SECURE = EMAIL_PORT === 465;
+const EMAIL_FROM = process.env.EMAIL_FROM || process.env.EMAIL_USER;
+
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || 'smtp.hostinger.com',
-  port: process.env.EMAIL_PORT || 587,
-  secure: false,
+  host: EMAIL_HOST,
+  port: EMAIL_PORT,
+  secure: EMAIL_SECURE,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
   },
+  // Fail fast instead of hanging for 30s+ when the mail server is unreachable
+  connectionTimeout: 15000,
+  greetingTimeout: 15000,
+  socketTimeout: 30000,
   tls: {
+    // Shared hosts (e.g. Bluehost) often present a certificate for the server
+    // name (box####.bluehost.com) rather than mail.<domain>
     rejectUnauthorized: false
   }
 });
+
+function isEmailConfigured() {
+  return Boolean(process.env.EMAIL_USER && process.env.EMAIL_PASS);
+}
+
+// Check the SMTP connection once at startup so config problems show up in the
+// logs immediately rather than on the first booking.
+async function verifyEmailConnection() {
+  if (!isEmailConfigured()) {
+    console.warn('⚠️  Email not configured: set EMAIL_USER and EMAIL_PASS in .env');
+    return false;
+  }
+  try {
+    await transporter.verify();
+    console.log(`📧 SMTP ready: ${EMAIL_HOST}:${EMAIL_PORT} (${EMAIL_SECURE ? 'SSL/TLS' : 'STARTTLS'}) as ${process.env.EMAIL_USER}`);
+    return true;
+  } catch (error) {
+    console.error(`❌ SMTP check failed for ${EMAIL_HOST}:${EMAIL_PORT} (${EMAIL_SECURE ? 'SSL/TLS' : 'STARTTLS'}): ${error.message}`);
+    return false;
+  }
+}
 
 // Format date for email
 function formatDateForEmail(date) {
@@ -82,7 +127,7 @@ async function sendReservationConfirmation(reservation) {
     const nights = Math.ceil((reservation.checkOut - reservation.checkIn) / (1000 * 60 * 60 * 24));
     
     const mailOptions = {
-      from: `"Fullmoon Hotels" <${process.env.EMAIL_FROM}>`,
+      from: `"Fullmoon Hotels" <${EMAIL_FROM}>`,
       to: reservation.guestEmail,
       cc: process.env.EMAIL_CC ? process.env.EMAIL_CC.split(',') : undefined,
       bcc: process.env.EMAIL_BCC ? process.env.EMAIL_BCC.split(',') : undefined,
@@ -210,6 +255,9 @@ async function sendReservationConfirmation(reservation) {
 
 module.exports = {
   sendReservationConfirmation,
+  verifyEmailConnection,
+  isEmailConfigured,
   transporter,
+  EMAIL_FROM,
   formatDateForEmail
 };

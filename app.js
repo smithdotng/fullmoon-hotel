@@ -547,6 +547,9 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`   - Database check: http://localhost:${PORT}/debug-db`);
   console.log(`   - Route debug: http://localhost:${PORT}/debug-routes`);
   console.log('\n🚀 Server ready to accept requests...\n');
+
+  // Log whether the mail server is reachable with the current .env settings
+  require('./utils/emailService').verifyEmailConnection();
 });
 
 // Export app for testing

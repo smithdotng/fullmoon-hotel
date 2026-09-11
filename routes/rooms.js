@@ -781,26 +781,22 @@ router.post('/confirm-booking', async (req, res) => {
     await reservation.save();
     console.log('Guest reservation created:', reservation._id);
 
-    // Send confirmation email
-    try {
-      console.log('Attempting to send confirmation email...');
-      
-      const populatedReservation = await Reservation.findById(reservation._id)
-        .populate('room')
-        .exec();
-      
-      if (!populatedReservation) {
-        console.error('Could not populate reservation for email');
-      } else {
-        await sendReservationConfirmation(populatedReservation);
-        console.log(`✅ Confirmation email sent successfully to: ${guestEmail}`);
-        
-        req.flash('success', `Reservation received! A confirmation email has been sent to ${guestEmail}.`);
-      }
-    } catch (emailError) {
-      console.error('❌ Failed to send confirmation email:', emailError);
-      req.flash('warning', `Reservation created successfully, but we couldn't send the confirmation email to ${guestEmail}. Please save your confirmation number: ${reservation.confirmationCode || reservation._id}`);
-    }
+    // Send confirmation email in the background so the guest is redirected
+    // straight away instead of waiting on the mail server.
+    console.log('Sending confirmation email in background...');
+    Reservation.findById(reservation._id)
+      .populate('room')
+      .exec()
+      .then(populatedReservation => {
+        if (!populatedReservation) {
+          throw new Error('Could not load reservation for email');
+        }
+        return sendReservationConfirmation(populatedReservation);
+      })
+      .then(() => console.log(`✅ Confirmation email sent successfully to: ${guestEmail}`))
+      .catch(emailError => console.error(`❌ Failed to send confirmation email to ${guestEmail}:`, emailError.message));
+
+    req.flash('success', `Reservation received! Your confirmation number is ${reservation.confirmationCode || reservation._id}. A confirmation email is on its way to ${guestEmail}.`);
 
     console.log('=== CONFIRM BOOKING SUCCESS - Redirecting to guest reservation ===');
     console.log('Redirect URL will be:', `/rooms/guest-reservation/${reservation._id}`);
