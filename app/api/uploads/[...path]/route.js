@@ -7,7 +7,8 @@ const TYPES = {
   '.gif': 'image/gif', '.avif': 'image/avif', '.svg': 'image/svg+xml',
 };
 
-// Serves admin-uploaded images from storage/uploads (or UPLOAD_DIR) at /uploads/...
+// Serves disk uploads from storage/uploads (or UPLOAD_DIR). /uploads/... is rewritten
+// here (next.config.mjs) only when no file in public/uploads matches.
 export async function GET(request, { params }) {
   const { path: parts } = await params;
   const file = path.resolve(UPLOAD_ROOT, ...parts);

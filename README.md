@@ -56,11 +56,12 @@ app/
   (admin)/admin/     admin panel — its own root layout (Bootstrap 5 sidebar)
     */route.js       admin actions (create/update/delete, check-in/out, payments…)
   api/               JSON endpoints (login, subscriber list)
-  uploads/[...path]  serves admin-uploaded images
+  api/uploads/       serves disk uploads on self-hosted servers
 lib/                 database, models, sessions, flash messages, email, booking rules
 components/          layout pieces, admin forms, page CSS carried over from the EJS views
 public/              theme CSS/JS/fonts/images (unchanged) + public/js/pages/* page scripts
-storage/uploads/     uploaded room/blog/facility images
+public/uploads/      images uploaded before the move to Next.js
+storage/uploads/     new uploads when self-hosting (git-ignored)
 ```
 
 ### Theme scripts
@@ -73,12 +74,26 @@ did on the Express site.
 
 ### Uploads
 
-Next.js only serves files that were in `public/` at build time, so uploads are
-written to `storage/uploads` (or `UPLOAD_DIR`) and served by
-`app/uploads/[...path]/route.js` at the same `/uploads/...` URLs as before.
-Keep that folder on persistent disk (and outside the deploy directory if your
-deploy wipes it). This needs a server with a writable disk — a VPS / `next start`,
-not a read-only serverless host.
+- **On Vercel** add a Blob store (Project → Storage → Blob). Vercel then sets
+  `BLOB_READ_WRITE_TOKEN` and new admin uploads go to Vercel Blob; the full Blob
+  URL is saved on the room/blog/facility.
+- **Self-hosted** (`next start` on a VPS): without that token uploads are written
+  to `storage/uploads` (or `UPLOAD_DIR`) and served at `/uploads/...` by
+  `app/api/uploads/[...path]/route.js`. Keep that folder on persistent disk.
+- Images uploaded before the Next.js move ship in `public/uploads`, so their
+  existing `/uploads/...` URLs keep working either way.
+
+## Deploying to Vercel
+
+1. Vercel → **Add New → Project** → import `smithdotng/fullmoon-hotel`
+   (framework is detected as Next.js; no build settings to change).
+   To deploy before merging, set the production branch to `nextjs`, or merge the PR first.
+2. **Environment variables**: `MONGODB_URI`, `SESSION_SECRET` (32+ chars), `SITE_URL`,
+   and the `EMAIL_*` / `CONTACT_EMAIL` / `GYM_ENQUIRY_EMAIL` values from `.env.example`.
+3. **Storage → Create → Blob**, connect it to the project (adds `BLOB_READ_WRITE_TOKEN`).
+4. MongoDB must accept connections from Vercel: with Atlas, allow `0.0.0.0/0`
+   under Network Access (Vercel has no fixed IPs on standard plans).
+5. Deploy, then add the domain under **Settings → Domains**.
 
 ## Changes from the Express version
 
