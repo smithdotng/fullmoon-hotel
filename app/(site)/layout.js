@@ -6,7 +6,19 @@ import FlashClear from '@/components/FlashClear';
 import layoutCss from '@/components/site-layout-css';
 import { SITE_SCRIPTS } from '@/components/theme-scripts';
 
-const SITE_URL = process.env.SITE_URL || 'https://fullmoon.found.ng';
+// Accepts "fullmoon-hotels.com" or "https://fullmoon-hotels.com"; a bad value must
+// never break the build, so it falls back to the default.
+function siteUrl(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return 'https://fullmoon-hotels.com';
+  try {
+    return new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`).origin;
+  } catch {
+    console.warn(`SITE_URL "${raw}" is not a valid address; using https://fullmoon-hotels.com`);
+    return 'https://fullmoon-hotels.com';
+  }
+}
+const SITE_URL = siteUrl(process.env.SITE_URL);
 const DEFAULT_TITLE = 'Full Moon Hotels - Luxury Accommodation in Owerri';
 
 export const metadata = {
