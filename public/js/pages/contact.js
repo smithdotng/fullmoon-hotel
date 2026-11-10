@@ -50,9 +50,59 @@
                 return false;
             }
             
+            // reCAPTCHA (settings come from the form's data attributes; absent = not configured)
+            var version = $form.data('recaptcha-version');
+            var siteKey = $form.data('recaptcha-site-key');
+
+            if (version === 'v2') {
+                var answered = window.grecaptcha && grecaptcha.getResponse && grecaptcha.getResponse();
+                if (!answered) {
+                    e.preventDefault();
+                    showFormError($form, 'Please tick "I\'m not a robot" before sending.');
+                    return false;
+                }
+            }
+
+            if (version === 'v3' && siteKey && !$form.data('recaptcha-ready')) {
+                e.preventDefault();
+                var $button = $form.find('[type=submit]').prop('disabled', true).val('Sending...');
+                var fail = function () {
+                    $button.prop('disabled', false).val('Send message');
+                    showFormError($form, 'We could not verify your message. Please check your connection and try again.');
+                };
+                if (!window.grecaptcha || !grecaptcha.ready) { fail(); return false; }
+                grecaptcha.ready(function () {
+                    grecaptcha.execute(siteKey, { action: 'contact' }).then(function (token) {
+                        $form.find('input[name="g-recaptcha-response"]').val(token);
+                        $form.data('recaptcha-ready', true);
+                        $form[0].submit(); // native submit: skips this handler
+                    }, fail);
+                });
+                return false;
+            }
+
             // If valid, allow form submission (page will reload)
             return true;
         });
+
+        function showFormError($form, text) {
+            $('.form-error-message').remove();
+            $form.prepend($('<div class="alert alert-danger form-error-message" style="margin-bottom: 20px;"></div>').text(text));
+        }
+
+        // Load Google's reCAPTCHA script only when the form is set up for it
+        var $recaptchaForm = $('#contactForm form[data-recaptcha-site-key]');
+        if ($recaptchaForm.length) {
+            var rcVersion = $recaptchaForm.data('recaptcha-version');
+            var rcKey = $recaptchaForm.data('recaptcha-site-key');
+            var rc = document.createElement('script');
+            rc.src = rcVersion === 'v3'
+                ? 'https://www.google.com/recaptcha/api.js?render=' + encodeURIComponent(rcKey)
+                : 'https://www.google.com/recaptcha/api.js';
+            rc.async = true;
+            rc.defer = true;
+            document.head.appendChild(rc);
+        }
 
         // Clear error message when user starts typing
         $('#contactForm .form-control').on('input', function() {

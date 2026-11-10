@@ -1,16 +1,30 @@
 import { readForm, flashRedirect } from '@/lib/http';
 import { setFormData } from '@/lib/flash';
 import { sendMail, EMAIL_FROM, isEmailConfigured, escapeHtml } from '@/lib/email';
+import { verifyRecaptcha, clientIp } from '@/lib/recaptcha';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const LIMITS = { name: 100, email: 200, subject: 200, message: 5000 };
+const oneLine = (v) => String(v || '').replace(/[\r\n]+/g, ' ').trim();
+
+const RECAPTCHA_MESSAGES = {
+  missing: 'Please confirm you are not a robot and send your message again.',
+  failed: 'We could not verify your message. Please try again, or call us directly.',
+  error: 'Sorry, we could not verify your message right now. Please try again or call us directly.',
+};
 
 export async function POST(request) {
   const body = await readForm(request);
-  const name = (body.name || '').trim();
-  const email = (body.email || '').trim();
-  const subject = (body.subject || '').trim();
-  const message = (body.message || '').trim();
+  const name = oneLine(body.name);
+  const email = oneLine(body.email);
+  const subject = oneLine(body.subject);
+  const message = String(body.message || '').trim();
   const keep = { name, email, subject, message };
+
+  // Honeypot filled in: almost certainly a bot. Pretend it worked and send nothing.
+  if (body.website) {
+    return flashRedirect(request, '/contact', 'success', 'Thank you for your message! We will get back to you within 24 hours.');
+  }
 
   if (!name || !email || !subject || !message) {
     await setFormData(keep);
@@ -19,6 +33,16 @@ export async function POST(request) {
   if (!EMAIL_RE.test(email)) {
     await setFormData(keep);
     return flashRedirect(request, '/contact', 'error', 'Please enter a valid email address');
+  }
+  if (Object.entries(LIMITS).some(([field, max]) => keep[field].length > max)) {
+    await setFormData(keep);
+    return flashRedirect(request, '/contact', 'error', 'Your message is too long. Please shorten it and try again.');
+  }
+
+  const check = await verifyRecaptcha(body['g-recaptcha-response'], { action: 'contact', ip: clientIp(request) });
+  if (!check.ok) {
+    await setFormData(keep);
+    return flashRedirect(request, '/contact', 'error', RECAPTCHA_MESSAGES[check.reason] || RECAPTCHA_MESSAGES.failed);
   }
 
   try {

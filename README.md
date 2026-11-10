@@ -43,6 +43,9 @@ creates that super-admin automatically, as before.
 | `SITE_URL` | Public URL used in Open Graph tags |
 | `UPLOAD_DIR` | Where admin uploads are stored (default `storage/uploads`) |
 | `EMAIL_*`, `CONTACT_EMAIL`, `GYM_ENQUIRY_EMAIL` | SMTP settings, unchanged from before |
+| `RECAPTCHA_SITE_KEY`, `RECAPTCHA_SECRET_KEY` | Google reCAPTCHA keys for the contact form |
+| `RECAPTCHA_VERSION` | `v3` (invisible, default) or `v2` (checkbox) — must match the key type |
+| `RECAPTCHA_MIN_SCORE` | v3 only: lowest score accepted (default `0.5`) |
 
 ## How it is organised
 
@@ -89,11 +92,20 @@ did on the Express site.
    (framework is detected as Next.js; no build settings to change).
    To deploy before merging, set the production branch to `nextjs`, or merge the PR first.
 2. **Environment variables**: `MONGODB_URI`, `SESSION_SECRET` (32+ chars), `SITE_URL`,
-   and the `EMAIL_*` / `CONTACT_EMAIL` / `GYM_ENQUIRY_EMAIL` values from `.env.example`.
+   the `EMAIL_*` / `CONTACT_EMAIL` / `GYM_ENQUIRY_EMAIL` values and the `RECAPTCHA_*`
+   values from `.env.example`.
 3. **Storage → Create → Blob**, connect it to the project (adds `BLOB_READ_WRITE_TOKEN`).
 4. MongoDB must accept connections from Vercel: with Atlas, allow `0.0.0.0/0`
    under Network Access (Vercel has no fixed IPs on standard plans).
 5. Deploy, then add the domain under **Settings → Domains**.
+
+### Contact form protection
+
+The contact form checks Google reCAPTCHA on the server before any email is sent,
+and also has a hidden honeypot field and length limits. Messages that fail are
+refused with a friendly error and the visitor's text is kept in the form. If the
+reCAPTCHA keys are missing the form still works (a warning is logged), so set them
+in every environment where the form should be protected.
 
 ## Changes from the Express version
 

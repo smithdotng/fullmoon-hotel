@@ -1,4 +1,5 @@
 import { readFlash, readFormData } from '@/lib/flash';
+import { recaptchaClientConfig } from '@/lib/recaptcha';
 import PageScript from '@/components/PageScript';
 import pageCss from '@/components/page-css/contact';
 
@@ -10,6 +11,7 @@ export const metadata = {
 export default async function ContactPage() {
   const messages = await readFlash();
   const formData = await readFormData();
+  const recaptcha = recaptchaClientConfig();
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: pageCss }} />
@@ -99,28 +101,46 @@ export default async function ContactPage() {
                               Contact us via form
                             </a>
                             <div className="contact-form" id="contactForm" data-keep-open={messages.success || messages.error ? '1' : undefined}>
-                              <form action="/contact/send" method="POST">
+                              <form
+                                action="/contact/send"
+                                method="POST"
+                                data-recaptcha-version={recaptcha?.version}
+                                data-recaptcha-site-key={recaptcha?.siteKey}
+                              >
+                                {/* Honeypot: hidden from people, bots tend to fill it in */}
+                                <div style={{ position: 'absolute', left: '-10000px', top: 'auto', width: 1, height: 1, overflow: 'hidden' }} aria-hidden="true">
+                                  <label htmlFor="contact-website">Leave this field empty</label>
+                                  <input type="text" id="contact-website" name="website" tabIndex={-1} autoComplete="off" defaultValue="" />
+                                </div>
+                                {recaptcha?.version === 'v3' && <input type="hidden" name="g-recaptcha-response" defaultValue="" />}
                                 <div className="row">
                                   <div className="col-md-6">
                                     <div className="form-group">
-                                      <input type="text" name="name" defaultValue={formData.name || ''} className="form-control" placeholder="Your name" required />
+                                      <input type="text" name="name" maxLength={100} defaultValue={formData.name || ''} className="form-control" placeholder="Your name" required />
                                     </div>
                                   </div>
                                   <div className="col-md-6">
                                     <div className="form-group">
-                                      <input type="email" name="email" defaultValue={formData.email || ''} className="form-control" placeholder="Your email" required />
+                                      <input type="email" name="email" maxLength={200} defaultValue={formData.email || ''} className="form-control" placeholder="Your email" required />
                                     </div>
                                   </div>
                                   <div className="col-md-12">
                                     <div className="form-group">
-                                      <input type="text" name="subject" defaultValue={formData.subject || ''} className="form-control" placeholder="Subject" required />
+                                      <input type="text" name="subject" maxLength={200} defaultValue={formData.subject || ''} className="form-control" placeholder="Subject" required />
                                     </div>
                                   </div>
                                   <div className="col-md-12">
                                     <div className="form-group">
-                                      <textarea name="message" className="form-control" placeholder="Your message" rows="10" required defaultValue={formData.message || ''} />
+                                      <textarea name="message" maxLength={5000} className="form-control" placeholder="Your message" rows="10" required defaultValue={formData.message || ''} />
                                     </div>
                                   </div>
+                                  {recaptcha?.version === 'v2' && (
+                                    <div className="col-md-12 text-center">
+                                      <div className="form-group recaptcha-v2">
+                                        <div className="g-recaptcha" data-sitekey={recaptcha.siteKey} style={{ display: 'inline-block' }} />
+                                      </div>
+                                    </div>
+                                  )}
                                   <div className="col-md-12 text-center">
                                     <input type="submit" className="btn btn-clean" value="Send message" />
                                   </div>
