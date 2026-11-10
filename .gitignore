@@ -1,6 +1,13 @@
 node_modules/
+.next/
+out/
 .env
+.env*.local
 *.log
 /dist/
 build/
+.DS_Store
 
+# runtime uploads on self-hosted servers
+storage/uploads/*
+!storage/uploads/.gitkeep
