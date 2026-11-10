@@ -29,8 +29,6 @@ Requires Node 18.18+.
 npm run create-admin -- <username> <email> <password>
 ```
 
-In development (not production) logging in as `superadmin` / `Admin@123` still
-creates that super-admin automatically, as before.
 
 `node scripts/seed-sample-rooms.mjs` adds one sample room per class for local testing.
 
@@ -135,5 +133,5 @@ Fixes made while porting:
 - Check-out late-stay charges use the right fields (previously always zero).
 - User-supplied text in notification emails is HTML-escaped.
 
-Not carried over: debug routes (`/debug-*`, `/test-*`), the `/register` page (its
+Not carried over: the development-only auto-created super-admin login, debug routes (`/debug-*`, `/test-*`), the `/register` page (its
 view never existed), and the unused cab/menu/manage-reservations code.

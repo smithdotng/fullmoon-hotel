@@ -11,22 +11,7 @@ export async function POST(request) {
   try {
     await dbConnect();
     const login = String(username).trim();
-    let user = await User.findOne({ $or: [{ username: login }, { email: login.toLowerCase() }] });
-
-    // Development convenience kept from the Express app: the first login as
-    // superadmin / Admin@123 creates that account. Never in production.
-    if (!user && process.env.NODE_ENV !== 'production') {
-      if ((login === 'superadmin' || login === 'superadmin@fullmoonhotels.com') && password === 'Admin@123') {
-        user = await new User({
-          username: 'superadmin',
-          email: 'superadmin@fullmoonhotels.com',
-          password: 'Admin@123',
-          role: 'super-admin',
-          canCreateUsers: true,
-          isActive: true,
-        }).save();
-      }
-    }
+    const user = await User.findOne({ $or: [{ username: login }, { email: login.toLowerCase() }] });
 
     const invalid = 'Invalid credentials. Please check your username/email and password.';
     if (!user) return flashRedirect(request, '/login', 'error', invalid);

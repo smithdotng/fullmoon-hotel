@@ -6,9 +6,13 @@ import mongoose from 'mongoose';
 import User from '../lib/models/User.js';
 
 const [argUser, argEmail, argPass] = process.argv.slice(2);
-const username = argUser || process.env.ADMIN_USERNAME || 'hugodomnique';
-const email = argEmail || process.env.ADMIN_EMAIL || 'hugo@found.ng';
-const password = argPass || process.env.ADMIN_PASSWORD || 'Admin@123';
+const username = argUser || process.env.ADMIN_USERNAME;
+const email = argEmail || process.env.ADMIN_EMAIL;
+const password = argPass || process.env.ADMIN_PASSWORD;
+if (!username || !email || !password || password.length < 8) {
+  console.error('Usage: npm run create-admin -- <username> <email> <password>   (password: 8+ characters)');
+  process.exit(1);
+}
 
 try {
   await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/fullmoonhotel');
@@ -21,7 +25,6 @@ try {
     console.log('SUPER-ADMIN CREATED SUCCESSFULLY!');
     console.log(`Username: ${username}`);
     console.log(`Email:    ${email}`);
-    if (!argPass && !process.env.ADMIN_PASSWORD) console.log('Password: Admin@123  <- change this immediately!');
     console.log('=========================================');
   }
 } catch (error) {
