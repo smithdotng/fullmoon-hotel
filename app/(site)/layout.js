@@ -135,14 +135,6 @@ export default function SiteLayout({ children }) {
         <ThemeScripts />
         <PageScript code={MENU_SCRIPT} />
         <FlashClear />
-        <script
-          dangerouslySetInnerHTML={{ __html: 'window.$zoho=window.$zoho || {};$zoho.salesiq=$zoho.salesiq||{ready:function(){}}' }}
-        />
-        <script
-          id="zsiqscript"
-          src="https://salesiq.zohopublic.com/widget?wc=siq31e1271cc04a3f3090b4ce8ef747f184e9313dde52fae02af503e50f45d8d11c"
-          defer
-        />
       </body>
     </html>
   );
