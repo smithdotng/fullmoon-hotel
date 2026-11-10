@@ -5,14 +5,12 @@
 // race React for the DOM. Pages link with plain <a> tags, so every page view is
 // a fresh load and the theme initialises exactly as it did on the Express site.
 
-export const SITE_SCRIPTS = [
-  '/js/jquery.min.js',
-  '/js/jquery-ui.js',
-  '/js/jquery.bootstrap.js',
-  '/js/jquery.magnific-popup.js',
-  '/js/jquery.owl.carousel.js',
-  '/js/main.js',
-];
+import { SITE_SCRIPTS } from './theme-scripts';
+export { SITE_SCRIPTS };
+
+// The spinner never stays longer than this, even if a script is slow or fails
+const LOADER_MAX_MS = 2500;
+const hideLoader = () => document.querySelectorAll('.page-loader').forEach((el) => el.classList.add('loaded'));
 
 export const ADMIN_SCRIPTS = ['https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js'];
 
@@ -43,6 +41,11 @@ function installInlineHandlerShim() {
         const attr = `data-on${type}`;
         const el = event.target instanceof Element ? event.target.closest(`[${attr}]`) : null;
         if (!el) return;
+        // An image fallback runs once, so a missing fallback image can't loop forever
+        if (type === 'error') {
+          if (el.dataset.fmErrorHandled) return;
+          el.dataset.fmErrorHandled = '1';
+        }
         try {
           const result = new Function('event', el.getAttribute(attr)).call(el, event);
           if (result === false) {
@@ -73,11 +76,14 @@ export function themeReady(kind = 'site') {
   const key = `__fmReady_${kind}`;
   if (!window[key]) {
     const list = kind === 'admin' ? ADMIN_SCRIPTS : SITE_SCRIPTS;
-    window[key] = (async () => {
-      for (const src of list) await loadScript(src);
-      // main.js hides the loader on window "load", which has usually fired by now
-      setTimeout(() => document.querySelectorAll('.page-loader').forEach((el) => el.classList.add('loaded')), 400);
-    })();
+    const cap = setTimeout(hideLoader, LOADER_MAX_MS);
+    // Insert them all at once: async=false scripts download in parallel but run in order.
+    window[key] = Promise.all(list.map(loadScript)).then(() => {
+      // main.js has now set up the carousels and widgets: reveal the page right away
+      // (the theme itself waits for every image to finish plus one second).
+      clearTimeout(cap);
+      requestAnimationFrame(hideLoader);
+    });
   }
   return window[key];
 }

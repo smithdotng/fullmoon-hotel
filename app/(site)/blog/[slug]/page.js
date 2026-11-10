@@ -93,7 +93,7 @@ export default async function BlogPostPage({ params }) {
                   <a href={`/blog/${post.slug}`}>
                     <article>
                       <div className="image">
-                        <img src={post.featuredImage || '/assets/images/activity-1.jpg'} alt={post.title} />
+                        <img loading="lazy" decoding="async" src={post.featuredImage || '/assets/images/activity-1.jpg'} alt={post.title} />
                       </div>
                       <div className="text">
                         <h2 className="h4 title">{post.title}</h2>

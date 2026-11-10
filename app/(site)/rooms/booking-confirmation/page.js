@@ -262,7 +262,7 @@ export default async function BookingConfirmationPage({ searchParams }) {
                             <div className="image">
                               <a href={`/rooms/${room._id}`}>
                                 
-      <img src={room.images?.[0] || '/assets/images/room-default.jpg'} alt={room.type} />
+      <img loading="lazy" decoding="async" src={room.images?.[0] || '/assets/images/room-default.jpg'} alt={room.type} />
       
                               </a>
                             </div>

@@ -35,7 +35,7 @@ export default function SiteFooter() {
               <small>Copyright © {new Date().getFullYear()} Full Moon Hotels | All Rights Reserved</small>
             </div>
             <div className="col-sm-12 text-center">
-              <img src="/assets/images/logo.png" alt="Full Moon Hotels" />
+              <img loading="lazy" decoding="async" src="/assets/images/logo.png" alt="Full Moon Hotels" />
             </div>
           </div>
         </div>

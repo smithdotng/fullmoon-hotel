@@ -40,12 +40,12 @@ export default async function RoomDetailPage({ params }) {
                 {images.length > 0
                   ? images.map((image, i) => (
                       <div className="item" key={i} style={{ backgroundImage: `url(${image})` }}>
-                        <img src={image} alt={room.type} />
+                        <img loading="lazy" decoding="async" src={image} alt={room.type} />
                       </div>
                     ))
                   : ['/assets/images/room-4.jpg', '/assets/images/room-2.jpg', '/assets/images/room-1.jpg'].map((src) => (
                       <div className="item" key={src} style={{ backgroundImage: `url(${src})` }}>
-                        <img src={src} alt="" />
+                        <img loading="lazy" decoding="async" src={src} alt="" />
                       </div>
                     ))}
               </div>
@@ -562,7 +562,7 @@ export default async function RoomDetailPage({ params }) {
                   <div key={index} className={index === 0 ? 'col-xs-12 col-md-8' : 'col-xs-6 col-md-4'}>
                     <figure>
                       <figcaption style={{ backgroundImage: `url(${image})` }}>
-                        <img src={image} alt={`${room.type} - View ${index + 1}`} />
+                        <img loading="lazy" decoding="async" src={image} alt={`${room.type} - View ${index + 1}`} />
                       </figcaption>
                       <a href={image} className="btn btn-clean" data-lightbox="room-gallery">
                         View Image
@@ -580,7 +580,7 @@ export default async function RoomDetailPage({ params }) {
                   <div key={file} className={col}>
                     <figure>
                       <figcaption style={{ backgroundImage: `url(/assets/images/${file})` }}>
-                        <img src={`/assets/images/${file}`} alt={alt} />
+                        <img loading="lazy" decoding="async" src={`/assets/images/${file}`} alt={alt} />
                       </figcaption>
                       <a href={`/assets/images/${file}`} className="btn btn-clean" data-lightbox="room-gallery">
                         {label}

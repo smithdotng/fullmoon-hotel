@@ -36,7 +36,7 @@ function RoomDetails({ r }) {
               <div className={`owl-slider owl-theme owl-slider-gallery ${!r.available ? 'image-overlay unavailable' : ''}`} data-room-id={r._id}>
                 {images.map((image, index) => (
                   <div className="item" key={index} style={{ backgroundImage: `url(${image})` }}>
-                    <img src={image} alt={`${r.type} - Image ${index + 1}`} />
+                    <img loading="lazy" decoding="async" src={image} alt={`${r.type} - Image ${index + 1}`} />
                     <div className="image-counter">
                       <i className="fa fa-camera" /> {index + 1} / {images.length}
                     </div>
@@ -48,7 +48,7 @@ function RoomDetails({ r }) {
                 <div className="gallery-thumbnails" id={`thumbnails-${r._id}`}>
                   {images.map((image, index) => (
                     <div key={index} className={`thumb ${index === 0 ? 'active' : ''}`} data-index={index}>
-                      <img src={image} alt={`Thumbnail ${index + 1}`} />
+                      <img loading="lazy" decoding="async" src={image} alt={`Thumbnail ${index + 1}`} />
                     </div>
                   ))}
                 </div>
@@ -59,7 +59,7 @@ function RoomDetails({ r }) {
             <div className={`owl-slider owl-theme owl-slider-gallery ${!r.available ? 'image-overlay unavailable' : ''}`}>
               {['/assets/images/room-4.jpg', '/assets/images/room-2.jpg', '/assets/images/room-1.jpg'].map((src, i) => (
                 <div className="item" key={src} style={{ backgroundImage: `url(${src})` }}>
-                  <img src={src} alt={r.type} />
+                  <img loading="lazy" decoding="async" src={src} alt={r.type} />
                   <div className="image-counter">
                     <i className="fa fa-camera" /> {i + 1} / 3
                   </div>
@@ -627,7 +627,7 @@ export default async function RoomCategoryPage({ params }) {
                 <div key={index} className={index % 6 === 0 ? 'col-xs-12 col-md-8' : 'col-xs-6 col-md-4'}>
                   <figure>
                     <figcaption style={{ backgroundImage: `url(${item.image})` }}>
-                      <img src={item.image} alt={`${item.roomType} - Room ${item.roomNumber}`} />
+                      <img loading="lazy" decoding="async" src={item.image} alt={`${item.roomType} - Room ${item.roomNumber}`} />
                     </figcaption>
                     <div className="image-caption">
                       <a href={`/rooms/${item.roomId}`} className="btn btn-clean" target="_blank">

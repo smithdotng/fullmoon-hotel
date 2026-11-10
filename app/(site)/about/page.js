@@ -178,7 +178,7 @@ export default function AboutPage() {
                     </div>
                   </div>
                   <div className="image" style={{ backgroundImage: "url(/assets/images/room-penthouse-single.jpg)" }}>
-                    <img src="/assets/images/room-penthouse-single.jpg" alt="Full Moon Hotels Location" />
+                    <img loading="lazy" decoding="async" src="/assets/images/room-penthouse-single.jpg" alt="Full Moon Hotels Location" />
                   </div>
                 </div>
                 {/* === Premium Facilities Block === */}
@@ -220,7 +220,7 @@ export default function AboutPage() {
                     </div>
                   </div>
                   <div className="image" style={{ backgroundImage: "url(/assets/images/room-penthouse-double.jpg)" }}>
-                    <img src="/assets/images/room-penthouse-double.jpg" alt="Full Moon Hotels Facilities" />
+                    <img loading="lazy" decoding="async" src="/assets/images/room-penthouse-double.jpg" alt="Full Moon Hotels Facilities" />
                   </div>
                 </div>
                 {/* === Community & Values === */}

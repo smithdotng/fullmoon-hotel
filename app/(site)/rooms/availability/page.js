@@ -136,7 +136,7 @@ export default async function AvailabilityPage({ searchParams }) {
                     <div className="cart-block cart-block-item clearfix">
                       <div className="image">
                         <a href={`/rooms/${room._id}`} target="_blank">
-                          <img src={room.images?.[0] || '/assets/images/room-default.jpg'} alt={room.type} />
+                          <img loading="lazy" decoding="async" src={room.images?.[0] || '/assets/images/room-default.jpg'} alt={room.type} />
                         </a>
                       </div>
                       <div className="title">

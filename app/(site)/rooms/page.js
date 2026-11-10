@@ -47,7 +47,7 @@ export default async function RoomsPage({ searchParams }) {
                       <div className="item">
                         <article>
                           <div className="image">
-                            <img src={room.images?.[0] || '/assets/images/room-default.jpg'} alt={room.type} />
+                            <img loading="lazy" decoding="async" src={room.images?.[0] || '/assets/images/room-default.jpg'} alt={room.type} />
                           </div>
                           <div className="details">
                             <div className="text">
@@ -233,7 +233,7 @@ export default async function RoomsPage({ searchParams }) {
             <div className="col-xs-12 col-md-8">
               <figure>
                 <figcaption style={{ backgroundImage: "url(/assets/images/cigar-lounge.jpg)" }}>
-                  <img src="/assets/images/cigar-lounge.jpg" alt="Chic Open-Air Escape" />
+                  <img loading="lazy" decoding="async" src="/assets/images/cigar-lounge.jpg" alt="Chic Open-Air Escape" />
                 </figcaption>
                 <a href="/gallery" className="btn btn-clean">
                   Chic Open-Air Escape
@@ -244,7 +244,7 @@ export default async function RoomsPage({ searchParams }) {
             <div className="col-xs-6 col-md-4">
               <figure>
                 <figcaption style={{ backgroundImage: "url(/assets/images/lobby-1.jpg)" }}>
-                  <img src="/assets/images/lobby-1.jpg" alt="Premium Ambience" />
+                  <img loading="lazy" decoding="async" src="/assets/images/lobby-1.jpg" alt="Premium Ambience" />
                 </figcaption>
                 <a href="/gallery" className="btn btn-clean">
                   Premium Ambience
@@ -255,7 +255,7 @@ export default async function RoomsPage({ searchParams }) {
             <div className="col-xs-6 col-md-4">
               <figure>
                 <figcaption style={{ backgroundImage: "url(/assets/images/coffeebar-1.jpg)" }}>
-                  <img src="/assets/images/coffeebar-1.jpg" alt="Intimate Coffee Nook" />
+                  <img loading="lazy" decoding="async" src="/assets/images/coffeebar-1.jpg" alt="Intimate Coffee Nook" />
                 </figcaption>
                 <a href="/gallery" className="btn btn-clean">
                   Intimate Coffee Nook
@@ -266,7 +266,7 @@ export default async function RoomsPage({ searchParams }) {
             <div className="col-xs-6 col-md-4">
               <figure>
                 <figcaption style={{ backgroundImage: "url(/assets/images/karaoke-bar.jpg)" }}>
-                  <img src="/assets/images/karaoke-bar.jpg" alt="Exclusive Music Lounge" />
+                  <img loading="lazy" decoding="async" src="/assets/images/karaoke-bar.jpg" alt="Exclusive Music Lounge" />
                 </figcaption>
                 <a href="/gallery" className="btn btn-clean">
                   Karaoke Lounge
@@ -277,7 +277,7 @@ export default async function RoomsPage({ searchParams }) {
             <div className="col-xs-6 col-md-4">
               <figure>
                 <figcaption style={{ backgroundImage: "url(/assets/images/gallery-dining.jpg)" }}>
-                  <img src="/assets/images/gallery-dining.jpg" alt="Fine Dining" />
+                  <img loading="lazy" decoding="async" src="/assets/images/gallery-dining.jpg" alt="Fine Dining" />
                 </figcaption>
                 <a href="/gallery" className="btn btn-clean">
                   Fine Dining

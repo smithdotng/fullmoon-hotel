@@ -25,7 +25,7 @@ function FacilityCard({ facility, user }) {
   return (
     <div className="col-md-6">
       <div className="facility-card">
-        <img src={facility.image} alt={facility.name} className="facility-image" />
+        <img loading="lazy" decoding="async" src={facility.image} alt={facility.name} className="facility-image" />
         <h3>{facility.name}</h3>
         <p>{facility.description}</p>
         <div className="facility-meta">
@@ -121,15 +121,15 @@ export default async function FacilitiesPage() {
               <div className="owl-slider owl-theme owl-slider-gallery">
                 {/* === slide item === */}
                 <div className="item" style={{ backgroundImage: "url(/assets/images/cigar-lounge.jpg)" }}>
-                  <img src="/assets/images/cigar-lounge.jpg" alt="Full Moon Hotels Facilities" />
+                  <img loading="lazy" decoding="async" src="/assets/images/cigar-lounge.jpg" alt="Full Moon Hotels Facilities" />
                 </div>
                 {/* === slide item === */}
                 <div className="item" style={{ backgroundImage: "url(/assets/images/coffeebar-1.jpg)" }}>
-                  <img src="/assets/images/facility-spa.jpg" alt="Spa & Wellness Center" />
+                  <img loading="lazy" decoding="async" src="/assets/images/facility-spa.jpg" alt="Spa & Wellness Center" />
                 </div>
                 {/* === slide item === */}
                 <div className="item" style={{ backgroundImage: "url(/assets/images/facility-gym.jpg)" }}>
-                  <img src="/assets/images/facility-gym.jpg" alt="State-of-the-art Gym" />
+                  <img loading="lazy" decoding="async" src="/assets/images/facility-gym.jpg" alt="State-of-the-art Gym" />
                 </div>
               </div>
               {/* /owl-slider */}

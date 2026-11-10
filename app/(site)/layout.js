@@ -4,6 +4,7 @@ import ThemeScripts from '@/components/ThemeScripts';
 import PageScript from '@/components/PageScript';
 import FlashClear from '@/components/FlashClear';
 import layoutCss from '@/components/site-layout-css';
+import { SITE_SCRIPTS } from '@/components/theme-scripts';
 
 const SITE_URL = process.env.SITE_URL || 'https://fullmoon.found.ng';
 const DEFAULT_TITLE = 'Full Moon Hotels - Luxury Accommodation in Owerri';
@@ -91,6 +92,12 @@ $(document).ready(function() {
 });
 `;
 
+// If JavaScript fails entirely the spinner still clears after 4 seconds
+const LOADER_FALLBACK_CSS = `
+.page-loader { animation: fm-loader-out 0s linear 4s forwards; }
+@keyframes fm-loader-out { to { width: 0; visibility: hidden; } }
+`;
+
 export default function SiteLayout({ children }) {
   return (
     <html lang="en" prefix="og: https://ogp.me/ns#">
@@ -100,7 +107,10 @@ export default function SiteLayout({ children }) {
         ))}
         <link href="https://fonts.googleapis.com/css?family=Montserrat:300,500&subset=latin-ext" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css?family=Playfair+Display:400,700&subset=latin-ext" rel="stylesheet" />
-        <style dangerouslySetInnerHTML={{ __html: layoutCss }} />
+        {SITE_SCRIPTS.map((src) => (
+          <link key={src} rel="preload" as="script" href={src} />
+        ))}
+        <style dangerouslySetInnerHTML={{ __html: layoutCss + LOADER_FALLBACK_CSS }} />
       </head>
       <body>
         <div className="page-loader" />

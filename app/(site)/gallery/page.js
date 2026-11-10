@@ -72,7 +72,7 @@ export default function GalleryPage() {
                         <figure>
                           <a href="/assets/images/cigar-lounge.jpg" title="Chic Open-Air Escape">
                             <figcaption style={{ backgroundImage: "url(/assets/images/cigar-lounge.jpg)" }}>
-                              <img src="/assets/images/cigar-lounge.jpg" alt="Chic Open-Air Escape" />
+                              <img loading="lazy" decoding="async" src="/assets/images/cigar-lounge.jpg" alt="Chic Open-Air Escape" />
                             </figcaption>
                             <span className="btn btn-clean">
                               Chic Open-Air Escape
@@ -85,7 +85,7 @@ export default function GalleryPage() {
                         <figure>
                           <a href="/assets/images/lobby-1.jpg" title="Premium Ambience">
                             <figcaption style={{ backgroundImage: "url(/assets/images/lobby-1.jpg)" }}>
-                              <img src="/assets/images/lobby-1.jpg" alt="Premium Ambience" />
+                              <img loading="lazy" decoding="async" src="/assets/images/lobby-1.jpg" alt="Premium Ambience" />
                             </figcaption>
                             <span className="btn btn-clean">
                               Premium Ambience
@@ -98,7 +98,7 @@ export default function GalleryPage() {
                         <figure>
                           <a href="/assets/images/coffeebar-1.jpg" title="Intimate Coffee Nook">
                             <figcaption style={{ backgroundImage: "url(/assets/images/coffeebar-1.jpg)" }}>
-                              <img src="/assets/images/coffeebar-1.jpg" alt="Intimate Coffee Nook" />
+                              <img loading="lazy" decoding="async" src="/assets/images/coffeebar-1.jpg" alt="Intimate Coffee Nook" />
                             </figcaption>
                             <span className="btn btn-clean">
                               Intimate Coffee Nook
@@ -111,7 +111,7 @@ export default function GalleryPage() {
                         <figure>
                           <a href="/assets/images/karaoke-bar.jpg" title="Karaoke Lounge">
                             <figcaption style={{ backgroundImage: "url(/assets/images/karaoke-bar.jpg)" }}>
-                              <img src="/assets/images/karaoke-bar.jpg" alt="Exclusive Music Lounge" />
+                              <img loading="lazy" decoding="async" src="/assets/images/karaoke-bar.jpg" alt="Exclusive Music Lounge" />
                             </figcaption>
                             <span className="btn btn-clean">
                               Karaoke Lounge
@@ -124,7 +124,7 @@ export default function GalleryPage() {
                         <figure>
                           <a href="/assets/images/gallery-dining.jpg" title="Fine Dining">
                             <figcaption style={{ backgroundImage: "url(/assets/images/gallery-dining.jpg)" }}>
-                              <img src="/assets/images/gallery-dining.jpg" alt="Fine Dining" />
+                              <img loading="lazy" decoding="async" src="/assets/images/gallery-dining.jpg" alt="Fine Dining" />
                             </figcaption>
                             <span className="btn btn-clean">
                               Fine Dining
@@ -156,7 +156,7 @@ export default function GalleryPage() {
                         <figure>
                           <a href="/assets/images/room-deluxe.jpg" title="Deluxe Room">
                             <figcaption style={{ backgroundImage: "url(/assets/images/room-deluxe.jpg)" }}>
-                              <img src="/assets/images/room-deluxe.jpg" alt="Deluxe Room" />
+                              <img loading="lazy" decoding="async" src="/assets/images/room-deluxe.jpg" alt="Deluxe Room" />
                             </figcaption>
                             <span className="btn btn-clean">
                               Deluxe Room
@@ -169,7 +169,7 @@ export default function GalleryPage() {
                         <figure>
                           <a href="/assets/images/room-executive.jpg" title="Executive Suite">
                             <figcaption style={{ backgroundImage: "url(/assets/images/room-executive.jpg)" }}>
-                              <img src="/assets/images/room-executive.jpg" alt="Executive Suite" />
+                              <img loading="lazy" decoding="async" src="/assets/images/room-executive.jpg" alt="Executive Suite" />
                             </figcaption>
                             <span className="btn btn-clean">
                               Executive Suite
@@ -182,7 +182,7 @@ export default function GalleryPage() {
                         <figure>
                           <a href="/assets/images/room-penthouse-single.jpg" title="Penthouse Suite">
                             <figcaption style={{ backgroundImage: "url(/assets/images/room-penthouse-single.jpg)" }}>
-                              <img src="/assets/images/room-penthouse-single.jpg" alt="Penthouse Suite" />
+                              <img loading="lazy" decoding="async" src="/assets/images/room-penthouse-single.jpg" alt="Penthouse Suite" />
                             </figcaption>
                             <span className="btn btn-clean">
                               Penthouse Suite
@@ -195,7 +195,7 @@ export default function GalleryPage() {
                         <figure>
                           <a href="/assets/images/room-premiere.jpg" title="Premiere Room">
                             <figcaption style={{ backgroundImage: "url(/assets/images/room-premiere.jpg)" }}>
-                              <img src="/assets/images/room-premiere.jpg" alt="Premiere Room" />
+                              <img loading="lazy" decoding="async" src="/assets/images/room-premiere.jpg" alt="Premiere Room" />
                             </figcaption>
                             <span className="btn btn-clean">
                               Premiere Room
@@ -208,7 +208,7 @@ export default function GalleryPage() {
                         <figure>
                           <a href="/assets/images/room-annex.jpg" title="Annex Room">
                             <figcaption style={{ backgroundImage: "url(/assets/images/room-annex.jpg)" }}>
-                              <img src="/assets/images/room-annex.jpg" alt="Annex Room" />
+                              <img loading="lazy" decoding="async" src="/assets/images/room-annex.jpg" alt="Annex Room" />
                             </figcaption>
                             <span className="btn btn-clean">
                               Annex Room
@@ -240,7 +240,7 @@ export default function GalleryPage() {
                         <figure>
                           <a href="/assets/images/facility-spa.jpg" title="Spa & Wellness Center">
                             <figcaption style={{ backgroundImage: "url(/assets/images/facility-spa.jpg)" }}>
-                              <img src="/assets/images/facility-spa.jpg" alt="Spa & Wellness Center" />
+                              <img loading="lazy" decoding="async" src="/assets/images/facility-spa.jpg" alt="Spa & Wellness Center" />
                             </figcaption>
                             <span className="btn btn-clean">
                               Spa & Wellness
@@ -253,7 +253,7 @@ export default function GalleryPage() {
                         <figure>
                           <a href="/assets/images/facility-gym.jpg" title="Fitness Center">
                             <figcaption style={{ backgroundImage: "url(/assets/images/facility-gym.jpg)" }}>
-                              <img src="/assets/images/facility-gym.jpg" alt="Fitness Center" />
+                              <img loading="lazy" decoding="async" src="/assets/images/facility-gym.jpg" alt="Fitness Center" />
                             </figcaption>
                             <span className="btn btn-clean">
                               Fitness Center
@@ -266,7 +266,7 @@ export default function GalleryPage() {
                         <figure>
                           <a href="/assets/images/facility-pool.jpg" title="Swimming Pool">
                             <figcaption style={{ backgroundImage: "url(/assets/images/facility-pool.jpg)" }}>
-                              <img src="/assets/images/facility-pool.jpg" alt="Swimming Pool" />
+                              <img loading="lazy" decoding="async" src="/assets/images/facility-pool.jpg" alt="Swimming Pool" />
                             </figcaption>
                             <span className="btn btn-clean">
                               Swimming Pool
@@ -279,7 +279,7 @@ export default function GalleryPage() {
                         <figure>
                           <a href="/assets/images/facility-business.jpg" title="Business Center">
                             <figcaption style={{ backgroundImage: "url(/assets/images/facility-business.jpg)" }}>
-                              <img src="/assets/images/facility-business.jpg" alt="Business Center" />
+                              <img loading="lazy" decoding="async" src="/assets/images/facility-business.jpg" alt="Business Center" />
                             </figcaption>
                             <span className="btn btn-clean">
                               Business Center
@@ -292,7 +292,7 @@ export default function GalleryPage() {
                         <figure>
                           <a href="/assets/images/facility-event.jpg" title="Event Spaces">
                             <figcaption style={{ backgroundImage: "url(/assets/images/facility-event.jpg)" }}>
-                              <img src="/assets/images/facility-event.jpg" alt="Event Spaces" />
+                              <img loading="lazy" decoding="async" src="/assets/images/facility-event.jpg" alt="Event Spaces" />
                             </figcaption>
                             <span className="btn btn-clean">
                               Event Spaces

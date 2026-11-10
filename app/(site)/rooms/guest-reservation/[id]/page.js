@@ -301,7 +301,7 @@ export default async function GuestReservationPage({ params }) {
                       <div className="image">
                         <a href={`/rooms/${reservation.room._id}`}>
                           
-      <img src={reservation.room.images?.[0] || '/assets/images/room-default.jpg'} alt={reservation.room.type} />
+      <img loading="lazy" decoding="async" src={reservation.room.images?.[0] || '/assets/images/room-default.jpg'} alt={reservation.room.type} />
       
                         </a>
                       </div>

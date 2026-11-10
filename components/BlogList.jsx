@@ -38,7 +38,7 @@ export default function BlogList({ heading = 'Blog', subheading = 'Events & cult
                     <a href={`/blog/${blog.slug}`}>
                       <article>
                         <div className="image">
-                          <img src={blog.featuredImage || '/assets/images/activity-1.jpg'} alt={blog.title} />
+                          <img loading="lazy" decoding="async" src={blog.featuredImage || '/assets/images/activity-1.jpg'} alt={blog.title} />
                         </div>
                         <div className="text">
                           <DateParts date={blog.createdAt} />
